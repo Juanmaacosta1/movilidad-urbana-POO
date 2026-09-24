@@ -1,9 +1,11 @@
 package modelo;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class Viaje {
 
+	private String id_viaje; //identificador de viaje AGREGADO
 	private int tiempoEstimado;
 	private double factorDemora;
 	private double costoViaje;
@@ -17,7 +19,8 @@ public class Viaje {
 	private Ubicacion origen;
 	private Ubicacion destino;
 
-	public Viaje(Cliente cliente, Ubicacion origen, Ubicacion destino, int tiempoEstimado, double factorDemora) {
+	public Viaje(String id_viaje,Cliente cliente, Ubicacion origen, Ubicacion destino, int tiempoEstimado, double factorDemora) {
+		this.id_viaje=id_viaje;
 		this.cliente = cliente;
 		this.origen = origen;
 		this.destino = destino;
@@ -75,6 +78,15 @@ public class Viaje {
 		this.conductor = conductor;
 	}
 
+	
+	public String getId_viaje() {
+		return id_viaje;
+	}
+
+	public void setId_viaje(String id_viaje) {
+		this.id_viaje = id_viaje;
+	}
+
 	public Cliente getCliente() {
 		return cliente;
 	}
@@ -123,5 +135,32 @@ public class Viaje {
 		this.destino = destino;
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(id_viaje);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Viaje other = (Viaje) obj;
+		return Objects.equals(id_viaje, other.id_viaje);
+	}
+
+	@Override
+	public String toString() {
+		return "Viaje [id_viaje=" + id_viaje + ", tiempoEstimado=" + tiempoEstimado + ", factorDemora=" + factorDemora
+				+ ", costoViaje=" + costoViaje + ", fechaHora=" + fechaHora + ", vehiculo=" + vehiculo + ", conductor="
+				+ conductor + ", cliente=" + cliente + ", estado=" + estado + ", calificacionConductor="
+				+ calificacionConductor + ", calificacionCliente=" + calificacionCliente + ", origen=" + origen
+				+ ", destino=" + destino + "]";
+	}
+
+	
 	
 }
