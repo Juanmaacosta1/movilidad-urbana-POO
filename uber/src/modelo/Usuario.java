@@ -14,13 +14,12 @@ public abstract class Usuario {
 	private List<Calificacion> calificaciones;
 
 	public Usuario(String nombre, String documento, String telefono, String email) {
-		super();
-		this.nombre = nombre;
-		this.documento = documento;
-		this.telefono = telefono;
-		this.email = email;
-		this.totalCalificaciones=calificaciones.size();
-		this.calificaciones= new ArrayList<Calificacion>();
+	    this.nombre = nombre;
+	    this.documento = documento;
+	    this.telefono = telefono;
+	    this.email = email;
+	    this.calificaciones = new ArrayList<Calificacion>(); 
+	    this.totalCalificaciones = calificaciones.size();     
 	}
 	
 	 protected abstract int getLimiteCalificaciones();
