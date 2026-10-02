@@ -54,9 +54,12 @@ public class Servicio {
 		this.precioMinuto = precioMinuto;
 	}
 
-	// ------------------------
-	// ´posible metodo
-	// ------------------------
+	public double calcularCosto(double km, double minutos) {
+		if (km < 0 || minutos < 0)
+			throw new IllegalArgumentException("Kilometros y minutos no pueden ser negativos");
+		return tarifaBase + precioKm * km + precioMinuto * minutos;
+	}
+
 	@Override
 	public String toString() {
 		return "Servicio [nombre=" + nombre + ", tarifaBase=" + tarifaBase + ", precioKm=" + precioKm
