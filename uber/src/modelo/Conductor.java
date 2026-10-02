@@ -1,21 +1,14 @@
 package modelo;
 
-public class Conductor extends Usuario {
-	private boolean disponible;
-	private static int limiteCalificaciones = 200;
+import java.util.List;
 
-	public Conductor(String nombre, String documento, String telefono, String email, int totalCalificaciones,
-			boolean disponible) {
-		super(nombre, documento, telefono, email);
-		this.disponible = disponible;
-		
-		
-	}
+public class Conductor {
 
-	@Override
-	protected int getLimiteCalificaciones() {
-		// TODO Auto-generated method stub
-		return limiteCalificaciones;
-	}
-
+	private String licenciaConducir;
+	private List<Vehiculo> vehiculos;
+	private Vehiculo vehiculoActivo;
+	private CategoriaVehiculo categoriaVehiculoActivo;
+	private EstadoConductor estadoConductor = EstadoConductor.FUERA_DE_SERVICIO;
+	private List<Viaje> viaje;
+	
 }
