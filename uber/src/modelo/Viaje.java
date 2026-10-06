@@ -63,7 +63,7 @@ public class Viaje {
 
 	}
 
-	public void rechazar(LocalDateTime fechaHora, Usuario usuario, String motivo) {
+	public void rechazar(LocalDateTime fechaHora) {
 
 	}
 

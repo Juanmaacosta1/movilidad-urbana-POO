@@ -2,9 +2,9 @@ package modelo;
 
 public enum CategoriaVehiculo {
 	
-	ESTANDAR (0),
-	CONFORT (1),
-	PREMIUM (2);
+	ESTANDAR (1),
+	CONFORT (2),
+	PREMIUM (3);
 	
 	private final int valor;
 	

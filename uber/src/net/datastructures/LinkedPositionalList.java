@@ -418,7 +418,7 @@ public class LinkedPositionalList<E> implements PositionalList<E> {
       sb.append(walk.getElement());
       walk = walk.getNext();
       if (walk != trailer)
-        sb.append("\n\n ");
+        sb.append(", ");
     }
     sb.append(")");
     return sb.toString();

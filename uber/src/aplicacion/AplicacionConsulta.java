@@ -1,0 +1,10 @@
+package aplicacion;
+
+public class AplicacionConsulta {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+	}
+
+}

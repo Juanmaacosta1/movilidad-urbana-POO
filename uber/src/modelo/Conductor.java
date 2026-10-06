@@ -27,7 +27,7 @@ public class Conductor {
 	
 	public void agregarVehiculo(Vehiculo vehiculo) {
 		if (vehiculo == null)
-			throw new IllegalArgumentException("El vehículo no puede ser nuloo");
+			throw new IllegalArgumentException("El vehículo no puede ser nulo");
 		else if (!vehiculos.contains(vehiculo))
 			vehiculos.add(vehiculo);
 	}
@@ -39,6 +39,35 @@ public class Conductor {
 			this.viajes.add(nuevoViaje);
 		}
 
+	}
+
+	/** Cambia el vehículo con el que trabaja; debe ser uno de los registrados. */
+	public void setVehiculoActivo(Vehiculo vehiculo) {
+		if (vehiculo == null) {
+			throw new IllegalArgumentException("El vehículo no puede ser nulo");
+		}
+		if (!vehiculos.contains(vehiculo)) {
+			throw new IllegalArgumentException("El vehículo no pertenece al conductor");
+		}
+		this.vehiculoActivo = vehiculo;
+	}
+
+	/**
+	 * Categoría más baja de viaje que acepta tomar (el límite superior es la
+	 * categoría de su vehículo activo).
+	 */
+	public void setCategoriaVehiculoActivo(CategoriaVehiculo categoria) {
+		if (categoria == null) {
+			throw new IllegalArgumentException("La categoría no puede ser nula");
+		}
+		this.categoriaVehiculoActivo = categoria;
+	}
+
+	public void setEstadoConductor(EstadoConductor estado) {
+		if (estado == null) {
+			throw new IllegalArgumentException("El estado no puede ser nulo");
+		}
+		this.estadoConductor = estado;
 	}
 
 	public String getLicenciaConducir() {

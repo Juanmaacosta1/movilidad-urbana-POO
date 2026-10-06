@@ -200,8 +200,6 @@ public class TreeMap<K,V> extends AbstractSortedMap<K,V> {
   protected Entry<K,V> remove(Position<Entry<K,V>> p) { return tree.remove(p); }
   protected void rotate(Position<Entry<K,V>> p) { tree.rotate(p); }
   protected Position<Entry<K,V>> restructure(Position<Entry<K,V>> x) { return tree.restructure(x); }
-  
-  public Iterable <Position<Entry<K,V>>> inorder() { return tree.inorder(); }
 
   /**
    * Returns the position in p's subtree having the given key (or else the terminal leaf).

@@ -7,15 +7,10 @@ private List<Viaje> viajes = new ArrayList<>();
 
 public boolean enViaje() {
     for (Viaje viaje : viajes) {
-        EstadoViaje estado = viaje.estadoActual(); // AGG EL METODO 
-        if (estado != EstadoViaje.FINALIZADO)
-             return true;
-        else if (estado != EstadoViaje.CANCELADO) {
+        EstadoViaje estado = viaje.estadoActual();
+        if (estado == EstadoViaje.SOLICITADO || estado == EstadoViaje.ACEPTADO || estado == EstadoViaje.INICIADO) {
             return true;
         }
-        else if (estado != EstadoViaje.RECHAZADO) {
-            return true;  
-            } 
     }
     return false;
 }
