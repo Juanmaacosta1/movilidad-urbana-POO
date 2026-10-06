@@ -1,98 +1,94 @@
 package modelo;
 
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Objects;
+import java.util.Set;
 
-public abstract class Vehiculo {
+/** Vehículo registrado por un conductor. Presta entre 1 y 2 tipos de servicio (sin repetir). */
+public class Vehiculo {
+    private final String patente;
+    private final String modelo;
+    private final int capacidadPasajeros;
+    private final CategoriaVehiculo categoriaVehiculo;
+    private final TipoVehiculo tipoVehiculo;
+    private final Set<TipoServicio> tipoServicios = EnumSet.noneOf(TipoServicio.class);
+    private Ubicacion ubicacion;
 
-	private String patente;
-	private String modelo;
-	private boolean aceptaPasajero;
-	private boolean aceptaCarga;
-	private Ubicacion ubicacion;
-	private Servicio servicio;
+    /** Crea un vehículo con su primer tipo de servicio (multiplicidad mínima 1). */
+    public Vehiculo(String patente, String modelo, int capacidadPasajeros,
+                    CategoriaVehiculo categoriaVehiculo, TipoVehiculo tipoVehiculo,
+                    TipoServicio tipoServicio) {
+        if (patente == null || patente.isBlank()) {
+            throw new IllegalArgumentException("La patente es obligatoria");
+        }
+        if (modelo == null || modelo.isBlank()) {
+            throw new IllegalArgumentException("El modelo es obligatorio");
+        }
+        if (capacidadPasajeros <= 0) {
+            throw new IllegalArgumentException("La capacidad de pasajeros debe ser mayor a cero");
+        }
+        if (categoriaVehiculo == null || tipoVehiculo == null) {
+            throw new IllegalArgumentException("Categoría y tipo de vehículo son obligatorios");
+        }
 
-	public Vehiculo(String patente, String modelo, boolean aceptaPasajero, boolean aceptaCarga, Ubicacion ubicacion,
-			Servicio servicio) {
-		super();
-		this.patente = patente;
-		this.modelo = modelo;
-		this.aceptaPasajero = aceptaPasajero;
-		this.aceptaCarga = aceptaCarga;
-		this.ubicacion = ubicacion;
-		this.servicio = servicio;
-	}
+        this.patente = patente.trim().toUpperCase();
+        this.modelo = modelo;
+        this.capacidadPasajeros = capacidadPasajeros;
+        this.categoriaVehiculo = categoriaVehiculo;
+        this.tipoVehiculo = tipoVehiculo;
 
-	public String getPatente() {
-		return patente;
-	}
+        agregarTipoServicio(tipoServicio);
+    }
 
-	public void setPatente(String patente) {
-		this.patente = patente;
-	}
+    public void agregarTipoServicio(TipoServicio tipoServicio) {
+        if (tipoServicio == null) {
+            throw new IllegalArgumentException("El tipo de servicio no puede ser nulo");
+        }
+        tipoServicios.add(tipoServicio);
+    }
 
-	public String getModelo() {
-		return modelo;
-	}
+    public boolean presta(TipoServicio tipoServicio) {
+        return tipoServicios.contains(tipoServicio);
+    }
 
-	public void setModelo(String modelo) {
-		this.modelo = modelo;
-	}
+    public void cambiarUbicacion(Ubicacion ubicacion) {
+        if (ubicacion == null) {
+            throw new IllegalArgumentException("La ubicación no puede ser nula");
+        }
+        this.ubicacion = ubicacion;
+    }
 
-	public boolean isAceptaPasajero() {
-		return aceptaPasajero;
-	}
+    public String getPatente() { return patente; }
+    public String getModelo() { return modelo; }
+    public int getCapacidadPasajeros() { return capacidadPasajeros; }
+    public CategoriaVehiculo getCategoriaVehiculo() { return categoriaVehiculo; }
+    public TipoVehiculo getTipoVehiculo() { return tipoVehiculo; }
+    public Ubicacion getUbicacion() { return ubicacion; }
 
-	public void setAceptaPasajero(boolean aceptaPasajero) {
-		this.aceptaPasajero = aceptaPasajero;
-	}
+    public Set<TipoServicio> getTipoServicios() {
+        return Collections.unmodifiableSet(tipoServicios);
+    }
 
-	public boolean isAceptaCarga() {
-		return aceptaCarga;
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(patente);
+    }
 
-	public void setAceptaCarga(boolean aceptaCarga) {
-		this.aceptaCarga = aceptaCarga;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Vehiculo other = (Vehiculo) obj;
+        return Objects.equals(patente, other.patente);
+    }
 
-	public Ubicacion getUbicacion() {
-		return ubicacion;
-	}
-
-	public void setUbicacion(Ubicacion ubicacion) {
-		this.ubicacion = ubicacion;
-	}
-
-	public Servicio getServicio() {
-		return servicio;
-	}
-
-	public void setServicio(Servicio servicio) {
-		this.servicio = servicio;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(patente);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Vehiculo other = (Vehiculo) obj;
-		return Objects.equals(patente, other.patente);
-	}
-
-	@Override
-	public String toString() {
-		return "Vehiculo [patente=" + patente + ", modelo=" + modelo + ", aceptaPasajero=" + aceptaPasajero
-				+ ", aceptaCarga=" + aceptaCarga + ", ubicacion=" + ubicacion + ", servicio=" + servicio + "]";
-	}
-	
-	
-
+    @Override
+    public String toString() {
+        return patente + " (" + modelo + ", " + categoriaVehiculo + ")";
+    }
 }

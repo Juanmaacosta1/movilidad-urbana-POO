@@ -1,98 +1,76 @@
 package modelo;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
-public abstract class Usuario {
+/**
+ * Usuario registrado. Siempre es cliente; opcionalmente también conductor
+ * (composición 1 a Cliente y 0..1 a Conductor).
+ */
+public class Usuario {
+    private final String nombre;
+    private final String telefono;
+    private final String email;
+    private final Cliente cliente = new Cliente();
+    private Conductor conductor;
+    private RolUsuario rolActivo = RolUsuario.CLIENTE;
 
-	private String nombre;
-	private String documento;
-	private String telefono;
-	private String email;
-	private int totalCalificaciones;
-	private List<Calificacion> calificaciones;
+    public Usuario(String nombre, String telefono, String email) {
+        if (nombre == null || nombre.isBlank()) {
+            throw new IllegalArgumentException("El nombre es obligatorio");
+        }
+        if (telefono == null || telefono.isBlank()) {
+            throw new IllegalArgumentException("El teléfono es obligatorio");
+        }
+        if (email == null || !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+            throw new IllegalArgumentException("Email inválido: " + email);
+        }
+        this.nombre = nombre;
+        this.telefono = telefono;
+        this.email = email;
+    }
 
-	public Usuario(String nombre, String documento, String telefono, String email) {
-	    this.nombre = nombre;
-	    this.documento = documento;
-	    this.telefono = telefono;
-	    this.email = email;
-	    this.calificaciones = new ArrayList<Calificacion>(); 
-	    this.totalCalificaciones = calificaciones.size();     
-	}
-	
-	 protected abstract int getLimiteCalificaciones();
-	 
-	 public void calificarViaje(Calificacion calificacion) {
-	        if (calificacion == null) {
-	            throw new IllegalArgumentException("La calificacion no puede ser nula");
-	        }
-	        if (calificaciones.size() >= getLimiteCalificaciones()) {
-	            throw new IllegalStateException("Se alcanzo el limite de calificaciones para este usuario");
-	        }
-	        calificaciones.add(calificacion);
-	        totalCalificaciones = calificaciones.size();
-	    }
-	 
-	  public double promedioCalificacion() {
-	        if (calificaciones.isEmpty()) {
-	            return 0.0;
-	        }
-	        double suma = 0;
-	        for (Calificacion c : calificaciones) {
-	            suma += c.getValor();
-	        }
-	        return suma / calificaciones.size();
-	    }
+    /** Habilita al usuario como conductor registrando licencia y primer vehículo. */
+    public void altaConductor(String licencia, Vehiculo vehiculo) {
+        if (conductor != null) {
+            throw new IllegalStateException("El usuario ya es conductor");
+        }
+        this.conductor = new Conductor(licencia, vehiculo);
+    }
 
-	public String getNombre() {
-		return nombre;
-	}
+    public boolean esConductor() {
+        return conductor != null;
+    }
 
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
+    public void cambiarRolActivo(RolUsuario rolNuevo) {
+        if (rolNuevo == null) {
+            throw new IllegalArgumentException("El rol no puede ser nulo");
+        }
+        if (rolNuevo == RolUsuario.CONDUCTOR && conductor == null) {
+            throw new IllegalStateException("El usuario no está registrado como conductor");
+        }
+        if (cliente.enViaje()
+                || (conductor != null && (conductor.getEstadoConductor() == EstadoConductor.VIAJE_A_ORIGEN
+                || conductor.getEstadoConductor() == EstadoConductor.VIAJE_A_DESTINO))) {
+            throw new IllegalStateException("No se puede cambiar de rol durante un viaje");
+        }
+        this.rolActivo = rolNuevo;
+    }
 
-	public String getDocumento() {
-		return documento;
-	}
+    public String getNombre() { return nombre; }
+    public String getTelefono() { return telefono; }
+    public String getEmail() { return email; }
+    public Cliente getCliente() { return cliente; }
+    public Conductor getConductor() { return conductor; }
+    public RolUsuario getRolActivo() { return rolActivo; }
 
-	public void setDocumento(String documento) {
-		this.documento = documento;
-	}
-
-	public String getTelefono() {
-		return telefono;
-	}
-
-	public void setTelefono(String telefono) {
-		this.telefono = telefono;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public List<Calificacion> getCalificaciones() {
-		return calificaciones;
-	}
-
-	public void setCalificaciones(List<Calificacion> calificaciones) {
-		this.calificaciones = calificaciones;
-	}
-
-	public int getTotalCalificaciones() {
-		return calificaciones.size();
-	}
+    @Override
+    public String toString() {
+        return nombre + " <" + email + ">";
+    }
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(documento, telefono);
+		return Objects.hash(email);
 	}
 
 	@Override
@@ -104,19 +82,8 @@ public abstract class Usuario {
 		if (getClass() != obj.getClass())
 			return false;
 		Usuario other = (Usuario) obj;
-		return Objects.equals(documento, other.documento) && Objects.equals(telefono, other.telefono);
+		return Objects.equals(email, other.email);
 	}
-
-	@Override
-	public String toString() {
-		return "Usuario [nombre=" + nombre + ", documento=" + documento + ", telefono=" + telefono + ", email=" + email
-				+ ", totalCalificaciones=" + totalCalificaciones + ", calificaciones=" + calificaciones + "]";
-	}
-	
-	
-	
-	
-	
-	
-
+    
+    
 }
