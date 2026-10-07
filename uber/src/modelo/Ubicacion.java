@@ -25,6 +25,12 @@ public class Ubicacion {
 		return longitud;
 	}
 
+	
+	
+	public static double getRadioTierraKm() {
+		return RADIO_TIERRA_KM;
+	}
+
 	/**
 	 * Distancia en kilómetros entre esta ubicación y otra (fórmula de Haversine).
 	 */

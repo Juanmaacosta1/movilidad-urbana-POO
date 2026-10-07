@@ -59,6 +59,8 @@ public class Vehiculo {
         return Collections.unmodifiableSet(tipoServicios);
     }
 
+    
+    
     @Override
     public String toString() {
         return patente + " (" + modelo + ", " + categoriaVehiculo + ")";

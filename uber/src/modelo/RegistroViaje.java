@@ -17,6 +17,12 @@ public class RegistroViaje {
 	public EstadoViaje getEstadoViaje() {
 		return estadoViaje;
 	}
+	public void setFechaHora(LocalDateTime fechaHora) {
+		this.fechaHora = fechaHora;
+	}
+	public void setEstadoViaje(EstadoViaje estadoViaje) {
+		this.estadoViaje = estadoViaje;
+	}
 	
 	
 	

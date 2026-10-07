@@ -94,4 +94,18 @@ public class Conductor {
 		return viajes;
 	}
 
+	public void setLicenciaConducir(String licenciaConducir) {
+		this.licenciaConducir = licenciaConducir;
+	}
+
+	public void setVehiculos(List<Vehiculo> vehiculos) {
+		this.vehiculos = vehiculos;
+	}
+
+	public void setViajes(List<Viaje> viajes) {
+		this.viajes = viajes;
+	}
+
+	
+	
 }
