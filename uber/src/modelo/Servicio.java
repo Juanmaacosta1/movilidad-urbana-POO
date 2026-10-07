@@ -17,7 +17,7 @@ public class Servicio {
 		this.precioKm = precioKm;
 		this.precioMinuto = precioMinuto;
 		this.categoriaVehiculo = categoriaVehiculo;
-		this.tipoVehiculo = tipoVehiculo; // ahora el parametro SI coincide con el campo
+		this.tipoVehiculo = tipoVehiculo; 
 		this.tipoServicio = tipoServicio;
 	}
 

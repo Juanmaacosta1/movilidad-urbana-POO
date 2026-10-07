@@ -14,75 +14,99 @@ import modelo.TipoServicio;
 import modelo.TipoVehiculo;
 import modelo.Usuario;
 import modelo.Vehiculo;
+import net.datastructures.ChainHashMap;
+import net.datastructures.Map;
 
 public class CargarDatos {
 
 	public static ArrayList<Servicio> cargarServicios(String fileName) throws FileNotFoundException, IOException {
+
 		ArrayList<Servicio> servicios = new ArrayList<>();
+
 		try (BufferedReader bf = new BufferedReader(new FileReader(fileName))) {
+
 			String linea;
+
 			while ((linea = bf.readLine()) != null) {
 
 				if (linea.isBlank() || linea.trim().startsWith("#")) {
 					continue;
 				}
+
 				String[] partes = linea.split(";");
+
 				String nombre = partes[0].trim();
 				double tarifa = Double.parseDouble(partes[1].trim());
 				double precioKm = Double.parseDouble(partes[2].trim());
 				double precioMinuto = Double.parseDouble(partes[3].trim());
+
 				TipoVehiculo tipoVehiculo = TipoVehiculo.valueOf(partes[4].trim().toUpperCase());
+
 				CategoriaVehiculo categoriaVehiculo = CategoriaVehiculo.valueOf(partes[5].trim().toUpperCase());
+
 				TipoServicio tipoServicio = TipoServicio.valueOf(partes[6].trim().toUpperCase());
 
 				Servicio servicio = new Servicio(nombre, tarifa, precioKm, precioMinuto, categoriaVehiculo,
 						tipoVehiculo, tipoServicio);
+
 				servicios.add(servicio);
 			}
-
 		}
-		return servicios;
 
+		return servicios;
 	}
 
 	public static Set<Vehiculo> cargarVehiculos(String fileName) throws FileNotFoundException, IOException {
+
 		Set<Vehiculo> vehiculos = new HashSet<>();
+
 		try (BufferedReader bf = new BufferedReader(new FileReader(fileName))) {
+
 			String linea;
+
 			while ((linea = bf.readLine()) != null) {
+
 				if (linea.isBlank() || linea.trim().startsWith("#")) {
-					continue; // ignora lineas vacias y el encabezado
+					continue;
 				}
+
 				String[] partes = linea.split(";");
 
 				String patente = partes[0].trim();
 				String modelo = partes[1].trim();
 				int capacidadPasajeros = Integer.parseInt(partes[2].trim());
+
 				TipoVehiculo tipoVehiculo = TipoVehiculo.valueOf(partes[3].trim().toUpperCase());
+
 				CategoriaVehiculo categoriaVehiculo = CategoriaVehiculo.valueOf(partes[4].trim().toUpperCase());
+
 				TipoServicio tipoServicio1 = TipoServicio.valueOf(partes[5].trim().toUpperCase());
 
 				Vehiculo vehiculo = new Vehiculo(patente, modelo, capacidadPasajeros, categoriaVehiculo, tipoVehiculo,
 						tipoServicio1);
 
 				if (partes.length >= 7 && !partes[6].isBlank()) {
+
 					TipoServicio tipoServicio2 = TipoServicio.valueOf(partes[6].trim().toUpperCase());
+
 					vehiculo.agregarTipoServicio(tipoServicio2);
 				}
 
 				boolean agregado = vehiculos.add(vehiculo);
+
 				if (!agregado) {
 					System.out.println("Patente duplicada, se ignoro: " + patente);
 				}
 			}
 		}
+
 		return vehiculos;
 	}
 
-	public static Set<Usuario> cargarUsuarios(String fileName, Set<Vehiculo> vehiculos)
+	public static Map<String, Usuario> cargarUsuarios(String fileName, Set<Vehiculo> vehiculos)
 			throws FileNotFoundException, IOException {
 
-		Set<Usuario> usuarios = new HashSet<>();
+		Map<String, Usuario> usuarios = new ChainHashMap<>();
 
 		try (BufferedReader bf = new BufferedReader(new FileReader(fileName))) {
 
@@ -107,7 +131,6 @@ public class CargarDatos {
 
 					String licencia = partes[3].trim();
 
-					// El primer vehículo es obligatorio para dar de alta al conductor
 					Vehiculo primerVehiculo = buscarVehiculo(vehiculos, partes[4].trim());
 
 					if (primerVehiculo == null) {
@@ -133,8 +156,12 @@ public class CargarDatos {
 					}
 				}
 
-				if (!usuarios.add(usuario)) {
+				String clave = email.toLowerCase();
+
+				if (usuarios.get(clave) != null) {
 					System.out.println("Usuario duplicado, se ignoro: " + email);
+				} else {
+					usuarios.put(clave, usuario);
 				}
 			}
 		}
@@ -145,7 +172,9 @@ public class CargarDatos {
 	public static Vehiculo buscarVehiculo(Set<Vehiculo> vehiculos, String patente) {
 
 		for (Vehiculo vehiculo : vehiculos) {
+
 			if (vehiculo.getPatente().equalsIgnoreCase(patente)) {
+
 				return vehiculo;
 			}
 		}

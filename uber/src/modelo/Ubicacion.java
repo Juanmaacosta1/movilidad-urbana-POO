@@ -38,4 +38,9 @@ public class Ubicacion {
 				* Math.cos(Math.toRadians(ubicacion.latitud)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
 		return RADIO_TIERRA_KM * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 	}
+
+	@Override
+	public String toString() {
+		return "Ubicacion [latitud=" + latitud + ", longitud=" + longitud + "]";
+	}
 }
