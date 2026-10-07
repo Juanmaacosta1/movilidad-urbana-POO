@@ -1,7 +1,6 @@
-package modelo;
+package md.modelo;
 
 public class Servicio {
-
 
 	private String nombre;
 	private double tarifaBase;
@@ -11,8 +10,8 @@ public class Servicio {
 	private TipoVehiculo tipoVehiculo;
 	private TipoServicio tipoServicio;
 
-	public Servicio(String nombre, double tarifaBase, double precioKm, double precioMinuto,
-			CategoriaVehiculo categoriaVehiculo, TipoVehiculo tipoVehiculo, TipoServicio tipoServicio) {
+	public Servicio(String nombre, double tarifaBase, double precioKm, double precioMinuto, TipoVehiculo tipoVehiculo,
+			CategoriaVehiculo categoriaVehiculo, TipoServicio tipoServicio) {
 		super();
 		this.nombre = nombre;
 		this.tarifaBase = tarifaBase;
@@ -54,7 +53,7 @@ public class Servicio {
 	public void setPrecioMinuto(double precioMinuto) {
 		this.precioMinuto = precioMinuto;
 	}
-	
+
 	public CategoriaVehiculo getCategoriaVehiculo() {
 		return categoriaVehiculo;
 	}
@@ -78,9 +77,6 @@ public class Servicio {
 	public void setTipoServicio(TipoServicio tipoServicio) {
 		this.tipoServicio = tipoServicio;
 	}
-
-	
-	
 
 	public double calcularCosto(double km, double minutos) {
 		if (km < 0 || minutos < 0)

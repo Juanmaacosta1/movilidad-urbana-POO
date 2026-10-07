@@ -1,4 +1,4 @@
-package modelo;
+package md.modelo;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,6 +33,9 @@ public class Viaje {
 	public void solicitar(LocalDateTime fechaHora) {
 		if (!registroViaje.isEmpty())
 			throw new IllegalArgumentException("El viaje ya fue solicitado");
+		if (cliente.getCliente().enViaje())
+			throw new IllegalStateException("El cliente ya se encuentra en un viaje activo");
+		cliente.getCliente().agregarViaje(this);
 		registrar(fechaHora, EstadoViaje.SOLICITADO);
 	}
 
@@ -40,6 +43,12 @@ public class Viaje {
 		if (conductor == null || !conductor.esConductor())
 			throw new IllegalArgumentException("El conductor es obligatorio y debe estar registrado como tal");
 		exigirEstado("aceptar", EstadoViaje.SOLICITADO);
+		
+		// Validar que la categoría del vehículo del conductor sea igual o mayor que la del servicio
+		if (conductor.getConductor().getVehiculoActivo().getCategoriaVehiculo().getValor() < 
+		    servicio.getCategoriaVehiculo().getValor()) {
+			throw new IllegalStateException("El vehículo del conductor no cumple con la categoría requerida para este servicio");
+		}
 
 		this.Conductor = conductor;
 		this.vehiculo = conductor.getConductor().getVehiculoActivo();
@@ -56,19 +65,19 @@ public class Viaje {
 	}
 
 	/**
-	 * @param calificacionConductor calificacion que recibe el conductor
 	 * @param calificacionCliente   calificacion que recibe el cliente
+	 * @param calificacionConductor calificacion que recibe el conductor
 	 */
-	public void finalizar(LocalDateTime fechaHora, CalificacionViaje calificacionConductor,
-			CalificacionViaje calificacionCliente) {
+	public void finalizar(LocalDateTime fechaHora, CalificacionViaje calificacionCliente,
+			CalificacionViaje calificacionConductor) {
 		exigirEstado("finalizar", EstadoViaje.INICIADO);
 		if (calificacionConductor == null || calificacionConductor == CalificacionViaje.NO_CALIFICADO
 				|| calificacionCliente == null || calificacionCliente == CalificacionViaje.NO_CALIFICADO) {
 			throw new IllegalArgumentException("Hay que calificar al conductor y al cliente para finalizar el viaje");
 		}
 
-		this.calificacionConductor = calificacionConductor;
 		this.calificacionCliente = calificacionCliente;
+		this.calificacionConductor = calificacionConductor;
 		Conductor.getConductor().setEstadoConductor(EstadoConductor.DISPONIBLE);
 		registrar(fechaHora, EstadoViaje.FINALIZADO);
 	}

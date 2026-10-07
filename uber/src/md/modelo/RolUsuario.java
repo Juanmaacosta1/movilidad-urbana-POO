@@ -1,4 +1,4 @@
-package modelo;
+package md.modelo;
 
 public enum RolUsuario {
 

@@ -1,4 +1,4 @@
-package modelo;
+package md.modelo;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -63,11 +63,11 @@ public class Conductor {
 		this.categoriaVehiculoActivo = categoria;
 	}
 
-	public void setEstadoConductor(EstadoConductor estado) {
-		if (estado == null) {
+	public void setEstadoConductor(EstadoConductor estadoConductor) {
+		if (estadoConductor == null) {
 			throw new IllegalArgumentException("El estado no puede ser nulo");
 		}
-		this.estadoConductor = estado;
+		this.estadoConductor = estadoConductor;
 	}
 
 	public String getLicenciaConducir() {
