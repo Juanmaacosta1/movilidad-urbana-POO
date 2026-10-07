@@ -1,4 +1,4 @@
-package modelo;
+package md.modelo;
 
 /**
  * Usuario registrado. Siempre es cliente; opcionalmente también conductor
@@ -48,9 +48,17 @@ public class Usuario {
 		if (rolNuevo == RolUsuario.CONDUCTOR && conductor == null) {
 			throw new IllegalStateException("El usuario no está registrado como conductor");
 		}
+		// Validar que el conductor esté FUERA_DE_SERVICIO para cambiar a CONDUCTOR
+		if (rolNuevo == RolUsuario.CONDUCTOR && conductor.getEstadoConductor() != EstadoConductor.FUERA_DE_SERVICIO) {
+			throw new IllegalStateException("El conductor debe estar FUERA_DE_SERVICIO para cambiar de rol");
+		}
 		if (cliente.enViaje() || (conductor != null && (conductor.getEstadoConductor() == EstadoConductor.VIAJE_A_ORIGEN
 				|| conductor.getEstadoConductor() == EstadoConductor.VIAJE_A_DESTINO))) {
 			throw new IllegalStateException("No se puede cambiar de rol durante un viaje");
+		}
+		// Cuando se cambia a CLIENTE, poner el conductor en FUERA_DE_SERVICIO automáticamente
+		if (rolNuevo == RolUsuario.CLIENTE && conductor != null) {
+			conductor.setEstadoConductor(EstadoConductor.FUERA_DE_SERVICIO);
 		}
 		this.rolActivo = rolNuevo;
 	}

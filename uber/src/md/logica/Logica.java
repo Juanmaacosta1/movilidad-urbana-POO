@@ -1,10 +1,10 @@
-package logica;
+package md.logica;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import modelo.*;
-import datos.*;
+import md.datos.*;
+import md.modelo.*;
 import net.datastructures.*;
 
 public class Logica {
@@ -482,5 +482,5 @@ public class Logica {
 		}
 		return lista;
 	}
-
+	
 }

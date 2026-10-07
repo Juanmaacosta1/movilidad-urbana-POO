@@ -1,15 +1,14 @@
-package aplicacion;
+package md.aplicacion;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import datos.*;
-import modelo.*;
-
+import md.datos.*;
+import md.modelo.*;
+import net.datastructures.*;
 
 public class AplicacionConsulta {
-
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 

@@ -1,4 +1,4 @@
-package modelo;
+package md.modelo;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -15,7 +15,7 @@ public class Vehiculo {
 
     /** Crea un vehículo con su primer tipo de servicio (multiplicidad mínima 1). */
     public Vehiculo(String patente, String modelo, int capacidadPasajeros,
-                    CategoriaVehiculo categoriaVehiculo, TipoVehiculo tipoVehiculo,
+                     TipoVehiculo tipoVehiculo, CategoriaVehiculo categoriaVehiculo,
                     TipoServicio tipoServicio) {
         if (patente == null || patente.isBlank()) {
             throw new IllegalArgumentException("La patente es obligatoria");

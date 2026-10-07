@@ -1,4 +1,4 @@
-package modelo;
+package md.modelo;
 
 public class Ubicacion {
 	private static final double RADIO_TIERRA_KM = 6371.0;

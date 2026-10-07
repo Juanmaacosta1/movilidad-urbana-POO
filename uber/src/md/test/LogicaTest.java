@@ -1,4 +1,4 @@
-package test;
+package md.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import logica.Logica;
-import modelo.*;
+import md.logica.Logica;
+import md.modelo.*;
 
 /** Tests de todos los metodos publicos de la capa logica. */
 public class LogicaTest {
@@ -38,11 +38,11 @@ public class LogicaTest {
 		cliente = logica.registrarUsuario("Ana Perez", "+5491111111111", "ana@email.com");
 		conductor = logica.registrarUsuario("Beto Gomez", "+5492222222222", "beto@email.com");
 
-		vehiculo = new Vehiculo("AA111AA", "Toyota Corolla", 4, CategoriaVehiculo.CONFORT, TipoVehiculo.AUTO,
+		vehiculo = new Vehiculo("AA111AA", "Toyota Corolla", 4, TipoVehiculo.AUTO, CategoriaVehiculo.CONFORT,
 				TipoServicio.PASAJEROS);
 		conductor.altaConductor("B1", vehiculo);
 
-		servicio = new Servicio("Confort", 2500, 250, 125, CategoriaVehiculo.CONFORT, TipoVehiculo.AUTO,
+		servicio = new Servicio("Confort", 2500, 250, 125, TipoVehiculo.AUTO, CategoriaVehiculo.CONFORT,
 				TipoServicio.PASAJEROS);
 		origen = new Ubicacion(-42.65, -64.89);
 		destino = new Ubicacion(-42.86, -64.88);
@@ -81,8 +81,8 @@ public class LogicaTest {
 
 	private Usuario nuevoConductorEstandar() {
 		Usuario carla = logica.registrarUsuario("Carla Diaz", "+5493333333333", "carla@email.com");
-		carla.altaConductor("B2", new Vehiculo("BB222BB", "Fiat Cronos", 4, CategoriaVehiculo.ESTANDAR,
-				TipoVehiculo.AUTO, TipoServicio.PASAJEROS));
+		carla.altaConductor("B2", new Vehiculo("BB222BB", "Fiat Cronos", 4, TipoVehiculo.AUTO,
+				CategoriaVehiculo.ESTANDAR, TipoServicio.PASAJEROS));
 		return carla;
 	}
 
@@ -171,7 +171,7 @@ public class LogicaTest {
 	@Test
 	void altaConductor_convierteAlUsuarioEnConductor() {
 		assertFalse(cliente.esConductor());
-		Vehiculo v = new Vehiculo("CC333CC", "Honda Wave", 1, CategoriaVehiculo.ESTANDAR, TipoVehiculo.MOTO,
+		Vehiculo v = new Vehiculo("CC333CC", "Honda Wave", 1, TipoVehiculo.MOTO, CategoriaVehiculo.ESTANDAR,
 				TipoServicio.PASAJEROS);
 
 		logica.altaConductor(cliente, "LIC-99", v);
@@ -196,7 +196,7 @@ public class LogicaTest {
 
 	@Test
 	void agregarVehiculoAConductor_losVehiculosCrecen() {
-		Vehiculo otro = new Vehiculo("DD444DD", "Fiat Cronos", 4, CategoriaVehiculo.ESTANDAR, TipoVehiculo.AUTO,
+		Vehiculo otro = new Vehiculo("DD444DD", "Fiat Cronos", 4, TipoVehiculo.AUTO, CategoriaVehiculo.ESTANDAR,
 				TipoServicio.PASAJEROS);
 
 		logica.agregarVehiculoAConductor(conductor, otro);
@@ -226,7 +226,7 @@ public class LogicaTest {
 		assertEquals(1, logica.getVehiculos().size());
 
 		logica.agregarVehiculoAConductor(conductor, new Vehiculo("DD444DD", "Fiat Cronos", 4,
-				CategoriaVehiculo.ESTANDAR, TipoVehiculo.AUTO, TipoServicio.PASAJEROS));
+				TipoVehiculo.AUTO, CategoriaVehiculo.ESTANDAR, TipoServicio.PASAJEROS));
 		nuevoConductorEstandar();
 
 		assertEquals(3, logica.getVehiculos().size());
@@ -295,8 +295,8 @@ public class LogicaTest {
 
 	@Test
 	void ponerConductorEnServicio_conOtroVehiculo_cambiaElVehiculoActivo() {
-		Vehiculo otro = new Vehiculo("DD444DD", "Fiat Cronos", 4, CategoriaVehiculo.ESTANDAR, TipoVehiculo.AUTO,
-				TipoServicio.PASAJEROS);
+			Vehiculo otro = new Vehiculo("DD444DD", "Fiat Cronos", 4, TipoVehiculo.AUTO, CategoriaVehiculo.ESTANDAR,
+					TipoServicio.PASAJEROS);
 		logica.agregarVehiculoAConductor(conductor, otro);
 
 		logica.ponerConductorEnServicio(conductor, otro, CategoriaVehiculo.ESTANDAR);
@@ -330,7 +330,7 @@ public class LogicaTest {
 
 	@Test
 	void ponerConductorEnServicio_vehiculoAjeno_lanzaExcepcion() {
-		Vehiculo ajeno = new Vehiculo("ZZ999ZZ", "Ford Ka", 4, CategoriaVehiculo.ESTANDAR, TipoVehiculo.AUTO,
+		Vehiculo ajeno = new Vehiculo("ZZ999ZZ", "Ford Ka", 4, TipoVehiculo.AUTO, CategoriaVehiculo.ESTANDAR,
 				TipoServicio.PASAJEROS);
 
 		assertThrows(IllegalArgumentException.class,
@@ -402,9 +402,9 @@ public class LogicaTest {
 		logica.ponerConductorEnServicio(conductor, vehiculo, CategoriaVehiculo.ESTANDAR); // acepta ESTANDAR y CONFORT
 		logica.ponerConductorEnServicio(carla, carla.getConductor().getVehiculoActivo(), CategoriaVehiculo.ESTANDAR); // solo ESTANDAR
 
-		Servicio estandar = new Servicio("Estandar", 2000, 200, 100, CategoriaVehiculo.ESTANDAR, TipoVehiculo.AUTO,
+		Servicio estandar = new Servicio("Estandar", 2000, 200, 100, TipoVehiculo.AUTO, CategoriaVehiculo.ESTANDAR,
 				TipoServicio.PASAJEROS);
-		Servicio premium = new Servicio("Premium", 3000, 300, 150, CategoriaVehiculo.PREMIUM, TipoVehiculo.AUTO,
+		Servicio premium = new Servicio("Premium", 3000, 300, 150, TipoVehiculo.AUTO, CategoriaVehiculo.PREMIUM,
 				TipoServicio.PASAJEROS);
 
 		assertEquals(2, logica.buscarConductoresDisponibles(new Viaje(cliente, origen, destino, estandar)).size());
@@ -418,7 +418,7 @@ public class LogicaTest {
 	void buscarConductoresDisponibles_respetaLaCategoriaMinimaDelConductor() {
 		// el conductor solo quiere viajes CONFORT o superiores
 		logica.ponerConductorEnServicio(conductor, vehiculo, CategoriaVehiculo.CONFORT);
-		Servicio estandar = new Servicio("Estandar", 2000, 200, 100, CategoriaVehiculo.ESTANDAR, TipoVehiculo.AUTO,
+		Servicio estandar = new Servicio("Estandar", 2000, 200, 100, TipoVehiculo.AUTO, CategoriaVehiculo.ESTANDAR,
 				TipoServicio.PASAJEROS);
 
 		assertTrue(logica.buscarConductoresDisponibles(new Viaje(cliente, origen, destino, estandar)).isEmpty());
@@ -428,9 +428,9 @@ public class LogicaTest {
 	@Test
 	void buscarConductoresDisponibles_filtraPorTipoDeServicioYDeVehiculo() {
 		logica.ponerConductorEnServicio(conductor, vehiculo, CategoriaVehiculo.ESTANDAR);
-		Servicio envios = new Servicio("Envios", 1500, 150, 75, CategoriaVehiculo.CONFORT, TipoVehiculo.AUTO,
+		Servicio envios = new Servicio("Envios", 1500, 150, 75, TipoVehiculo.AUTO, CategoriaVehiculo.CONFORT,
 				TipoServicio.ENVIOS);
-		Servicio moto = new Servicio("Mototaxi", 1000, 100, 50, CategoriaVehiculo.CONFORT, TipoVehiculo.MOTO,
+		Servicio moto = new Servicio("Mototaxi", 1000, 100, 50, TipoVehiculo.MOTO, CategoriaVehiculo.CONFORT,
 				TipoServicio.PASAJEROS);
 
 		// el vehiculo solo presta PASAJEROS y es un AUTO

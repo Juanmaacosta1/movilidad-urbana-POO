@@ -1,4 +1,4 @@
-package datos;
+package md.datos;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import modelo.CategoriaVehiculo;
-import modelo.Servicio;
-import modelo.TipoServicio;
-import modelo.TipoVehiculo;
-import modelo.Usuario;
-import modelo.Vehiculo;
+import md.modelo.CategoriaVehiculo;
+import md.modelo.Servicio;
+import md.modelo.TipoServicio;
+import md.modelo.TipoVehiculo;
+import md.modelo.Usuario;
+import md.modelo.Vehiculo;
 
 public class CargarDatos {
 
@@ -35,8 +35,8 @@ public class CargarDatos {
 				CategoriaVehiculo categoriaVehiculo = CategoriaVehiculo.valueOf(partes[5].trim().toUpperCase());
 				TipoServicio tipoServicio = TipoServicio.valueOf(partes[6].trim().toUpperCase());
 
-				Servicio servicio = new Servicio(nombre, tarifa, precioKm, precioMinuto, categoriaVehiculo,
-						tipoVehiculo, tipoServicio);
+				Servicio servicio = new Servicio(nombre, tarifa, precioKm, precioMinuto, tipoVehiculo,
+						categoriaVehiculo, tipoServicio);
 				servicios.add(servicio);
 			}
 
@@ -62,7 +62,7 @@ public class CargarDatos {
 				CategoriaVehiculo categoriaVehiculo = CategoriaVehiculo.valueOf(partes[4].trim().toUpperCase());
 				TipoServicio tipoServicio1 = TipoServicio.valueOf(partes[5].trim().toUpperCase());
 
-				Vehiculo vehiculo = new Vehiculo(patente, modelo, capacidadPasajeros, categoriaVehiculo, tipoVehiculo,
+				Vehiculo vehiculo = new Vehiculo(patente, modelo, capacidadPasajeros, tipoVehiculo, categoriaVehiculo,
 						tipoServicio1);
 
 				if (partes.length >= 7 && !partes[6].isBlank()) {
