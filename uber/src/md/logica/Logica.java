@@ -217,7 +217,7 @@ public class Logica {
 		if (viaje.estadoActual() != EstadoViaje.INICIADO) {
 			throw new IllegalStateException("Solo se puede finalizar un viaje INICIADO");
 		}
-		viaje.finalizar(LocalDateTime.now(), calificacionConductor, calificacionCliente);
+		viaje.finalizar(LocalDateTime.now(), calificacionCliente, calificacionConductor);
 	}
 
 	public void cancelarViaje(Viaje viaje, Usuario usuario, String motivo) {
@@ -484,3 +484,4 @@ public class Logica {
 	}
 	
 }
+
