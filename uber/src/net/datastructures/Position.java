@@ -1,3 +1,4 @@
+package net.datastructures;
 /*
  * Copyright 2014, Michael T. Goodrich, Roberto Tamassia, Michael H. Goldwasser
  *
@@ -20,7 +21,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.datastructures;
+
 
 /**
  * An interface for a position which is an abstraction for the

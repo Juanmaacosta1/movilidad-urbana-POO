@@ -13,5 +13,6 @@ public final class Constante {
 	public static final int OPCION_HISTORIAL_CLIENTE = 8;
 	public static final int OPCION_ESTADISTICAS_CONDUCTOR = 9;
 
-
+	private Constante() {
+	}
 }

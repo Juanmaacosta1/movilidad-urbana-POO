@@ -3,7 +3,12 @@ package md.logica;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import md.datos.*;
+import md.datos.dao.DAOFactory;
+import md.datos.dao.DAOLoader;
+import md.datos.dto.ServicioDTO;
+import md.datos.dto.UsuarioDTO;
+import md.datos.dto.VehiculoDTO;
+
 import md.modelo.*;
 import net.datastructures.*;
 
@@ -16,6 +21,113 @@ public class Logica {
 	private List<Viaje> viajes = new ArrayList<>();
 
 	private Logica() {
+		try {
+			cargarDatosIniciales();
+		} catch (Exception e) {
+			throw new IllegalStateException("No se pudieron cargar los datos iniciales", e);
+		}
+	}
+
+	private void cargarDatosIniciales() throws Exception {
+
+		DAOFactory fabrica = DAOLoader.getFactory();
+
+		// 1. Obtener los DTO mediante los DAO
+		java.util.List<ServicioDTO> serviciosDTO = fabrica.getServicioDAO().obtenerTodos();
+
+		java.util.List<VehiculoDTO> vehiculosDTO = fabrica.getVehiculoDAO().obtenerTodos();
+
+		java.util.List<UsuarioDTO> usuariosDTO = fabrica.getUsuarioDAO().obtenerTodos();
+
+		// 2. Convertir los DTO de servicios al modelo
+		for (ServicioDTO dto : serviciosDTO) {
+
+			Servicio servicio = new Servicio(dto.getNombre(), dto.getTarifaBase(), dto.getPrecioKm(),
+					dto.getPrecioMinuto(), TipoVehiculo.valueOf(dto.getTipoVehiculo()),
+					CategoriaVehiculo.valueOf(dto.getCategoriaVehiculo()), TipoServicio.valueOf(dto.getTipoServicio()));
+
+			servicios.add(servicios.size(), servicio);
+		}
+
+		// 3. Convertir los DTO de vehículos al modelo
+		// Usamos un mapa auxiliar para buscar vehículos por patente.
+		java.util.Map<String, Vehiculo> vehiculosPorPatente = new java.util.HashMap<>();
+
+		for (VehiculoDTO dto : vehiculosDTO) {
+
+			java.util.List<String> tipos = dto.getTiposServicio();
+
+			if (tipos == null || tipos.isEmpty()) {
+				throw new IllegalArgumentException("El vehículo " + dto.getPatente() + " no tiene tipos de servicio");
+			}
+
+			Vehiculo vehiculo = new Vehiculo(dto.getPatente(), dto.getModelo(), dto.getCapacidadPasajeros(),
+					TipoVehiculo.valueOf(dto.getTipoVehiculo()), CategoriaVehiculo.valueOf(dto.getCategoriaVehiculo()),
+					TipoServicio.valueOf(tipos.get(0)));
+
+			// Agregar los tipos de servicio restantes, si existen.
+			for (int i = 1; i < tipos.size(); i++) {
+				vehiculo.agregarTipoServicio(TipoServicio.valueOf(tipos.get(i)));
+			}
+
+			String patente = vehiculo.getPatente().toUpperCase();
+
+			if (vehiculosPorPatente.containsKey(patente)) {
+				throw new IllegalArgumentException("Patente duplicada: " + patente);
+			}
+
+			vehiculosPorPatente.put(patente, vehiculo);
+		}
+
+		// 4. Convertir los DTO de usuarios al modelo
+		for (UsuarioDTO dto : usuariosDTO) {
+
+			String email = dto.getEmail().trim().toLowerCase();
+
+			if (usuarios.get(email) != null) {
+				throw new IllegalArgumentException("Email duplicado: " + email);
+			}
+
+			Usuario usuario = new Usuario(dto.getNombre(), dto.getTelefono(), dto.getEmail());
+
+			String licencia = dto.getLicenciaConducir();
+			java.util.List<String> patentes = dto.getPatentesVehiculos();
+
+			// Si tiene licencia, también es conductor.
+			if (licencia != null && !licencia.isBlank()) {
+
+				if (patentes == null || patentes.isEmpty()) {
+					throw new IllegalArgumentException("El conductor " + email + " no tiene vehículos asociados");
+				}
+
+				// La primera patente es obligatoria para el constructor.
+				String primeraPatente = patentes.get(0).trim().toUpperCase();
+
+				Vehiculo primerVehiculo = vehiculosPorPatente.get(primeraPatente);
+
+				if (primerVehiculo == null) {
+					throw new IllegalArgumentException("No existe el vehículo con patente: " + primeraPatente);
+				}
+
+				usuario.altaConductor(licencia, primerVehiculo);
+
+				// Asociar los vehículos adicionales.
+				for (int i = 1; i < patentes.size(); i++) {
+
+					String patente = patentes.get(i).trim().toUpperCase();
+
+					Vehiculo vehiculo = vehiculosPorPatente.get(patente);
+
+					if (vehiculo == null) {
+						throw new IllegalArgumentException("No existe el vehículo con patente: " + patente);
+					}
+
+					usuario.getConductor().agregarVehiculo(vehiculo);
+				}
+			}
+
+			usuarios.put(email, usuario);
+		}
 	}
 
 	public static Logica getInstance() {
@@ -482,6 +594,5 @@ public class Logica {
 		}
 		return lista;
 	}
-	
-}
 
+}

@@ -1,87 +1,58 @@
 package md.datos.dto;
 
-import md.modelo.CategoriaVehiculo;
-import md.modelo.TipoServicio;
-import md.modelo.TipoVehiculo;
-
 public class ServicioDTO {
 
-	private String nombre;
-	private double tarifaBase;
-	private double precioKm;
-	private double precioMinuto;
-	private TipoVehiculo tipoVehiculo;
-	private CategoriaVehiculo categoriaVehiculo;
-	private TipoServicio tipoServicio;
+    private String nombre;
+    private double tarifaBase;
+    private double precioKm;
+    private double precioMinuto;
+    private String tipoVehiculo;
+    private String categoriaVehiculo;
+    private String tipoServicio;
 
-	public ServicioDTO(String nombre, double tarifaBase, double precioKm, double precioMinuto,
-			TipoVehiculo tipoVehiculo, CategoriaVehiculo categoriaVehiculo, TipoServicio tipoServicio) {
-		super();
-		this.nombre = nombre;
-		this.tarifaBase = tarifaBase;
-		this.precioKm = precioKm;
-		this.precioMinuto = precioMinuto;
-		this.tipoVehiculo = tipoVehiculo;
-		this.categoriaVehiculo = categoriaVehiculo;
-		this.tipoServicio = tipoServicio;
-	}
+    public ServicioDTO(
+            String nombre,
+            double tarifaBase,
+            double precioKm,
+            double precioMinuto,
+            String tipoVehiculo,
+            String categoriaVehiculo,
+            String tipoServicio) {
 
-	public String getNombre() {
-		return nombre;
-	}
+        this.nombre = nombre;
+        this.tarifaBase = tarifaBase;
+        this.precioKm = precioKm;
+        this.precioMinuto = precioMinuto;
+        this.tipoVehiculo = tipoVehiculo;
+        this.categoriaVehiculo = categoriaVehiculo;
+        this.tipoServicio = tipoServicio;
+    }
 
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
+    public String getNombre() {
+        return nombre;
+    }
 
-	public double getTarifaBase() {
-		return tarifaBase;
-	}
+    public double getTarifaBase() {
+        return tarifaBase;
+    }
 
-	public void setTarifaBase(double tarifaBase) {
-		this.tarifaBase = tarifaBase;
-	}
+    public double getPrecioKm() {
+        return precioKm;
+    }
 
-	public double getPrecioKm() {
-		return precioKm;
-	}
+    public double getPrecioMinuto() {
+        return precioMinuto;
+    }
 
-	public void setPrecioKm(double precioKm) {
-		this.precioKm = precioKm;
-	}
+    public String getTipoVehiculo() {
+        return tipoVehiculo;
+    }
 
-	public double getPrecioMinuto() {
-		return precioMinuto;
-	}
+    public String getCategoriaVehiculo() {
+        return categoriaVehiculo;
+    }
 
-	public void setPrecioMinuto(double precioMinuto) {
-		this.precioMinuto = precioMinuto;
-	}
-
-	public TipoVehiculo getTipoVehiculo() {
-		return tipoVehiculo;
-	}
-
-	public void setTipoVehiculo(TipoVehiculo tipoVehiculo) {
-		this.tipoVehiculo = tipoVehiculo;
-	}
-
-	public CategoriaVehiculo getCategoriaVehiculo() {
-		return categoriaVehiculo;
-	}
-
-	public void setCategoriaVehiculo(CategoriaVehiculo categoriaVehiculo) {
-		this.categoriaVehiculo = categoriaVehiculo;
-	}
-
-	public TipoServicio getTipoServicio() {
-		return tipoServicio;
-	}
-
-	public void setTipoServicio(TipoServicio tipoServicio) {
-		this.tipoServicio = tipoServicio;
-	}
-	
-	
-
+    public String getTipoServicio() {
+        return tipoServicio;
+    }
 }
