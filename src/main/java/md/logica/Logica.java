@@ -3,12 +3,16 @@ package md.logica;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+<<<<<<< HEAD:src/main/java/md/logica/Logica.java
 import md.datos.dao.DAOFactory;
 import md.datos.dao.DAOLoader;
 import md.datos.dto.ServicioDTO;
 import md.datos.dto.UsuarioDTO;
 import md.datos.dto.VehiculoDTO;
 
+=======
+import md.datos.*;
+>>>>>>> 52a60634ba84cd88f1c96616304de01126811f58:uber/src/md/logica/Logica.java
 import md.modelo.*;
 import net.datastructures.*;
 
@@ -594,5 +598,5 @@ public class Logica {
 		}
 		return lista;
 	}
-
+	
 }
