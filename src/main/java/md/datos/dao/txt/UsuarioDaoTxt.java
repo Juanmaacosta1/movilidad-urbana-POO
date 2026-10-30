@@ -72,7 +72,7 @@ public class UsuarioDaoTxt implements UsuarioDAO {
 					}
 				}
 
-				UsuarioDTO usuario = new UsuarioDTO(nombre, telefono, email, licencia);
+				UsuarioDTO usuario = new UsuarioDTO(nombre, telefono, email, licencia, patentesVehiculos);
 
 				lista.add(usuario);
 			}

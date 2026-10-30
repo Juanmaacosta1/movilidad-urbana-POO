@@ -1,5 +1,6 @@
 package md.datos.dao.txt;
 
+import md.datos.dao.ConductorVehiculoDAO;
 import md.datos.dao.DAOFactory;
 import md.datos.dao.ServicioDAO;
 import md.datos.dao.UsuarioDAO;
@@ -34,5 +35,10 @@ public class TxtDAOFactory implements DAOFactory {
     @Override
     public UsuarioDAO getUsuarioDAO() {
         return new UsuarioDaoTxt(rutaUsuarios);
+    }
+
+    @Override
+    public ConductorVehiculoDAO getConductorVehiculoDAO() {
+        return new ConductorVehiculoDaoTxt(rutaUsuarios);
     }
 }
