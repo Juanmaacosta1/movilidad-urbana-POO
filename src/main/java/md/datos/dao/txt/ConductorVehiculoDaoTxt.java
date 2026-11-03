@@ -15,7 +15,6 @@ public class ConductorVehiculoDaoTxt implements ConductorVehiculoDAO {
 		this.rutaUsuarios = rutaUsuarios;
 	}
 
-	@Override	
 	public List<ConductorVehiculoDTO> obtenerTodos() throws Exception {
 		List<ConductorVehiculoDTO> lista = new ArrayList<>();
 		for (UsuarioDTO u : new UsuarioDaoTxt(rutaUsuarios).obtenerTodos()) {
@@ -25,15 +24,10 @@ public class ConductorVehiculoDaoTxt implements ConductorVehiculoDAO {
 		}
 		return lista;
 	}
-		
+
 	@Override
 	public List<ConductorVehiculoDTO> obtenerPorEmail(String email) throws Exception {
-		List<ConductorVehiculoDTO> lista = new ArrayList<>();
-		for (ConductorVehiculoDTO dto : obtenerTodos()) {
-			if (dto.getEmail().equalsIgnoreCase(email)) {
-				lista.add(dto);
-			}
-		}
-		return lista;
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

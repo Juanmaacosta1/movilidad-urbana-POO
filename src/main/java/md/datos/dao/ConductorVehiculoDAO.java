@@ -10,3 +10,4 @@ public interface ConductorVehiculoDAO {
 
 	List<ConductorVehiculoDTO> obtenerPorEmail(String email) throws Exception;
 }
+

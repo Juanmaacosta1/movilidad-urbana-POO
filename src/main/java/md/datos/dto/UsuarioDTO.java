@@ -1,5 +1,6 @@
 package md.datos.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UsuarioDTO {
@@ -14,13 +15,14 @@ public class UsuarioDTO {
             String nombre,
             String telefono,
             String email,
-            String licenciaConducir) {
+            String licenciaConducir,
+            List<String> patentesVehiculos) {
 
         this.nombre = nombre;
         this.telefono = telefono;
         this.email = email;
         this.licenciaConducir = licenciaConducir;
-        this.patentesVehiculos = patentesVehiculos;
+        this.patentesVehiculos = patentesVehiculos != null ? patentesVehiculos : new ArrayList<>();
     }
 
     public String getNombre() {

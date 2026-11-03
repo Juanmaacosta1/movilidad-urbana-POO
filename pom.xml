@@ -14,19 +14,17 @@
     <description>Sistema de movilidad urbana (POO)</description>
 
     <properties>
-        <!-- El codigo usa String.isBlank() y FileReader(String, Charset): requiere Java 11 o superior -->
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <junit.version>5.10.2</junit.version>
+        <javafx.version>21.0.5</javafx.version>
 
-        <!-- Clase con el menu de consola (mvn exec:java / java -jar) -->
         <main.class>md.aplicacion.AplicacionConsulta</main.class>
     </properties>
 
     <dependencies>
-        <!-- JUnit 5 (api + params + engine). Lo usan los tests de src/test/java/md/test -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -34,19 +32,28 @@
             <scope>test</scope>
         </dependency>
 
-        <!--
-          Driver de PostgreSQL: hoy NO se usa (el codigo lee archivos TXT y el .jar de la raiz
-          nunca estuvo en el classpath de Eclipse). Si mas adelante se usa JDBC, descomentar:
-
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>42.7.4</version>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
         </dependency>
-        -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resource</directory>
+                <excludes>
+                    <exclude>datos/**</exclude>
+                </excludes>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -60,7 +67,6 @@
                 <version>3.5.2</version>
             </plugin>
 
-            <!-- Jar ejecutable: java -jar target/movilidad-urbana-poo-1.0-SNAPSHOT.jar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -74,13 +80,21 @@
                 </configuration>
             </plugin>
 
-            <!-- Ejecutar la aplicacion: mvn compile exec:java -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.5.0</version>
                 <configuration>
                     <mainClass>${main.class}</mainClass>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <configuration>
+                    <mainClass>md.ui.impl.javafx.MainApp</mainClass>
                 </configuration>
             </plugin>
         </plugins>
