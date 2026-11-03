@@ -1,5 +1,9 @@
 package md.datos.dao.bd;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
 
 import md.datos.dao.VehiculoDAO;
@@ -17,7 +21,19 @@ public class VehiculoDaoBd implements VehiculoDAO {
 	@Override
 	public List<VehiculoDTO> obtenerTodos() throws Exception {
 		// TODO Auto-generated method stub
-		return null;
+		List<VehiculoDTO> lista = new ArrayList<>();
+		String sql = "SELECT patente, modelo, capacidad_pasajero, tipo_vehiculo, categoria_vehiculo, tipo_servicios FROM vehiculo ORDER BY patente";
+		try (Connection c = conexion.obtenerConexion();
+				PreparedStatement ps = c.prepareStatement(sql);
+				ResultSet rs = ps.executeQuery()) {
+			while (rs.next()) {
+			
+			}
+
+		}
+
+		return lista;
+
 	}
 
 }

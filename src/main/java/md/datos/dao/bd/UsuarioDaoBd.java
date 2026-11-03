@@ -31,8 +31,8 @@ public class UsuarioDaoBd implements UsuarioDAO {
 						rs.getString("licencia_conducir")));
 			}
 
-			return null;
 		}
 
+		return lista;
 	}
 }
