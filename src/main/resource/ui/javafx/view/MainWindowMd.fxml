@@ -1,81 +1,194 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-  <?import javafx.geometry.Insets?>
-  <?import javafx.scene.control.Button?>
-  <?import javafx.scene.control.Label?>
-  <?import javafx.scene.control.ListView?>
-  <?import javafx.scene.control.Tab?>
-  <?import javafx.scene.control.TabPane?>
-  <?import javafx.scene.control.TableView?>
-  <?import javafx.scene.control.TextArea?>
-  <?import javafx.scene.control.TextField?>
-  <?import javafx.scene.layout.HBox?>
-  <?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.web.WebView?>
 
-  <VBox xmlns="http://javafx.com/javafx"
-        xmlns:fx="http://javafx.com/fxml"
-        fx:controller="md.ui.impl.javafx.controller.MainWindowMdController"
-        stylesheets="@../css/estilos.css"
-        spacing="8" prefWidth="780" prefHeight="540">
-      <padding>
-          <Insets top="12" right="12" bottom="12" left="12"/>
-      </padding>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="md.ui.impl.javafx.controller.MainWindowMdController"
+      stylesheets="@../css/estilos.css"
+      spacing="0" prefWidth="1000" prefHeight="640">
 
-      <Label fx:id="lblTitulo" text="Menu principal"
-            style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+    <!-- BARRA SUPERIOR -->
+    <HBox styleClass="top-bar" alignment="CENTER_LEFT" spacing="12">
+        <Label fx:id="lblTitulo" text="Movilidad Digital" styleClass="app-title"/>
+        <HBox HBox.hgrow="ALWAYS"/>
+        <Label fx:id="lblEstado" styleClass="status-label"/>
+        <Button text="Actualizar" onAction="#refrescar" styleClass="button-ghost"/>
+    </HBox>
 
-      <TabPane VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
-          <tabs>
-              <Tab text="Usuarios">
-                  <content>
-                      <TableView fx:id="tablaUsuarios"/>
-                  </content>
-              </Tab>
-              <Tab text="Servicios">
-                  <content>
-                      <TableView fx:id="tablaServicios"/>
-                  </content>
-              </Tab>
-              <Tab text="Vehículos">
-                  <content>
-                      <TableView fx:id="tablaVehiculos"/>
-                  </content>
-              </Tab>
-              <Tab text="Viajes">
-                  <content>
-                      <TableView fx:id="tablaViajes"/>
-                  </content>
-              </Tab>
-              <Tab text="Conductores en servicio">
-                  <content>
-                      <ListView fx:id="listaConductores"/>
-                  </content>
-              </Tab>
-              <Tab text="Buscar">
-                  <content>
-                      <VBox spacing="8">
-                          <padding>
-                              <Insets top="10" right="10" bottom="10" left="10"/>
-                          </padding>
-                          <Label text="Usuario por email" style="-fx-font-weight: bold;"/>
-                          <HBox spacing="8">
-                              <TextField fx:id="txtEmail" promptText="email@ejemplo.com" HBox.hgrow="ALWAYS"/>
-                              <Button text="Buscar usuario" onAction="#buscarUsuario"/>
-                          </HBox>
-                          <Label text="Vehículo por patente" style="-fx-font-weight: bold;"/>
-                          <HBox spacing="8">
-                              <TextField fx:id="txtPatente" promptText="AB123CD" HBox.hgrow="ALWAYS"/>
-                              <Button text="Buscar vehículo" onAction="#buscarVehiculo"/>
-                          </HBox>
-                          <TextArea fx:id="txtResultado" editable="false" VBox.vgrow="ALWAYS"/>
-                      </VBox>
-                  </content>
-              </Tab>
-          </tabs>
-      </TabPane>
+    <TabPane VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
 
-      <HBox spacing="10" alignment="CENTER_LEFT">
-          <Button text="Actualizar" onAction="#refrescar"/>
-          <Label fx:id="lblEstado"/>
-      </HBox>
-  </VBox>
+            <!-- TAB 1: PASAJERO  ⇄  CONDUCTOR -->
+            <Tab text="Viaje">
+                <content>
+                    <VBox spacing="14" styleClass="page">
+                        <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+
+                        <!-- Los dos "puntos de vista", lado a lado -->
+                        <HBox spacing="16" VBox.vgrow="ALWAYS">
+
+                            <!-- PASAJERO -->
+                            <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="10" prefWidth="480">
+                                <HBox styleClass="card-header, header-pasajero" alignment="CENTER_LEFT" spacing="8">
+                                    <Label text="🧍  PASAJERO" styleClass="card-title"/>
+                                </HBox>
+
+                                <VBox spacing="10" styleClass="card-body" VBox.vgrow="ALWAYS">
+                                    <Label text="¿Quién viaja?" styleClass="field-label"/>
+                                    <ComboBox fx:id="cmbPasajero" maxWidth="Infinity" promptText="Elegí un pasajero"/>
+
+                                    <Label text="Origen (lat, lng)" styleClass="field-label"/>
+                                    <HBox spacing="8">
+                                        <TextField fx:id="txtOrigenLat" promptText="-42.65" HBox.hgrow="ALWAYS"/>
+                                        <TextField fx:id="txtOrigenLng" promptText="-64.89" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+
+                                    <Label text="Destino (lat, lng)" styleClass="field-label"/>
+                                    <HBox spacing="8">
+                                        <TextField fx:id="txtDestinoLat" promptText="-42.86" HBox.hgrow="ALWAYS"/>
+                                        <TextField fx:id="txtDestinoLng" promptText="-64.88" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+
+                                    <Label text="Servicio" styleClass="field-label"/>
+                                    <ComboBox fx:id="cmbServicio" maxWidth="Infinity" promptText="Elegí un servicio"/>
+
+                                    <Button fx:id="btnSolicitar" text="Solicitar viaje" onAction="#solicitarViaje"
+                                            maxWidth="Infinity" styleClass="button-primary"/>
+
+                                    <Separator/>
+                                    <Label text="Mi viaje" styleClass="field-label"/>
+                                    <Label fx:id="lblViajePasajero" text="Sin viaje en curso" styleClass="info-box"
+                                           wrapText="true" maxWidth="Infinity"/>
+                                </VBox>
+                            </VBox>
+
+                            <!-- CONDUCTOR -->
+                            <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="10" prefWidth="480">
+                                <HBox styleClass="card-header, header-conductor" alignment="CENTER_LEFT" spacing="8">
+                                    <Label text="🚗  CONDUCTOR" styleClass="card-title"/>
+                                </HBox>
+
+                                <VBox spacing="10" styleClass="card-body" VBox.vgrow="ALWAYS">
+                                    <Label text="¿Quién conduce?" styleClass="field-label"/>
+                                    <ComboBox fx:id="cmbConductor" maxWidth="Infinity" promptText="Elegí un conductor"/>
+
+                                    <HBox spacing="8">
+                                        <VBox styleClass="stat" HBox.hgrow="ALWAYS">
+                                            <Label text="ESTADO" styleClass="stat-caption"/>
+                                            <Label fx:id="lblEstadoConductor" text="—" styleClass="stat-value"/>
+                                        </VBox>
+                                        <VBox styleClass="stat" HBox.hgrow="ALWAYS">
+                                            <Label text="CALIFICACIÓN" styleClass="stat-caption"/>
+                                            <Label fx:id="lblCalifConductor" text="—" styleClass="stat-value"/>
+                                        </VBox>
+                                        <VBox styleClass="stat" HBox.hgrow="ALWAYS">
+                                            <Label text="VIAJES" styleClass="stat-caption"/>
+                                            <Label fx:id="lblViajesConductor" text="—" styleClass="stat-value"/>
+                                        </VBox>
+                                    </HBox>
+
+                                    <Label text="Vehículo" styleClass="field-label"/>
+                                    <Label fx:id="lblVehiculoConductor" text="—" styleClass="info-box"
+                                           wrapText="true" maxWidth="Infinity"/>
+
+                                    <HBox spacing="8">
+                                        <Button fx:id="btnServicio" text="Ponerse en servicio" onAction="#alternarServicio"
+                                                HBox.hgrow="ALWAYS" maxWidth="Infinity" styleClass="button-ghost"/>
+                                    </HBox>
+
+                                    <Separator/>
+                                    <Label text="Viaje asignado" styleClass="field-label"/>
+                                    <Label fx:id="lblViajeConductor" text="Sin viaje asignado" styleClass="info-box"
+                                           wrapText="true" maxWidth="Infinity"/>
+
+                                    <HBox spacing="8">
+                                        <Button fx:id="btnAceptar" text="Aceptar" onAction="#aceptarViaje"
+                                                HBox.hgrow="ALWAYS" maxWidth="Infinity" styleClass="button-success"/>
+                                        <Button fx:id="btnIniciar" text="Iniciar" onAction="#iniciarViaje"
+                                                HBox.hgrow="ALWAYS" maxWidth="Infinity" styleClass="button-primary"/>
+                                        <Button fx:id="btnFinalizar" text="Finalizar" onAction="#finalizarViaje"
+                                                HBox.hgrow="ALWAYS" maxWidth="Infinity" styleClass="button-primary"/>
+                                    </HBox>
+                                </VBox>
+                            </VBox>
+                        </HBox>
+
+                        <!-- Línea de vida del viaje (compartida por los dos) -->
+                        <HBox styleClass="timeline" alignment="CENTER" spacing="10">
+                            <Label fx:id="stepSolicitado" text="① Solicitado" styleClass="step"/>
+                            <Label text="→" styleClass="step-arrow"/>
+                            <Label fx:id="stepAceptado" text="② Aceptado" styleClass="step"/>
+                            <Label text="→" styleClass="step-arrow"/>
+                            <Label fx:id="stepIniciado" text="③ Iniciado" styleClass="step"/>
+                            <Label text="→" styleClass="step-arrow"/>
+                            <Label fx:id="stepFinalizado" text="④ Finalizado" styleClass="step"/>
+                        </HBox>
+                    </VBox>
+                </content>
+            </Tab>
+
+            <Tab text="Mapa">
+                <content>
+                    <VBox spacing="12" styleClass="page">
+                        <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                        <Label text="Mapa de Puerto Madryn" styleClass="card-title-map"/>
+                        <StackPane minHeight="300" VBox.vgrow="ALWAYS"
+                                   styleClass="map-container">
+                            <WebView fx:id="mapView"/>
+                        </StackPane>
+                        <HBox spacing="8" styleClass="map-legend">
+                            <Label text="● Origen" styleClass="map-origin-legend"/>
+                            <Label text="● Destino" styleClass="map-destination-legend"/>
+                            <Label text="— Ruta" styleClass="map-route-legend"/>
+                        </HBox>
+                        <Label fx:id="lblMapaEstado" text="Puerto Madryn, Chubut · Cargando mapa..."
+                               styleClass="map-note" wrapText="true"/>
+                        <Label fx:id="lblMapaConductor" text="Conductor: sin seleccionar"
+                               styleClass="info-box" wrapText="true" maxWidth="Infinity"/>
+                    </VBox>
+                </content>
+            </Tab>
+
+            <!-- TAB 2: ADMINISTRACIÓN (lo que ya tenías) -->
+            <Tab text="Usuarios"><content><TableView fx:id="tablaUsuarios"/></content></Tab>
+            <Tab text="Servicios"><content><TableView fx:id="tablaServicios"/></content></Tab>
+            <Tab text="Vehículos"><content><TableView fx:id="tablaVehiculos"/></content></Tab>
+            <Tab text="Viajes"><content><TableView fx:id="tablaViajes"/></content></Tab>
+            <Tab text="Conductores en servicio"><content><ListView fx:id="listaConductores"/></content></Tab>
+            <Tab text="Buscar">
+                <content>
+                    <VBox spacing="8" styleClass="page">
+                        <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
+                        <Label text="Usuario por email" styleClass="field-label"/>
+                        <HBox spacing="8">
+                            <TextField fx:id="txtEmail" promptText="email@ejemplo.com" HBox.hgrow="ALWAYS"/>
+                            <Button text="Buscar usuario" onAction="#buscarUsuario" styleClass="button-primary"/>
+                        </HBox>
+                        <Label text="Vehículo por patente" styleClass="field-label"/>
+                        <HBox spacing="8">
+                            <TextField fx:id="txtPatente" promptText="AB123CD" HBox.hgrow="ALWAYS"/>
+                            <Button text="Buscar vehículo" onAction="#buscarVehiculo" styleClass="button-primary"/>
+                        </HBox>
+                        <TextArea fx:id="txtResultado" editable="false" VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                </content>
+            </Tab>
+        </tabs>
+    </TabPane>
+</VBox>
