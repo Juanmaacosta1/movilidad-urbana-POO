@@ -1,19 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.layout.VBox?>
+  <?import javafx.geometry.Insets?>
+  <?import javafx.scene.control.Button?>
+  <?import javafx.scene.control.Label?>
+  <?import javafx.scene.control.ListView?>
+  <?import javafx.scene.control.Tab?>
+  <?import javafx.scene.control.TabPane?>
+  <?import javafx.scene.control.TableView?>
+  <?import javafx.scene.control.TextArea?>
+  <?import javafx.scene.control.TextField?>
+  <?import javafx.scene.layout.HBox?>
+  <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="md.ui.impl.javafx.controller.MainWindowMdController"
-      spacing="10" alignment="CENTER" prefWidth="480" prefHeight="420">
-    <padding>
-        <Insets top="15" right="15" bottom="15" left="15"/>
-    </padding>
-    <Label fx:id="lblTitulo" text="Movilidad Digital" style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
-    <Button text="Ver usuarios" onAction="#verUsuarios"/>
-    <ListView fx:id="listaUsuarios" VBox.vgrow="ALWAYS"/>
-</VBox>
+  <VBox xmlns="http://javafx.com/javafx"
+        xmlns:fx="http://javafx.com/fxml"
+        fx:controller="md.ui.impl.javafx.controller.MainWindowMdController"
+        stylesheets="@../css/estilos.css"
+        spacing="8" prefWidth="780" prefHeight="540">
+      <padding>
+          <Insets top="12" right="12" bottom="12" left="12"/>
+      </padding>
+
+      <Label fx:id="lblTitulo" text="Menu principal"
+            style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+
+      <TabPane VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
+          <tabs>
+              <Tab text="Usuarios">
+                  <content>
+                      <TableView fx:id="tablaUsuarios"/>
+                  </content>
+              </Tab>
+              <Tab text="Servicios">
+                  <content>
+                      <TableView fx:id="tablaServicios"/>
+                  </content>
+              </Tab>
+              <Tab text="Vehículos">
+                  <content>
+                      <TableView fx:id="tablaVehiculos"/>
+                  </content>
+              </Tab>
+              <Tab text="Viajes">
+                  <content>
+                      <TableView fx:id="tablaViajes"/>
+                  </content>
+              </Tab>
+              <Tab text="Conductores en servicio">
+                  <content>
+                      <ListView fx:id="listaConductores"/>
+                  </content>
+              </Tab>
+              <Tab text="Buscar">
+                  <content>
+                      <VBox spacing="8">
+                          <padding>
+                              <Insets top="10" right="10" bottom="10" left="10"/>
+                          </padding>
+                          <Label text="Usuario por email" style="-fx-font-weight: bold;"/>
+                          <HBox spacing="8">
+                              <TextField fx:id="txtEmail" promptText="email@ejemplo.com" HBox.hgrow="ALWAYS"/>
+                              <Button text="Buscar usuario" onAction="#buscarUsuario"/>
+                          </HBox>
+                          <Label text="Vehículo por patente" style="-fx-font-weight: bold;"/>
+                          <HBox spacing="8">
+                              <TextField fx:id="txtPatente" promptText="AB123CD" HBox.hgrow="ALWAYS"/>
+                              <Button text="Buscar vehículo" onAction="#buscarVehiculo"/>
+                          </HBox>
+                          <TextArea fx:id="txtResultado" editable="false" VBox.vgrow="ALWAYS"/>
+                      </VBox>
+                  </content>
+              </Tab>
+          </tabs>
+      </TabPane>
+
+      <HBox spacing="10" alignment="CENTER_LEFT">
+          <Button text="Actualizar" onAction="#refrescar"/>
+          <Label fx:id="lblEstado"/>
+      </HBox>
+  </VBox>
