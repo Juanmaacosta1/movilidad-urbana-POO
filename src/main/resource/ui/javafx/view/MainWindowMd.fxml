@@ -31,7 +31,7 @@
         <Button text="Actualizar" onAction="#refrescar" styleClass="button-ghost"/>
     </HBox>
 
-    <TabPane VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
+    <TabPane fx:id="tabPanePrincipal" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
         <tabs>
 
             <!-- TAB 1: PASAJERO  ⇄  CONDUCTOR -->
@@ -46,24 +46,28 @@
                             <!-- PASAJERO -->
                             <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="10" prefWidth="480">
                                 <HBox styleClass="card-header, header-pasajero" alignment="CENTER_LEFT" spacing="8">
-                                    <Label text="🧍  PASAJERO" styleClass="card-title"/>
+                                    <Label text=" PASAJERO" styleClass="card-title"/>
                                 </HBox>
 
                                 <VBox spacing="10" styleClass="card-body" VBox.vgrow="ALWAYS">
                                     <Label text="¿Quién viaja?" styleClass="field-label"/>
                                     <ComboBox fx:id="cmbPasajero" maxWidth="Infinity" promptText="Elegí un pasajero"/>
 
-                                    <Label text="Origen (lat, lng)" styleClass="field-label"/>
-                                    <HBox spacing="8">
-                                        <TextField fx:id="txtOrigenLat" promptText="-42.65" HBox.hgrow="ALWAYS"/>
-                                        <TextField fx:id="txtOrigenLng" promptText="-64.89" HBox.hgrow="ALWAYS"/>
+                                    <Label text="¿Dónde te pasamos a buscar?" styleClass="field-label"/>
+                                    <HBox spacing="8" alignment="CENTER_LEFT">
+                                        <Label fx:id="lblOrigenSeleccionado" text="Todavía no elegido"
+                                               styleClass="info-box" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                                        <Button text="Elegir" onAction="#elegirOrigen" styleClass="button-ghost"/>
                                     </HBox>
 
-                                    <Label text="Destino (lat, lng)" styleClass="field-label"/>
-                                    <HBox spacing="8">
-                                        <TextField fx:id="txtDestinoLat" promptText="-42.86" HBox.hgrow="ALWAYS"/>
-                                        <TextField fx:id="txtDestinoLng" promptText="-64.88" HBox.hgrow="ALWAYS"/>
+                                    <Label text="¿A dónde querés ir?" styleClass="field-label"/>
+                                    <HBox spacing="8" alignment="CENTER_LEFT">
+                                        <Label fx:id="lblDestinoSeleccionado" text="Todavía no elegido"
+                                               styleClass="info-box" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                                        <Button text="Elegir" onAction="#elegirDestino" styleClass="button-ghost"/>
                                     </HBox>
+                                    <Label fx:id="lblTiempoEstimado" text="Tiempo estimado: elegí origen y destino"
+                                           styleClass="map-note" wrapText="true"/>
 
                                     <Label text="Servicio" styleClass="field-label"/>
                                     <ComboBox fx:id="cmbServicio" maxWidth="Infinity" promptText="Elegí un servicio"/>
@@ -81,7 +85,7 @@
                             <!-- CONDUCTOR -->
                             <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="10" prefWidth="480">
                                 <HBox styleClass="card-header, header-conductor" alignment="CENTER_LEFT" spacing="8">
-                                    <Label text="🚗  CONDUCTOR" styleClass="card-title"/>
+                                    <Label text="  CONDUCTOR" styleClass="card-title"/>
                                 </HBox>
 
                                 <VBox spacing="10" styleClass="card-body" VBox.vgrow="ALWAYS">
@@ -143,11 +147,19 @@
                 </content>
             </Tab>
 
-            <Tab text="Mapa">
+            <Tab fx:id="tabMapa" text="Mapa">
                 <content>
                     <VBox spacing="12" styleClass="page">
                         <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
                         <Label text="Mapa de Puerto Madryn" styleClass="card-title-map"/>
+                        <Label text="Elegí qué punto querés marcar y después tocá el lugar en el mapa."
+                               styleClass="map-note" wrapText="true"/>
+                        <HBox spacing="8">
+                            <Button text="Elegir punto de partida" onAction="#elegirOrigen"
+                                    styleClass="button-primary"/>
+                            <Button text="Elegir destino" onAction="#elegirDestino"
+                                    styleClass="button-success"/>
+                        </HBox>
                         <StackPane minHeight="300" VBox.vgrow="ALWAYS"
                                    styleClass="map-container">
                             <WebView fx:id="mapView"/>
@@ -157,6 +169,8 @@
                             <Label text="● Destino" styleClass="map-destination-legend"/>
                             <Label text="— Ruta" styleClass="map-route-legend"/>
                         </HBox>
+                        <Label fx:id="lblMapaSeleccion" text="Primero elegí un punto para marcar."
+                               styleClass="map-note" wrapText="true"/>
                         <Label fx:id="lblMapaEstado" text="Puerto Madryn, Chubut · Cargando mapa..."
                                styleClass="map-note" wrapText="true"/>
                         <Label fx:id="lblMapaConductor" text="Conductor: sin seleccionar"
@@ -167,7 +181,34 @@
 
             <!-- TAB 2: ADMINISTRACIÓN (lo que ya tenías) -->
             <Tab text="Usuarios"><content><TableView fx:id="tablaUsuarios"/></content></Tab>
-            <Tab text="Servicios"><content><TableView fx:id="tablaServicios"/></content></Tab>
+            <Tab text="Servicios">
+                <content>
+                    <VBox spacing="10" styleClass="page">
+                        <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
+                        <TableView fx:id="tablaServicios" VBox.vgrow="ALWAYS"/>
+                        <Separator/>
+                        <Label text="Agregar o editar un servicio" styleClass="card-title-map"/>
+                        <HBox spacing="8">
+                            <TextField fx:id="txtServicioNombre" promptText="Nombre" HBox.hgrow="ALWAYS"/>
+                            <TextField fx:id="txtServicioTarifaBase" promptText="Tarifa base" HBox.hgrow="ALWAYS"/>
+                            <TextField fx:id="txtServicioPrecioKm" promptText="Precio por km" HBox.hgrow="ALWAYS"/>
+                            <TextField fx:id="txtServicioPrecioMinuto" promptText="Precio por minuto" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                        <HBox spacing="8">
+                            <ComboBox fx:id="cmbServicioTipoVehiculo" promptText="Tipo de vehículo" HBox.hgrow="ALWAYS"/>
+                            <ComboBox fx:id="cmbServicioCategoria" promptText="Categoría" HBox.hgrow="ALWAYS"/>
+                            <ComboBox fx:id="cmbServicioTipo" promptText="Modalidad" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Button fx:id="btnGuardarServicio" text="Agregar servicio"
+                                    onAction="#guardarServicio" styleClass="button-primary"/>
+                            <Button text="Nuevo" onAction="#nuevoServicio" styleClass="button-ghost"/>
+                            <Label fx:id="lblServiciosEstado" text="Seleccioná un servicio para editarlo o creá uno nuevo."
+                                   styleClass="map-note" wrapText="true"/>
+                        </HBox>
+                    </VBox>
+                </content>
+            </Tab>
             <Tab text="Vehículos"><content><TableView fx:id="tablaVehiculos"/></content></Tab>
             <Tab text="Viajes"><content><TableView fx:id="tablaViajes"/></content></Tab>
             <Tab text="Conductores en servicio"><content><ListView fx:id="listaConductores"/></content></Tab>

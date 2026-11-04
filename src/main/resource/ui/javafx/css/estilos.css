@@ -5,6 +5,9 @@
     -fx-font-size: 14px;
     -fx-text-fill: #0f172a;
 }
+.hyperlink, .label, .button, .tab, .table-view .column-header .label, .list-cell {
+    -fx-underline: false;
+}
 .page { -fx-background-color: #f1f5f9; }
 .card-title-map { -fx-text-fill: #0f172a; -fx-font-size: 18px; -fx-font-weight: bold; }
 .map-container {

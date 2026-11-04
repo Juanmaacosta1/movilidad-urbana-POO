@@ -4,6 +4,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 import md.datos.dao.ServicioDAO;
 import md.datos.dto.ServicioDTO;
@@ -59,5 +64,34 @@ public class ServicioDaoTxt implements ServicioDAO {
 		}
 
 		return lista;
+	}
+
+	@Override
+	public void guardarTodos(List<ServicioDTO> servicios) throws Exception {
+		Path archivo = Path.of(rutaArchivo).toAbsolutePath();
+		Path directorio = archivo.getParent();
+		Path temporal = Files.createTempFile(directorio, "servicios-", ".tmp");
+		try {
+			StringBuilder contenido = new StringBuilder(
+					"#nombre;tarifaBase;precioKm;precioMinuto;TipoVehiculo;CategoriaVehiculo;TipoServicio;\n");
+			for (ServicioDTO servicio : servicios) {
+				contenido.append(servicio.getNombre()).append(';')
+						.append(servicio.getTarifaBase()).append(';')
+						.append(servicio.getPrecioKm()).append(';')
+						.append(servicio.getPrecioMinuto()).append(';')
+						.append(servicio.getTipoVehiculo()).append(';')
+						.append(servicio.getCategoriaVehiculo()).append(';')
+						.append(servicio.getTipoServicio()).append(";\n");
+			}
+			Files.writeString(temporal, contenido, StandardCharsets.UTF_8);
+			try {
+				Files.move(temporal, archivo, StandardCopyOption.REPLACE_EXISTING,
+						StandardCopyOption.ATOMIC_MOVE);
+			} catch (AtomicMoveNotSupportedException e) {
+				Files.move(temporal, archivo, StandardCopyOption.REPLACE_EXISTING);
+			}
+		} finally {
+			Files.deleteIfExists(temporal);
+		}
 	}
 }

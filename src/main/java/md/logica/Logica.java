@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import md.datos.dao.DAOFactory;
 import md.datos.dao.DAOLoader;
+import md.datos.dao.ServicioDAO;
 import md.datos.dto.ServicioDTO;
 import md.datos.dto.UsuarioDTO;
 import md.datos.dto.VehiculoDTO;
@@ -20,6 +21,7 @@ public class Logica {
 		private Map<String, Usuario> usuarios = new ChainHashMap<>();
 		private List<Servicio> servicios = new ArrayList<>();
 		private List<Viaje> viajes = new ArrayList<>();
+		private ServicioDAO servicioDAO;
 
 		private Logica() {
 			try {
@@ -32,9 +34,10 @@ public class Logica {
 		private void cargarDatosIniciales() throws Exception {
 
 			DAOFactory fabrica = DAOLoader.getFactory();
+			servicioDAO = fabrica.getServicioDAO();
 
 			// 1. Obtener los DTO mediante los DAO
-			java.util.List<ServicioDTO> serviciosDTO = fabrica.getServicioDAO().obtenerTodos();
+			java.util.List<ServicioDTO> serviciosDTO = servicioDAO.obtenerTodos();
 
 			java.util.List<VehiculoDTO> vehiculosDTO = fabrica.getVehiculoDAO().obtenerTodos();
 
@@ -393,6 +396,91 @@ public class Logica {
 
 		public List<Servicio> getServicios() {
 			return servicios;
+		}
+
+		public Servicio agregarServicio(String nombre, double tarifaBase, double precioKm, double precioMinuto,
+				TipoVehiculo tipoVehiculo, CategoriaVehiculo categoriaVehiculo, TipoServicio tipoServicio)
+				throws Exception {
+			Servicio nuevo = crearServicio(nombre, tarifaBase, precioKm, precioMinuto, tipoVehiculo,
+					categoriaVehiculo, tipoServicio);
+			validarNombreServicio(nuevo.getNombre(), null);
+			java.util.List<ServicioDTO> serviciosActualizados = convertirServicios(nuevo, null);
+			servicioDAO.guardarTodos(serviciosActualizados);
+			servicios.add(servicios.size(), nuevo);
+			return nuevo;
+		}
+
+		public Servicio actualizarServicio(Servicio original, String nombre, double tarifaBase, double precioKm,
+				double precioMinuto, TipoVehiculo tipoVehiculo, CategoriaVehiculo categoriaVehiculo,
+				TipoServicio tipoServicio) throws Exception {
+			if (original == null) {
+				throw new IllegalArgumentException("Seleccioná el servicio que querés editar");
+			}
+			int indiceOriginal = -1;
+			for (int i = 0; i < servicios.size(); i++) {
+				if (servicios.get(i) == original) {
+					indiceOriginal = i;
+					break;
+				}
+			}
+			if (indiceOriginal < 0) {
+				throw new IllegalArgumentException("El servicio seleccionado ya no existe");
+			}
+			Servicio actualizado = crearServicio(nombre, tarifaBase, precioKm, precioMinuto, tipoVehiculo,
+					categoriaVehiculo, tipoServicio);
+			validarNombreServicio(actualizado.getNombre(), original);
+			java.util.List<ServicioDTO> serviciosActualizados = convertirServicios(actualizado, original);
+			servicioDAO.guardarTodos(serviciosActualizados);
+			servicios.set(indiceOriginal, actualizado);
+			return actualizado;
+		}
+
+		private Servicio crearServicio(String nombre, double tarifaBase, double precioKm, double precioMinuto,
+				TipoVehiculo tipoVehiculo, CategoriaVehiculo categoriaVehiculo, TipoServicio tipoServicio) {
+			if (nombre == null || nombre.isBlank() || nombre.indexOf(';') >= 0
+					|| nombre.contains("\n") || nombre.contains("\r")) {
+				throw new IllegalArgumentException("Ingresá un nombre de servicio válido");
+			}
+			if (!Double.isFinite(tarifaBase) || !Double.isFinite(precioKm) || !Double.isFinite(precioMinuto)
+					|| tarifaBase < 0 || precioKm < 0 || precioMinuto < 0) {
+				throw new IllegalArgumentException("Los precios deben ser números válidos y no negativos");
+			}
+			if (tipoVehiculo == null || categoriaVehiculo == null || tipoServicio == null) {
+				throw new IllegalArgumentException("Completá el tipo, la categoría y la modalidad del servicio");
+			}
+			return new Servicio(nombre.trim(), tarifaBase, precioKm, precioMinuto, tipoVehiculo,
+					categoriaVehiculo, tipoServicio);
+		}
+
+		private void validarNombreServicio(String nombre, Servicio excluido) {
+			for (Servicio servicio : servicios) {
+				if (servicio != excluido && servicio.getNombre().equalsIgnoreCase(nombre.trim())) {
+					throw new IllegalArgumentException("Ya existe un servicio con ese nombre");
+				}
+			}
+		}
+
+		private java.util.List<ServicioDTO> convertirServicios(Servicio reemplazo, Servicio original) {
+			java.util.List<ServicioDTO> resultado = new java.util.ArrayList<>();
+			boolean reemplazado = false;
+			for (Servicio servicio : servicios) {
+				if (servicio == original) {
+					resultado.add(aDTO(reemplazo));
+					reemplazado = true;
+				} else {
+					resultado.add(aDTO(servicio));
+				}
+			}
+			if (original == null || !reemplazado) {
+				resultado.add(aDTO(reemplazo));
+			}
+			return resultado;
+		}
+
+		private ServicioDTO aDTO(Servicio servicio) {
+			return new ServicioDTO(servicio.getNombre(), servicio.getTarifaBase(), servicio.getPrecioKm(),
+					servicio.getPrecioMinuto(), servicio.getTipoVehiculo().name(),
+					servicio.getCategoriaVehiculo().name(), servicio.getTipoServicio().name());
 		}
 
 		// ==================================================================

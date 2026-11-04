@@ -1,31 +1,40 @@
 package md.ui.impl.javafx.controller;
 
+import java.util.Locale;
+
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.util.StringConverter;
-import javafx.concurrent.Worker;
 import javafx.scene.web.WebView;
 import md.logica.Logica;
 import md.modelo.CalificacionViaje;
+import md.modelo.CategoriaVehiculo;
 import md.modelo.Conductor;
 import md.modelo.EstadoConductor;
 import md.modelo.EstadoViaje;
 import md.modelo.Servicio;
+import md.modelo.TipoServicio;
+import md.modelo.TipoVehiculo;
 import md.modelo.Ubicacion;
 import md.modelo.Usuario;
 import md.modelo.Vehiculo;
 import md.modelo.Viaje;
 
 public class MainWindowMdController {
+	private static final String MENSAJE_PUNTO_MAPA = "PUNTO_MAPA:";
 
 	@FXML
 	private Label lblTitulo;
@@ -58,6 +67,7 @@ public class MainWindowMdController {
 				"Tipo");
 		configurar(tablaVehiculos, "Patente", "Modelo", "Capacidad", "Tipo", "Categoría", "Servicios");
 		configurar(tablaViajes, "ID", "Cliente", "Servicio", "Estado");
+		configurarEditorServicios();
 		configurarViaje();
 		refrescar();
 	}
@@ -206,41 +216,134 @@ public class MainWindowMdController {
 		txtResultado.setText(sb.toString());
 	}
 
-	// ============================================================================
-//  AGREGAR a MainWindowMdController.java  (no borres lo que ya tenés)
-//  Imports nuevos:
-//    import javafx.scene.control.Button;
-//    import javafx.scene.control.ComboBox;
-//    import javafx.util.StringConverter;
-//    import md.modelo.CalificacionViaje;
-//    import md.modelo.EstadoConductor;
-//    import md.modelo.EstadoViaje;
-//    import md.modelo.Ubicacion;
-// ============================================================================
-
-	// ---- Pasajero ----
+	// Datos y controles del viaje del pasajero.
 	@FXML private ComboBox<Usuario> cmbPasajero;
 	@FXML private ComboBox<Servicio> cmbServicio;
-	@FXML private TextField txtOrigenLat, txtOrigenLng, txtDestinoLat, txtDestinoLng;
 	@FXML private Button btnSolicitar;
-	@FXML private Label lblViajePasajero;
+	@FXML private Label lblViajePasajero, lblOrigenSeleccionado, lblDestinoSeleccionado, lblTiempoEstimado;
 	@FXML private WebView mapView;
-	@FXML private Label lblMapaEstado, lblMapaConductor;
+	@FXML private Label lblMapaEstado, lblMapaConductor, lblMapaSeleccion;
+	@FXML private TabPane tabPanePrincipal;
+	@FXML private Tab tabMapa;
+	@FXML private TextField txtServicioNombre, txtServicioTarifaBase, txtServicioPrecioKm, txtServicioPrecioMinuto;
+	@FXML private ComboBox<TipoVehiculo> cmbServicioTipoVehiculo;
+	@FXML private ComboBox<CategoriaVehiculo> cmbServicioCategoria;
+	@FXML private ComboBox<TipoServicio> cmbServicioTipo;
+	@FXML private Button btnGuardarServicio;
+	@FXML private Label lblServiciosEstado;
+	private Servicio servicioEditando;
 
-	// ---- Conductor ----
+	// Datos y controles del conductor.
 	@FXML private ComboBox<Usuario> cmbConductor;
 	@FXML private Label lblEstadoConductor, lblCalifConductor, lblViajesConductor,
 			lblVehiculoConductor, lblViajeConductor;
 	@FXML private Button btnServicio, btnAceptar, btnIniciar, btnFinalizar;
 
-	// ---- Línea de vida ----
+	// Indicadores del estado actual del viaje.
 	@FXML private Label stepSolicitado, stepAceptado, stepIniciado, stepFinalizado;
 
 	/** Viaje que se está mostrando en las dos tarjetas. */
 	private Viaje viajeActual;
 	private boolean mapaListo;
+	private Ubicacion origenSeleccionado;
+	private Ubicacion destinoSeleccionado;
+	private String puntoPendiente;
 
-	/** Llamalo al final de initialize(), antes de refrescar(). */
+	private void configurarEditorServicios() {
+		cmbServicioTipoVehiculo.setItems(FXCollections.observableArrayList(TipoVehiculo.values()));
+		cmbServicioCategoria.setItems(FXCollections.observableArrayList(CategoriaVehiculo.values()));
+		cmbServicioTipo.setItems(FXCollections.observableArrayList(TipoServicio.values()));
+		tablaServicios.getSelectionModel().selectedIndexProperty().addListener((observable, anterior, indice) -> {
+			int index = indice.intValue();
+			if (index >= 0 && index < Logica.getInstance().getServicios().size()) {
+				cargarServicioEditor(Logica.getInstance().getServicios().get(index));
+			}
+		});
+	}
+
+	private void cargarServicioEditor(Servicio servicio) {
+		servicioEditando = servicio;
+		txtServicioNombre.setText(servicio.getNombre());
+		txtServicioTarifaBase.setText(Double.toString(servicio.getTarifaBase()));
+		txtServicioPrecioKm.setText(Double.toString(servicio.getPrecioKm()));
+		txtServicioPrecioMinuto.setText(Double.toString(servicio.getPrecioMinuto()));
+		cmbServicioTipoVehiculo.setValue(servicio.getTipoVehiculo());
+		cmbServicioCategoria.setValue(servicio.getCategoriaVehiculo());
+		cmbServicioTipo.setValue(servicio.getTipoServicio());
+		btnGuardarServicio.setText("Guardar cambios");
+		lblServiciosEstado.setText("Editando " + servicio.getNombre() + ". Los cambios se guardan en servicios.txt.");
+	}
+
+	@FXML
+	private void nuevoServicio() {
+		servicioEditando = null;
+		tablaServicios.getSelectionModel().clearSelection();
+		txtServicioNombre.clear();
+		txtServicioTarifaBase.clear();
+		txtServicioPrecioKm.clear();
+		txtServicioPrecioMinuto.clear();
+		cmbServicioTipoVehiculo.getSelectionModel().clearSelection();
+		cmbServicioCategoria.getSelectionModel().clearSelection();
+		cmbServicioTipo.getSelectionModel().clearSelection();
+		btnGuardarServicio.setText("Agregar servicio");
+		lblServiciosEstado.setText("Completá los datos para agregar un nuevo servicio.");
+	}
+
+	@FXML
+	private void guardarServicio() {
+		try {
+			boolean servicioSeleccionadoEnViaje = servicioEditando != null
+					&& cmbServicio.getValue() == servicioEditando;
+			String nombre = txtServicioNombre.getText();
+			double tarifaBase = leerPrecio(txtServicioTarifaBase, "la tarifa base");
+			double precioKm = leerPrecio(txtServicioPrecioKm, "el precio por kilómetro");
+			double precioMinuto = leerPrecio(txtServicioPrecioMinuto, "el precio por minuto");
+			Logica logica = Logica.getInstance();
+			Servicio guardado;
+			if (servicioEditando == null) {
+				guardado = logica.agregarServicio(nombre, tarifaBase, precioKm, precioMinuto,
+						cmbServicioTipoVehiculo.getValue(), cmbServicioCategoria.getValue(),
+						cmbServicioTipo.getValue());
+			} else {
+				guardado = logica.actualizarServicio(servicioEditando, nombre, tarifaBase, precioKm, precioMinuto,
+						cmbServicioTipoVehiculo.getValue(), cmbServicioCategoria.getValue(),
+						cmbServicioTipo.getValue());
+			}
+			refrescar();
+			if (servicioSeleccionadoEnViaje) {
+				cmbServicio.setValue(guardado);
+			}
+			seleccionarServicioEnTabla(guardado);
+			lblServiciosEstado.setText("Servicio guardado correctamente en servicios.txt.");
+			lblEstado.setText("Servicio guardado correctamente.");
+		} catch (NumberFormatException e) {
+			lblServiciosEstado.setText("Revisá los precios: ingresá números válidos, por ejemplo 1500 o 1500,50.");
+		} catch (Exception e) {
+			lblServiciosEstado.setText("No se pudo guardar el servicio: " + e.getMessage());
+		}
+	}
+
+	private double leerPrecio(TextField campo, String nombre) {
+		String texto = campo.getText().trim().replace(',', '.');
+		if (texto.isEmpty()) {
+			throw new NumberFormatException("Falta " + nombre);
+		}
+		return Double.parseDouble(texto);
+	}
+
+	private void seleccionarServicioEnTabla(Servicio objetivo) {
+		int indice = 0;
+		for (Servicio servicio : Logica.getInstance().getServicios()) {
+			if (servicio == objetivo) {
+				tablaServicios.getSelectionModel().select(indice);
+				tablaServicios.scrollTo(indice);
+				return;
+			}
+			indice++;
+		}
+	}
+
+	/** Prepara los selectores del viaje y carga el mapa interactivo. */
 	private void configurarViaje() {
 		cmbPasajero.setConverter(new StringConverter<>() {
 			@Override public String toString(Usuario u) { return u == null ? "" : u.getNombre() + " · " + u.getEmail(); }
@@ -256,11 +359,20 @@ public class MainWindowMdController {
 			actualizarTarjetaConductor();
 			actualizarMapa();
 		});
+		mapView.getEngine().setOnAlert(evento -> procesarClicEnMapa(evento.getData()));
+		tabMapa.selectedProperty().addListener((observable, anterior, seleccionado) -> {
+			if (seleccionado) {
+				Platform.runLater(this::ajustarTamanoMapa);
+			}
+		});
 		mapView.getEngine().getLoadWorker().stateProperty().addListener((observable, anterior, estado) -> {
 			if (estado == Worker.State.SUCCEEDED) {
-				if ("function".equals(mapView.getEngine().executeScript("typeof window.actualizarRuta"))) {
+				if ("function".equals(mapView.getEngine().executeScript("typeof window.actualizarRuta"))
+						&& "function".equals(mapView.getEngine().executeScript("typeof window.setModoSeleccion"))
+						&& "function".equals(mapView.getEngine().executeScript("typeof window.ajustarTamanoMapa"))) {
 					mapaListo = true;
 					actualizarMapa();
+					actualizarModoSeleccion();
 				} else {
 					lblMapaEstado.setText("No se pudo cargar el mapa. Revisá la conexión a internet.");
 				}
@@ -275,10 +387,30 @@ public class MainWindowMdController {
 		} else {
 			mapView.getEngine().load(recursoMapa.toExternalForm());
 		}
-		txtOrigenLat.textProperty().addListener((o, a, b) -> actualizarMapa());
-		txtOrigenLng.textProperty().addListener((o, a, b) -> actualizarMapa());
-		txtDestinoLat.textProperty().addListener((o, a, b) -> actualizarMapa());
-		txtDestinoLng.textProperty().addListener((o, a, b) -> actualizarMapa());
+	}
+
+	private void ajustarTamanoMapa() {
+		if (mapaListo) {
+			mapView.getEngine().executeScript("window.ajustarTamanoMapa()");
+		}
+	}
+
+	private void procesarClicEnMapa(String mensaje) {
+		if (mensaje == null || !mensaje.startsWith(MENSAJE_PUNTO_MAPA)) {
+			return;
+		}
+		String[] coordenadas = mensaje.substring(MENSAJE_PUNTO_MAPA.length()).split(",", -1);
+		if (coordenadas.length != 2) {
+			lblMapaSeleccion.setText("No se pudo leer el punto. Volvé a tocar el mapa.");
+			return;
+		}
+		try {
+			double latitud = Double.parseDouble(coordenadas[0]);
+			double longitud = Double.parseDouble(coordenadas[1]);
+			seleccionarUbicacion(latitud, longitud);
+		} catch (NumberFormatException e) {
+			lblMapaSeleccion.setText("No se pudo leer el punto. Volvé a tocar el mapa.");
+		}
 	}
 
 	private void actualizarMapa() {
@@ -299,46 +431,100 @@ public class MainWindowMdController {
 					+ "\nLa ubicación GPS del conductor no está disponible.");
 		}
 
-		Ubicacion origen = viajeActual == null ? leerUbicacion(txtOrigenLat, txtOrigenLng)
-				: viajeActual.getOrigen();
-		Ubicacion destino = viajeActual == null ? leerUbicacion(txtDestinoLat, txtDestinoLng)
-				: viajeActual.getDestino();
-		if (origen == null || destino == null) {
-			lblMapaEstado.setText("Ingresá coordenadas válidas de origen y destino para ver la ruta.");
+		Ubicacion origen = viajeActual == null ? origenSeleccionado : viajeActual.getOrigen();
+		Ubicacion destino = viajeActual == null ? destinoSeleccionado : viajeActual.getDestino();
+		actualizarTextoUbicacion(lblOrigenSeleccionado, origenSeleccionado);
+		actualizarTextoUbicacion(lblDestinoSeleccionado, destinoSeleccionado);
+		if (origen == null && destino == null) {
+			lblMapaEstado.setText("Marcá el punto de partida y el destino para ver el recorrido.");
+		} else if (origen == null) {
+			lblMapaEstado.setText("Destino marcado. Falta elegir el punto de partida.");
+		} else if (destino == null) {
+			lblMapaEstado.setText("Punto de partida marcado. Falta elegir el destino.");
 		} else {
-			lblMapaEstado.setText(String.format("Origen: %.5f, %.5f    ·    Destino: %.5f, %.5f",
-					origen.getLatitud(), origen.getLongitud(), destino.getLatitud(), destino.getLongitud()));
+			lblMapaEstado.setText("Punto de partida y destino listos. Ya podés solicitar el viaje.");
 		}
+		actualizarTiempoEstimado(origen, destino);
 		if (mapaListo) {
 			String origenLat = origen == null ? "null" : Double.toString(origen.getLatitud());
 			String origenLng = origen == null ? "null" : Double.toString(origen.getLongitud());
 			String destinoLat = destino == null ? "null" : Double.toString(destino.getLatitud());
 			String destinoLng = destino == null ? "null" : Double.toString(destino.getLongitud());
-			mapView.getEngine().executeScript(String.format(java.util.Locale.ROOT,
+			mapView.getEngine().executeScript(String.format(Locale.ROOT,
 					"window.actualizarRuta(%s, %s, %s, %s)",
 					origenLat, origenLng, destinoLat, destinoLng));
 		}
 	}
 
-	private Ubicacion leerUbicacion(TextField latitud, TextField longitud) {
-		try {
-			String lat = latitud.getText().trim();
-			String lng = longitud.getText().trim();
-			if (lat.isEmpty() || lng.isEmpty()) {
-				return null;
-			}
-			double latitudValor = Double.parseDouble(lat);
-			double longitudValor = Double.parseDouble(lng);
-			if (!Double.isFinite(latitudValor) || !Double.isFinite(longitudValor)) {
-				return null;
-			}
-			return new Ubicacion(latitudValor, longitudValor);
-		} catch (IllegalArgumentException e) {
-			return null;
+	private void actualizarTiempoEstimado(Ubicacion origen, Ubicacion destino) {
+		if (lblTiempoEstimado == null) {
+			return;
+		}
+		if (origen == null || destino == null) {
+			lblTiempoEstimado.setText("Tiempo estimado: elegí origen y destino");
+			return;
+		}
+		double distanciaKm = origen.calcularDistancia(destino);
+		long minutos = Math.max(1, (long) Math.ceil(distanciaKm / 30.0 * 60));
+		lblTiempoEstimado.setText(String.format(java.util.Locale.forLanguageTag("es-AR"),
+				"Tiempo estimado: ~%d min (%.1f km en línea recta, a 30 km/h; sin tráfico)",
+				minutos, distanciaKm));
+	}
+
+	private void actualizarTextoUbicacion(Label etiqueta, Ubicacion ubicacion) {
+		if (etiqueta != null) {
+			etiqueta.setText(ubicacion == null ? "Todavía no elegido" : "Ubicación marcada en el mapa");
 		}
 	}
 
-	/** Llamalo al final de refrescar(), dentro del try. */
+	@FXML
+	private void elegirOrigen() {
+		iniciarSeleccion("origen");
+	}
+
+	@FXML
+	private void elegirDestino() {
+		iniciarSeleccion("destino");
+	}
+
+	private void iniciarSeleccion(String punto) {
+		puntoPendiente = punto;
+		lblMapaSeleccion.setText("Tocá el mapa para marcar el "
+				+ ("origen".equals(punto) ? "punto de partida." : "destino."));
+		tabPanePrincipal.getSelectionModel().select(tabMapa);
+		actualizarModoSeleccion();
+	}
+
+	private void actualizarModoSeleccion() {
+		if (mapaListo) {
+			String modo = puntoPendiente == null ? "" : puntoPendiente;
+			mapView.getEngine().executeScript(String.format(Locale.ROOT,
+					"window.setModoSeleccion('%s')", modo));
+		}
+	}
+
+	private void seleccionarUbicacion(double latitud, double longitud) {
+		if (puntoPendiente == null) {
+			return;
+		}
+		try {
+			Ubicacion ubicacion = new Ubicacion(latitud, longitud);
+			if ("origen".equals(puntoPendiente)) {
+				origenSeleccionado = ubicacion;
+				lblMapaSeleccion.setText("Punto de partida marcado. Ahora elegí el destino.");
+			} else {
+				destinoSeleccionado = ubicacion;
+				lblMapaSeleccion.setText("Destino marcado. ¡Listo!");
+			}
+			puntoPendiente = null;
+			actualizarMapa();
+			actualizarModoSeleccion();
+		} catch (IllegalArgumentException e) {
+			lblMapaSeleccion.setText("No se pudo marcar ese lugar. Probá con otro punto del mapa.");
+		}
+	}
+
+	/** Recarga los selectores sin perder la selección actual. */
 	private void refrescarViaje(Logica logica) {
 		Usuario pas = cmbPasajero.getValue();
 		Usuario con = cmbConductor.getValue();
@@ -371,15 +557,14 @@ public class MainWindowMdController {
 				lblEstado.setText("Elegí un pasajero y un servicio.");
 				return;
 			}
-			Ubicacion origen = new Ubicacion(Double.parseDouble(txtOrigenLat.getText().trim()),
-					Double.parseDouble(txtOrigenLng.getText().trim()));
-			Ubicacion destino = new Ubicacion(Double.parseDouble(txtDestinoLat.getText().trim()),
-					Double.parseDouble(txtDestinoLng.getText().trim()));
+			if (origenSeleccionado == null || destinoSeleccionado == null) {
+				lblEstado.setText("Elegí el punto de partida y el destino directamente en el mapa.");
+				return;
+			}
 
-			viajeActual = Logica.getInstance().solicitarViaje(pasajero, origen, destino, servicio);
+			viajeActual = Logica.getInstance().solicitarViaje(
+					pasajero, origenSeleccionado, destinoSeleccionado, servicio);
 			actualizarEstadoViaje();
-		} catch (NumberFormatException e) {
-			lblEstado.setText("Las coordenadas deben ser números (ej: -42.65).");
 		} catch (Exception e) {
 			lblEstado.setText("No se pudo solicitar: " + e.getMessage());
 		}
