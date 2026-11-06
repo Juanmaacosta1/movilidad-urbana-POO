@@ -99,7 +99,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>md.ui.impl.javafx.MainApp</mainClass>
+                    <mainClass>md.ui.impl.javafx.MiniMain</mainClass>
                 </configuration>
             </plugin>
         </plugins>
