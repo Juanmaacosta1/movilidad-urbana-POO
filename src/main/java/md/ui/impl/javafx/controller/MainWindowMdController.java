@@ -14,7 +14,9 @@ import javafx.scene.control.TextField;
 import javafx.util.StringConverter;
 import javafx.concurrent.Worker;
 import javafx.scene.web.WebView;
+import md.config.CargaParametros;
 import md.logica.Logica;
+import md.logica.ValidacionUbicaciones;
 import md.modelo.CalificacionViaje;
 import md.modelo.Conductor;
 import md.modelo.EstadoConductor;
@@ -206,18 +208,6 @@ public class MainWindowMdController {
 		txtResultado.setText(sb.toString());
 	}
 
-	// ============================================================================
-//  AGREGAR a MainWindowMdController.java  (no borres lo que ya tenés)
-//  Imports nuevos:
-//    import javafx.scene.control.Button;
-//    import javafx.scene.control.ComboBox;
-//    import javafx.util.StringConverter;
-//    import md.modelo.CalificacionViaje;
-//    import md.modelo.EstadoConductor;
-//    import md.modelo.EstadoViaje;
-//    import md.modelo.Ubicacion;
-// ============================================================================
-
 	// ---- Pasajero ----
 	@FXML private ComboBox<Usuario> cmbPasajero;
 	@FXML private ComboBox<Servicio> cmbServicio;
@@ -240,7 +230,7 @@ public class MainWindowMdController {
 	private Viaje viajeActual;
 	private boolean mapaListo;
 
-	/** Llamalo al final de initialize(), antes de refrescar(). */
+	/** Configura combos, listeners y el WebView del mapa (se llama desde initialize()). */
 	private void configurarViaje() {
 		cmbPasajero.setConverter(new StringConverter<>() {
 			@Override public String toString(Usuario u) { return u == null ? "" : u.getNombre() + " · " + u.getEmail(); }
@@ -259,6 +249,9 @@ public class MainWindowMdController {
 		mapView.getEngine().getLoadWorker().stateProperty().addListener((observable, anterior, estado) -> {
 			if (estado == Worker.State.SUCCEEDED) {
 				if ("function".equals(mapView.getEngine().executeScript("typeof window.actualizarRuta"))) {
+					mapView.getEngine().executeScript(String.format(java.util.Locale.ROOT,
+							"window.centrarMapa(%s, %s, %d)", CargaParametros.getMapaCentroLatitud(),
+							CargaParametros.getMapaCentroLongitud(), CargaParametros.getMapaZoom()));
 					mapaListo = true;
 					actualizarMapa();
 				} else {
@@ -338,7 +331,7 @@ public class MainWindowMdController {
 		}
 	}
 
-	/** Llamalo al final de refrescar(), dentro del try. */
+	/** Recarga combos y tarjetas de pasajero y conductor (se llama al final de refrescar()). */
 	private void refrescarViaje(Logica logica) {
 		Usuario pas = cmbPasajero.getValue();
 		Usuario con = cmbConductor.getValue();
@@ -376,10 +369,13 @@ public class MainWindowMdController {
 			Ubicacion destino = new Ubicacion(Double.parseDouble(txtDestinoLat.getText().trim()),
 					Double.parseDouble(txtDestinoLng.getText().trim()));
 
+			ValidacionUbicaciones.validarEnArea(origen, "El origen");
+			ValidacionUbicaciones.validarEnArea(destino, "El destino");
+
 			viajeActual = Logica.getInstance().solicitarViaje(pasajero, origen, destino, servicio);
 			actualizarEstadoViaje();
 		} catch (NumberFormatException e) {
-			lblEstado.setText("Las coordenadas deben ser números (ej: -42.65).");
+			lblEstado.setText("Las coordenadas deben ser números (ej: -42.77).");
 		} catch (Exception e) {
 			lblEstado.setText("No se pudo solicitar: " + e.getMessage());
 		}

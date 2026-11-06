@@ -2,7 +2,7 @@ package pruebas;
 
 import java.util.Random;
 
-import md.datos.CargaParametros;
+import md.config.CargaParametros;
 import md.logica.Logica;
 import md.modelo.CalificacionViaje;
 import md.modelo.CategoriaVehiculo;

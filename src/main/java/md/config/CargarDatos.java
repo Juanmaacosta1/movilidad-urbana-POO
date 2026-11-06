@@ -1,4 +1,4 @@
-package md.datos;
+package md.config;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

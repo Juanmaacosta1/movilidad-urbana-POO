@@ -2,7 +2,7 @@ package md.datos.dao;
 
 import java.io.IOException;
 
-import md.datos.CargaParametros;
+import md.config.CargaParametros;
 import md.datos.dao.txt.TxtDAOFactory;
 
 public class DAOLoader {

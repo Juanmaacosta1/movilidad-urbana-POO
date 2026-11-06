@@ -8,6 +8,11 @@ import md.modelo.*;
 public class AplicacionConsulta {
 
     public static void main(String[] args) {
+        ejecutarMenu();
+    }
+
+    /** Bucle del menú de consola; lo usan main y CommandLineInterface. */
+    public static void ejecutarMenu() {
 
         try (Scanner entrada = new Scanner(System.in)) {
 
