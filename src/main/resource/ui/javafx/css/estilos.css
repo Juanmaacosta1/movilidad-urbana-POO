@@ -4,6 +4,8 @@
 
 .page         { -fx-padding: 16; -fx-background-color: #f1f5f9; }
 .card         { -fx-background-color: white; -fx-padding: 16; -fx-background-radius: 10; }
+.form-scroll  { -fx-background-color: transparent; -fx-background: transparent; }
+.map-panel    { -fx-min-width: 400px; }
 .field-label  { -fx-font-weight: bold; -fx-text-fill: #475569; }
 
 .button-primary { -fx-background-color: #3b82f6; -fx-text-fill: white; }

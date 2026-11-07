@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="md.ui.impl.javafx.controller.AdminController"
+            fitToWidth="true" hbarPolicy="NEVER" prefWidth="460" prefHeight="560">
+    <stylesheets>
+        <URL value="@../css/estilos.css"/>
+        <URL value="@../css/mejoras.css"/>
+    </stylesheets>
+    <content>
+        <VBox styleClass="page" spacing="12">
+
+            <VBox spacing="2">
+                <Label text="Administración" styleClass="titulo-pantalla"/>
+                <Label text="Elegí a alguien de la lista y usá los botones de abajo."
+                       styleClass="hint-label" wrapText="true"/>
+            </VBox>
+
+            <!--USUARIOS -->
+            <VBox styleClass="card" spacing="8">
+                <Label text=" Usuarios" styleClass="field-label"/>
+                <ComboBox fx:id="cmbUsuarios" maxWidth="Infinity" promptText="Buscar usuario"/>
+
+                <HBox spacing="8">
+                    <Button text="＋ Agregar" onAction="#agregarUsuario"
+                            maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                            styleClass="button-secondary"/>
+                    <Button text="✎ Editar" onAction="#editarUsuario"
+                            maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                            styleClass="button-primary">
+                        <tooltip><Tooltip text="Primero elegí un usuario de la lista"/></tooltip>
+                    </Button>
+                    <Button text="🗑 Eliminar" onAction="#eliminarUsuario"
+                            maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                            styleClass="button-danger">
+                        <tooltip><Tooltip text="Primero elegí un usuario de la lista"/></tooltip>
+                    </Button>
+                </HBox>
+
+                <VBox fx:id="formularioUsuario" spacing="8" styleClass="formulario"
+                      visible="false" managed="false">
+                    <Label text="Datos del usuario" styleClass="subtitulo"/>
+                    <TextField fx:id="txtNombreUsuario" promptText="Nombre"/>
+                    <TextField fx:id="txtTelefonoUsuario" promptText="Teléfono"/>
+                    <TextField fx:id="txtEmailUsuario" promptText="Email"/>
+                    <Button fx:id="btnGuardarUsuario" text=" Guardar cambios" onAction="#guardarUsuario"
+                            maxWidth="Infinity" styleClass="button-primary"/>
+                </VBox>
+
+                <Label fx:id="lblResultadoUsuario" text="Elegí un usuario disponible."
+                       styleClass="estado" wrapText="true"/>
+            </VBox>
+
+            <!--CONDUCTORES -->
+            <VBox styleClass="card" spacing="8">
+                <Label text=" Conductores" styleClass="field-label"/>
+                <ComboBox fx:id="cmbConductores" maxWidth="Infinity" promptText="Buscar conductor"/>
+
+                <HBox spacing="8">
+                    <Button text="＋ Agregar" onAction="#agregarConductor"
+                            maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                            styleClass="button-secondary"/>
+                    <Button text="✎ Editar" onAction="#editarConductor"
+                            maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                            styleClass="button-primary">
+                        <tooltip><Tooltip text="Primero elegí un conductor de la lista"/></tooltip>
+                    </Button>
+                    <Button text="🗑 Eliminar" onAction="#eliminarConductor"
+                            maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                            styleClass="button-danger">
+                        <tooltip><Tooltip text="Primero elegí un conductor de la lista"/></tooltip>
+                    </Button>
+                </HBox>
+
+                <VBox fx:id="formularioConductor" spacing="8" styleClass="formulario"
+                      visible="false" managed="false">
+                    <Label text="Datos del conductor" styleClass="subtitulo"/>
+                    <TextField fx:id="txtNombreConductor" promptText="Nombre"/>
+                    <TextField fx:id="txtTelefonoConductor" promptText="Teléfono"/>
+                    <TextField fx:id="txtEmailConductor" promptText="Email"/>
+                    <TextField fx:id="txtLicenciaConductor" promptText="Licencia de conducir"/>
+                    <ComboBox fx:id="cmbVehiculoConductor" maxWidth="Infinity"
+                              promptText="Vehículo registrado"/>
+                    <Button fx:id="btnGuardarConductor" text=" Guardar cambios" onAction="#guardarConductor"
+                            maxWidth="Infinity" styleClass="button-primary"/>
+                </VBox>
+
+                <Label fx:id="lblResultadoConductor" text="Elegí un conductor registrado."
+                       styleClass="estado" wrapText="true"/>
+            </VBox>
+
+            <!--  HISTORIAL  -->
+            <Button fx:id="btnHistorial" text=" Ver historial de viajes"
+                    onAction="#alternarHistorial" maxWidth="Infinity"
+                    styleClass="button-secondary"/>
+
+            <VBox fx:id="seccionHistorial" spacing="8" styleClass="card"
+                  visible="false" managed="false">
+                <Label text="Historial de viajes" styleClass="field-label"/>
+
+                <TableView fx:id="tblHistorial" prefHeight="240" minHeight="160"
+                           styleClass="tabla-historial">
+                    <placeholder>
+                        <Label text="Todavía no hay viajes registrados." styleClass="hint-label"/>
+                    </placeholder>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                    </columnResizePolicy>
+                    <columns>
+                        <TableColumn fx:id="colFecha"     text="Fecha"/>
+                        <TableColumn fx:id="colOrigen"    text="Origen"/>
+                        <TableColumn fx:id="colDestino"   text="Destino"/>
+                        <TableColumn fx:id="colServicio"  text="Servicio"/>
+                        <TableColumn fx:id="colConductor" text="Conductor"/>
+                    </columns>
+                </TableView>
+
+                <Label fx:id="lblResultadoHistorial" text="Todavía no hay viajes registrados."
+                       styleClass="hint-label" wrapText="true"/>
+            </VBox>
+        </VBox>
+    </content>
+</ScrollPane>

@@ -6,10 +6,25 @@ Proyecto Maven (Java 17+, JUnit 5).
 
 ```
 pom.xml
-config.properties, usuarios.txt, vehiculos.txt, servicios.txt   <- datos (se leen desde la raíz)
-src/main/java/   datos, logica, modelo, pruebas, md.*, net.datastructures
-src/test/java/   md.test (tests JUnit 5)
+config.properties, usuarios.txt, vehiculos.txt, servicios.txt   <- configuración y datos de entrada
+src/main/java/md/
+  aplicacion/       puntos de entrada
+  config/           carga de parámetros y selección de DAO
+  datos/            DAO, implementaciones TXT/BD y DTO
+  logica/           reglas de negocio y coordinación de viajes
+  modelo/           entidades y tipos de dominio
+  rutas/api/        contratos de planificación de rutas (estructura preparada)
+  rutas/impl/       implementaciones de planificación de rutas (estructura preparada)
+  simulacion/       simulación de ubicaciones y escenarios (estructura preparada)
+  ui/               interfaz de consola y JavaFX
+    api/             contratos de interfaz y visualización
+    impl/javafx/     interfaz JavaFX, controladores y adaptadores de mapa
+src/main/java/net/datastructures/  estructuras de datos
+src/test/java/md/test/             pruebas JUnit 5
 ```
+
+Los paquetes de `rutas`, `simulacion` y `ui/impl/javafx/map` están creados como estructura;
+sus clases todavía no están implementadas.
 
 > **Importante:** el código abre `config.properties` y los `.txt` con rutas relativas
 > (`new FileInputStream("config.properties")`), por lo que hay que ejecutar **siempre desde
@@ -25,10 +40,10 @@ mvn compile exec:java        # ejecutar el menú de consola (md.aplicacion.Aplic
 java -jar target/movilidad-urbana-poo-1.0-SNAPSHOT.jar   # idem, con el jar generado
 ```
 
-Para ejecutar otra clase con `main` (por ejemplo `md.pruebas.PruebaDAO`):
+Para ejecutar un comprobador manual con `main`:
 
 ```bash
-mvn compile exec:java -Dexec.mainClass=md.pruebas.PruebaDAO
+mvn test-compile exec:java -Dmain.class=md.test.PruebaDAO -Dexec.classpathScope=test
 ```
 
 ## Importar en el IDE

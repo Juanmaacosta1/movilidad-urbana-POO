@@ -1,74 +1,149 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.web.WebView?>
 
-<ScrollPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="md.ui.impl.javafx.controller.MiniController"
-            stylesheets="@../css/estilos.css"
-            fitToWidth="true" prefWidth="440" prefHeight="620">
-    <content>
-        <VBox styleClass="page" spacing="10">
+<HBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="md.ui.impl.javafx.controller.MiniController"
+      styleClass="page" spacing="16" prefWidth="1200" prefHeight="760">
+    <stylesheets>
+        <URL value="@../css/estilos.css"/>
+        <URL value="@../css/mejoras.css"/>
+    </stylesheets>
 
-        <!-- Pasajero -->
-            <VBox styleClass="card" spacing="10">
-                <Label text="¿Quién viaja?" styleClass="field-label"/>
-                <ComboBox fx:id="cmbPasajero" maxWidth="Infinity" promptText="Elegí un pasajero"/>
-                <Label fx:id="lblResultado" text="Elegí quién va a viajar." wrapText="true"/>
-            </VBox>
+    <!-- COLUMNA IZQUIERDA: formulario -->
+    <ScrollPane fitToWidth="true" prefWidth="560" minWidth="340"
+                hbarPolicy="NEVER" styleClass="form-scroll" HBox.hgrow="ALWAYS">
+        <content>
+            <VBox spacing="12" prefWidth="390">
 
-            <!-- Mapa -->
-            <VBox styleClass="card" spacing="10">
-                <Label text="Seleccioná el origen y el destino" styleClass="field-label"/>
-                <Button fx:id="btnElegirOrigen" text="Elegir origen en el mapa"
-                        onAction="#seleccionarOrigen" maxWidth="Infinity" disable="true"/>
-                <Label fx:id="lblOrigen" text="Origen: sin seleccionar" wrapText="true"/>
-                <Button fx:id="btnElegirDestino" text="Elegir destino en el mapa"
-                        onAction="#seleccionarDestino" maxWidth="Infinity" disable="true"/>
-                <Label fx:id="lblDestino" text="Destino: sin seleccionar" wrapText="true"/>
-                <Label fx:id="lblEstadoMapa" text="Cargando mapa..." wrapText="true"/>
-                <WebView fx:id="mapa" prefHeight="300" minHeight="250"/>
-            </VBox>
-            <!-- Servicio -->
-            <VBox styleClass="card" spacing="10">
-                <Label text="¿Qué servicio necesitás?" styleClass="field-label"/>
-                <ComboBox fx:id="cmbTipoServicio" maxWidth="Infinity" promptText="Elegí un servicio"
-                          onAction="#seleccionarServicio"/>
-                          <Button text="Solicitar viaje" onAction="#solicitarViaje"
-                        maxWidth="Infinity" styleClass="button-primary"/>
-                <Label fx:id="lblResultadoServicio" text="Elegí un servicio disponible." wrapText="true"/>
-            </VBox>
-
-            <!-- Chofer -->
-            <VBox styleClass="card" spacing="10">
-                <Label text="¿Quién conduce?" styleClass="field-label"/>
-                <ComboBox fx:id="cmbChofer" maxWidth="Infinity" promptText="Elegí un conductor"/>
-                <Button text="Seleccionar conductor" onAction="#solicitarChofer"
-                        maxWidth="Infinity" styleClass="button-primary"/>
-                <Label fx:id="lblResultadoChofer" text="Elegí un conductor disponible." wrapText="true"/>
-            </VBox>
-
-            <!-- Admin -->
-            <Button fx:id="btnAdministracion" text="Administrar usuarios y conductores"
-                    onAction="#alternarAdministracion" maxWidth="Infinity"/>
-            <VBox fx:id="seccionAdministracion" spacing="10" visible="false" managed="false">
-                <VBox styleClass="card" spacing="10">
-                    <Label text="Administración de usuarios" styleClass="field-label"/>
-                    <ComboBox fx:id="cmbUsuarios" maxWidth="Infinity" promptText="Buscar usuario"/>
-                    <Button text="Seleccionar usuario" onAction="#solicitarUsuario"
-                            maxWidth="Infinity" styleClass="button-primary"/>
-                    <Label fx:id="lblResultadoUsuario" text="Elegí un usuario disponible." wrapText="true"/>
+                <!-- Encabezado -->
+                <VBox spacing="2">
+                    <Label text="Pedí tu viaje" styleClass="titulo-pantalla"/>
+                    <Label text="Completá los 3 pasos y tocá «Pedir viaje»."
+                           styleClass="hint-label" wrapText="true"/>
                 </VBox>
-                <VBox styleClass="card" spacing="10">
-                    <Label text="Administración de conductores" styleClass="field-label"/>
-                    <ComboBox fx:id="cmbConductoresAdmin" maxWidth="Infinity" promptText="Buscar conductor"/>
-                    <Button text="Seleccionar conductor" onAction="#solicitarConductorAdmin"
-                            maxWidth="Infinity" styleClass="button-primary"/>
-                    <Label fx:id="lblResultadoConductorAdmin" text="Elegí un conductor registrado." wrapText="true"/>
+
+                <!-- VISTA PASAJERO  -->
+                <VBox fx:id="seccionPasajero" spacing="12">
+
+                    <!-- Paso 1 -->
+                    <VBox styleClass="card" spacing="8">
+                        <Label text="1 · ¿Quién viaja?" styleClass="field-label"/>
+                        <ComboBox fx:id="cmbPasajero" maxWidth="Infinity" promptText="Elegí un pasajero"
+                                  onAction="#actualizarEstadoPasajero">
+                            <tooltip><Tooltip text="Al elegir un pasajero se habilitan los botones del mapa"/></tooltip>
+                        </ComboBox>
+                        <Label fx:id="lblResultado" text="Elegí quién va a viajar."
+                               styleClass="hint-label" wrapText="true"/>
+                    </VBox>
+
+                    <!-- Paso 2 -->
+                    <VBox styleClass="card" spacing="8">
+                        <Label text="2 · ¿De dónde a dónde?" styleClass="field-label"/>
+
+                        <Button fx:id="btnElegirOrigen" text=" Elegir origen en el mapa"
+                                onAction="#seleccionarOrigen" maxWidth="Infinity" disable="true"
+                                styleClass="button-secondary">
+                            <tooltip><Tooltip text="Después de tocar este botón, hacé clic en el mapa"/></tooltip>
+                        </Button>
+                        <Label fx:id="lblOrigen" text="Origen: sin seleccionar"
+                               styleClass="valor-label" wrapText="true"/>
+
+                        <Separator/>
+
+                        <Button fx:id="btnElegirDestino" text=" Elegir destino en el mapa"
+                                onAction="#seleccionarDestino" maxWidth="Infinity" disable="true"
+                                styleClass="button-secondary">
+                            <tooltip><Tooltip text="Después de tocar este botón, hacé clic en el mapa"/></tooltip>
+                        </Button>
+                        <Label fx:id="lblDestino" text="Destino: sin seleccionar"
+                               styleClass="valor-label" wrapText="true"/>
+                    </VBox>
+
+                    <!-- Paso 3 -->
+                    <VBox styleClass="card" spacing="8">
+                        <Label text="3 · ¿Qué servicio necesitás?" styleClass="field-label"/>
+                        <ComboBox fx:id="cmbTipoServicio" maxWidth="Infinity" promptText="Elegí un servicio"
+                                  onAction="#seleccionarServicio"/>
+                        <Label fx:id="lblResultadoServicio" text="Elegí un servicio disponible."
+                               styleClass="hint-label" wrapText="true"/>
+                    </VBox>
+
+                    <!-- Acciones -->
+                    <Button text=" Pedir viaje" onAction="#solicitarViaje" maxWidth="Infinity"
+                            styleClass="button-primary">
+                        <tooltip><Tooltip text="Completá los 3 pasos antes de pedir el viaje"/></tooltip>
+                    </Button>
+                    <Button text="⚙ Administrar usuarios y conductores"
+                            onAction="#abrirAdministracion" maxWidth="Infinity"
+                            styleClass="button-secondary"/>
+                </VBox>
+
+                <!--VISTA CONDUCTOR  -->
+                <VBox fx:id="seccionConductor" styleClass="card" spacing="10"
+                      visible="false" managed="false">
+                    <Label text="Panel del conductor" styleClass="titulo-pantalla"/>
+
+                    <!-- Bloque 1: estado del conductor -->
+                    <Label text="1 · Identificate como chofer" styleClass="field-label"/>
+                    <ComboBox fx:id="cmbChofer" maxWidth="Infinity" promptText="¿Quién está manejando?">
+                        <tooltip><Tooltip text="¿Quién está usando la aplicación?"/></tooltip>
+                    </ComboBox>
+                    <Label fx:id="lblEstadoConductor" text="Seleccioná un conductor."
+                           styleClass="estado" wrapText="true"/>
+                    <ComboBox fx:id="cmbVehiculoServicio" maxWidth="Infinity"
+                              promptText="Elegí tu vehículo"/>
+                    <ComboBox fx:id="cmbCategoriaMinima" maxWidth="Infinity"
+                              promptText="¿Qué categorías aceptás?">
+                        <tooltip><Tooltip text="Elegí la categoría más baja que estás dispuesto a aceptar"/></tooltip>
+                    </ComboBox>
+                    <Button fx:id="btnCambiarDisponibilidad" text="Empezar a recibir pedidos"
+                            onAction="#cambiarDisponibilidad" maxWidth="Infinity"
+                            styleClass="button-secondary"/>
+
+                    <Separator/>
+
+                    <!-- Bloque 2: pedidos -->
+                    <Label text="2 · Pedidos" styleClass="field-label"/>
+                    <Label text="Buscá por tipo de servicio" styleClass="hint-label"/>
+                    <ComboBox fx:id="cmbFiltroTipoServicio" maxWidth="Infinity"
+                              promptText="Ver todos los servicios"/>
+                    <Label text="Pedidos que podés tomar" styleClass="hint-label"/>
+                    <ComboBox fx:id="cmbPedidosPendientes" maxWidth="Infinity"
+                              promptText="Elegí un pedido"/>
+
+                    <HBox spacing="8">
+                        <Button text=" Buscar pedidos nuevos" onAction="#actualizarPedidos"
+                                maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                                styleClass="button-secondary">
+                            <tooltip><Tooltip text="Busca pedidos nuevos"/></tooltip>
+                        </Button>
+                        <Button fx:id="btnConfirmarConductor" text="✔ Tomar este pedido"
+                                onAction="#tomarPedido" maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                                styleClass="button-primary"/>
+                    </HBox>
+
+                    <Label fx:id="lblResultadoChofer"
+                           text="Elegí tu perfil de chofer y empezá a recibir pedidos."
+                           styleClass="hint-label" wrapText="true"/>
+
+                    <Separator/>
+                    <Button text="← Volver al pedido del pasajero"
+                            onAction="#volverAlPanelPasajero" maxWidth="Infinity"
+                            styleClass="button-link"/>
                 </VBox>
             </VBox>
+        </content>
+    </ScrollPane>
 
-        </VBox>
-    </content>
-</ScrollPane>
+    <!-- cOLUMNA DERECHA: mapa -->
+    <VBox styleClass="card map-panel" spacing="8" HBox.hgrow="ALWAYS">
+        <Label text=" Mapa del viaje" styleClass="field-label"/>
+        <Label fx:id="lblEstadoMapa" text="Cargando mapa..." styleClass="hint-label" wrapText="true"/>
+        <WebView fx:id="mapa" minWidth="400" minHeight="400"
+                 prefWidth="720" prefHeight="680" VBox.vgrow="ALWAYS"/>
+    </VBox>
+</HBox>

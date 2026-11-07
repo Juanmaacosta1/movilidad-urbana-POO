@@ -5,8 +5,9 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 import md.datos.dao.DAOFactory;
-import md.datos.dao.DAOLoader;
+import md.config.Loader;
 import md.datos.dao.ServicioDAO;
+import md.datos.dao.UsuarioDAO;
 import md.datos.dto.ServicioDTO;
 import md.datos.dto.UsuarioDTO;
 import md.datos.dto.VehiculoDTO;
@@ -21,7 +22,9 @@ public class Logica {
 		private Map<String, Usuario> usuarios = new ChainHashMap<>();
 		private List<Servicio> servicios = new ArrayList<>();
 		private List<Viaje> viajes = new ArrayList<>();
+		private List<Vehiculo> vehiculosRegistrados = new ArrayList<>();
 		private ServicioDAO servicioDAO;
+		private UsuarioDAO usuarioDAO;
 
 		private Logica() {
 			try {
@@ -33,15 +36,16 @@ public class Logica {
 
 		private void cargarDatosIniciales() throws Exception {
 
-			DAOFactory fabrica = DAOLoader.getFactory();
+			DAOFactory fabrica = Loader.getFactory();
 			servicioDAO = fabrica.getServicioDAO();
+			usuarioDAO = fabrica.getUsuarioDAO();
 
 			// 1. Obtener los DTO mediante los DAO
 			java.util.List<ServicioDTO> serviciosDTO = servicioDAO.obtenerTodos();
 
 			java.util.List<VehiculoDTO> vehiculosDTO = fabrica.getVehiculoDAO().obtenerTodos();
 
-			java.util.List<UsuarioDTO> usuariosDTO = fabrica.getUsuarioDAO().obtenerTodos();
+			java.util.List<UsuarioDTO> usuariosDTO = usuarioDAO.obtenerTodos();
 
 			// 2. Convertir los DTO de servicios al modelo
 			for (ServicioDTO dto : serviciosDTO) {
@@ -81,6 +85,7 @@ public class Logica {
 				}
 
 				vehiculosPorPatente.put(patente, vehiculo);
+				vehiculosRegistrados.add(vehiculosRegistrados.size(), vehiculo);
 			}
 
 			// 4. Convertir los DTO de usuarios al modelo
@@ -166,9 +171,118 @@ public class Logica {
 			return usuario;
 		}
 
+		public Usuario registrarUsuarioPersistido(String nombre, String telefono, String email) throws Exception {
+			Usuario usuario = validarNuevoUsuario(nombre, telefono, email);
+			usuarioDAO.agregar(new UsuarioDTO(usuario.getNombre(), usuario.getTelefono(), usuario.getEmail(), "", java.util.List.of()));
+			usuarios.put(usuario.getEmail().toLowerCase(), usuario);
+			return usuario;
+		}
+
+		public Usuario registrarConductorPersistido(String nombre, String telefono, String email,
+				String licencia, Vehiculo vehiculo) throws Exception {
+			Usuario usuario = validarNuevoUsuario(nombre, telefono, email);
+			if (licencia == null || licencia.isBlank()) {
+				throw new IllegalArgumentException("La licencia de conducir es obligatoria");
+			}
+			if (vehiculo == null) {
+				throw new IllegalArgumentException("Elegí un vehículo para el conductor");
+			}
+			validarCampoTxt(licencia.trim(), "La licencia de conducir");
+			usuario.altaConductor(licencia, vehiculo);
+			usuarioDAO.agregar(new UsuarioDTO(usuario.getNombre(), usuario.getTelefono(), usuario.getEmail(),
+					usuario.getConductor().getLicenciaConducir(), java.util.List.of(vehiculo.getPatente())));
+			usuarios.put(usuario.getEmail().toLowerCase(), usuario);
+			return usuario;
+		}
+
+		private Usuario validarNuevoUsuario(String nombre, String telefono, String email) {
+			validarTexto(nombre, "El nombre es obligatorio");
+			validarTexto(telefono, "El teléfono es obligatorio");
+			validarTexto(email, "El email es obligatorio");
+			String clave = email.trim().toLowerCase();
+			if (usuarios.get(clave) != null) {
+				throw new IllegalArgumentException("Ya existe un usuario con el email " + email);
+			}
+			Usuario usuario = new Usuario(nombre.trim(), telefono.trim(), email.trim());
+			validarCampoTxt(usuario.getNombre(), "El nombre");
+			validarCampoTxt(usuario.getTelefono(), "El teléfono");
+			validarCampoTxt(usuario.getEmail(), "El email");
+			return usuario;
+		}
+
+		public void eliminarUsuario(Usuario usuario) throws Exception {
+			validarUsuario(usuario);
+			if (usuario.getCliente().enViaje()
+					|| (usuario.esConductor()
+							&& (usuario.getConductor().getEstadoConductor() == EstadoConductor.VIAJE_A_ORIGEN
+									|| usuario.getConductor().getEstadoConductor() == EstadoConductor.VIAJE_A_DESTINO))) {
+				throw new IllegalStateException("No se puede eliminar un usuario que participa en un viaje activo");
+			}
+			usuarioDAO.eliminar(usuario.getEmail());
+			usuarios.remove(usuario.getEmail().trim().toLowerCase());
+		}
+
 		/** @return el usuario con ese email, o {@code null} si no existe. */
 		public Usuario buscarUsuario(String email) {
 			return email == null ? null : usuarios.get(email.trim().toLowerCase());
+		}
+
+		public Usuario actualizarUsuario(Usuario usuario, String nombre, String telefono, String email,
+				String licenciaConducir) throws Exception {
+			if (usuario == null) {
+				throw new IllegalArgumentException("Seleccioná un usuario para editar");
+			}
+			String emailAnterior = usuario.getEmail();
+			String claveAnterior = emailAnterior.trim().toLowerCase();
+			if (usuarios.get(claveAnterior) != usuario) {
+				throw new IllegalArgumentException("El usuario seleccionado ya no está registrado");
+			}
+			Usuario datosValidados = new Usuario(nombre, telefono, email);
+			String emailNuevo = datosValidados.getEmail().trim();
+			String claveNueva = emailNuevo.toLowerCase();
+			if (!claveAnterior.equals(claveNueva) && usuarios.get(claveNueva) != null) {
+				throw new IllegalArgumentException("Ya existe un usuario con el email " + emailNuevo);
+			}
+			String licenciaActualizada = "";
+			if (usuario.esConductor()) {
+				licenciaActualizada = licenciaConducir == null || licenciaConducir.isBlank()
+						? usuario.getConductor().getLicenciaConducir()
+						: licenciaConducir.trim();
+				validarTexto(licenciaActualizada, "La licencia de conducir es obligatoria");
+				validarCampoTxt(licenciaActualizada, "La licencia de conducir");
+			} else if (licenciaConducir != null && !licenciaConducir.isBlank()) {
+				throw new IllegalArgumentException("El usuario seleccionado no está registrado como conductor");
+			}
+			validarCampoTxt(datosValidados.getNombre(), "El nombre");
+			validarCampoTxt(datosValidados.getTelefono(), "El teléfono");
+			validarCampoTxt(emailNuevo, "El email");
+
+			java.util.List<String> patentes = new java.util.ArrayList<>();
+			if (usuario.esConductor()) {
+				for (Vehiculo vehiculo : usuario.getConductor().getVehiculos()) {
+					patentes.add(vehiculo.getPatente());
+				}
+			}
+			UsuarioDTO datosPersistidos = new UsuarioDTO(datosValidados.getNombre(),
+					datosValidados.getTelefono(), emailNuevo,
+					licenciaActualizada, patentes);
+			usuarioDAO.actualizar(datosPersistidos, emailAnterior);
+
+			usuario.actualizarDatos(datosValidados.getNombre(), datosValidados.getTelefono(), emailNuevo);
+			if (usuario.esConductor()) {
+				usuario.getConductor().setLicenciaConducir(licenciaActualizada);
+			}
+			if (!claveAnterior.equals(claveNueva)) {
+				usuarios.remove(claveAnterior);
+				usuarios.put(claveNueva, usuario);
+			}
+			return usuario;
+		}
+
+		private void validarCampoTxt(String valor, String nombreCampo) {
+			if (valor.indexOf(';') >= 0 || valor.contains("\n") || valor.contains("\r")) {
+				throw new IllegalArgumentException(nombreCampo + " no puede contener ';' ni saltos de línea");
+			}
 		}
 
 		// ==================================================================
@@ -232,12 +346,21 @@ public class Logica {
 		// ==================================================================
 
 		public List<Usuario> buscarConductoresDisponibles(Viaje viaje) {
+			List<Usuario> conductoresDisponibles = new ArrayList<>();
+			for (Usuario usuario : buscarConductoresCompatibles(viaje)) {
+				if (usuario.getConductor().getEstadoConductor() == EstadoConductor.DISPONIBLE) {
+					conductoresDisponibles.add(conductoresDisponibles.size(), usuario);
+				}
+			}
+			return conductoresDisponibles;
+		}
 
+		public List<Usuario> buscarConductoresCompatibles(Viaje viaje) {
 			if (viaje == null) {
 				throw new IllegalArgumentException("El viaje no puede ser nulo");
 			}
 
-			List<Usuario> conductoresDisponibles = new ArrayList<>();
+			List<Usuario> conductoresCompatibles = new ArrayList<>();
 			Servicio servicio = viaje.getServicio();
 
 			for (Usuario usuario : usuarios.values()) {
@@ -246,10 +369,6 @@ public class Logica {
 				}
 
 				Conductor conductor = usuario.getConductor();
-				if (conductor.getEstadoConductor() != EstadoConductor.DISPONIBLE) {
-					continue;
-				}
-
 				Vehiculo vehiculo = conductor.getVehiculoActivo();
 
 				if (!vehiculo.presta(servicio.getTipoServicio())) {
@@ -258,17 +377,16 @@ public class Logica {
 				if (vehiculo.getTipoVehiculo() != servicio.getTipoVehiculo()) {
 					continue;
 				}
-				// la categoría pedida debe estar entre la que eligió el conductor (la más baja
-				// que acepta) y la de su vehículo
+				// Mostramos el pedido solo si entra en el rango que acepta el conductor y
+				// en la categoría de su vehículo.
 				int categoriaPedida = servicio.getCategoriaVehiculo().getValor();
 				if (categoriaPedida < conductor.getCategoriaVehiculoActivo().getValor()
 						|| categoriaPedida > vehiculo.getCategoriaVehiculo().getValor()) {
 					continue;
 				}
-				conductoresDisponibles.add(conductoresDisponibles.size(), usuario);
+				conductoresCompatibles.add(conductoresCompatibles.size(), usuario);
 			}
-
-			return conductoresDisponibles;
+			return conductoresCompatibles;
 		}
 
 		public Viaje solicitarViaje(Usuario cliente, Ubicacion origen, Ubicacion destino, Servicio servicio) {
@@ -392,6 +510,10 @@ public class Logica {
 				}
 			}
 			return lista;
+		}
+
+		public List<Vehiculo> getVehiculosRegistrados() {
+			return vehiculosRegistrados;
 		}
 
 		public List<Servicio> getServicios() {

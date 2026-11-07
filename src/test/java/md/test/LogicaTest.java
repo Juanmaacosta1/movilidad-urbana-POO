@@ -284,6 +284,20 @@ public class LogicaTest {
 	// ---------------- conductores en servicio ----------------
 
 	@Test
+	void buscarConductoresCompatibles_incluyeFueraDeServicioPeroDisponiblesSoloEnServicio() {
+		Viaje viaje = new Viaje(cliente, origen, destino, servicio);
+
+		assertTrue(logica.buscarConductoresDisponibles(viaje).isEmpty());
+		assertEquals(1, logica.buscarConductoresCompatibles(viaje).size());
+		assertSame(conductor, logica.buscarConductoresCompatibles(viaje).get(0));
+
+		logica.ponerConductorEnServicio(conductor, vehiculo, CategoriaVehiculo.ESTANDAR);
+
+		assertEquals(1, logica.buscarConductoresDisponibles(viaje).size());
+		assertSame(conductor, logica.buscarConductoresDisponibles(viaje).get(0));
+	}
+
+	@Test
 	void ponerConductorEnServicio_quedaDisponibleConVehiculoYCategoria() {
 		logica.ponerConductorEnServicio(conductor, vehiculo, CategoriaVehiculo.ESTANDAR);
 

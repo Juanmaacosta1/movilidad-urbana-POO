@@ -9,8 +9,10 @@ public class MiniMain extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/javafx/view/MainWindowMd.fxml"));
-        stage.setScene(new Scene(loader.load()));
+        stage.setScene(new Scene(loader.load(), 1200, 760));
         stage.setTitle("Movilidad Digital");
+        stage.setMinWidth(900);
+        stage.setMinHeight(620);
         stage.show();
     }
     public static void main(String[] args) { launch(args); }

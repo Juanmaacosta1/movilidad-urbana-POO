@@ -5,9 +5,9 @@ package md.modelo;
  * (composición 1 a Cliente y 0..1 a Conductor).
  */
 public class Usuario {
-	private final String nombre;
-	private final String telefono;
-	private final String email;
+	private String nombre;
+	private String telefono;
+	private String email;
 	private final Cliente cliente = new Cliente();
 	private Conductor conductor;
 	private RolUsuario rolActivo = RolUsuario.CLIENTE;
@@ -35,6 +35,13 @@ public class Usuario {
 			throw new IllegalStateException("El usuario ya es conductor");
 		}
 		this.conductor = new Conductor(licencia, vehiculo);
+	}
+
+	public void actualizarDatos(String nombre, String telefono, String email) {
+		Usuario datosValidados = new Usuario(nombre, telefono, email);
+		this.nombre = datosValidados.nombre.trim();
+		this.telefono = datosValidados.telefono.trim();
+		this.email = datosValidados.email.trim();
 	}
 
 	public boolean esConductor() {

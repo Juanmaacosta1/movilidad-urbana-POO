@@ -95,7 +95,10 @@ public class Conductor {
 	}
 
 	public void setLicenciaConducir(String licenciaConducir) {
-		this.licenciaConducir = licenciaConducir;
+		if (licenciaConducir == null || licenciaConducir.isBlank()) {
+			throw new IllegalArgumentException("La licencia de conducir es obligatoria");
+		}
+		this.licenciaConducir = licenciaConducir.trim();
 	}
 
 	public void setVehiculos(List<Vehiculo> vehiculos) {

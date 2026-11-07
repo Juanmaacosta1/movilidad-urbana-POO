@@ -44,7 +44,7 @@ public class Viaje {
 			throw new IllegalArgumentException("El conductor es obligatorio y debe estar registrado como tal");
 		exigirEstado("aceptar", EstadoViaje.SOLICITADO);
 		
-		// Validar que la categoría del vehículo del conductor sea igual o mayor que la del servicio
+		// El vehículo tiene que ofrecer una categoría igual o mejor que la pedida.
 		if (conductor.getConductor().getVehiculoActivo().getCategoriaVehiculo().getValor() < 
 		    servicio.getCategoriaVehiculo().getValor()) {
 			throw new IllegalStateException("El vehículo del conductor no cumple con la categoría requerida para este servicio");

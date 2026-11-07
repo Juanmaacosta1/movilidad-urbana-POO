@@ -1,48 +1,67 @@
 package md.ui.impl.javafx.controller;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.event.ActionEvent;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import javafx.concurrent.Worker;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
 import md.logica.Logica;
+import md.modelo.CategoriaVehiculo;
+import md.modelo.Conductor;
+import md.modelo.EstadoConductor;
+import md.modelo.EstadoViaje;
 import md.modelo.Servicio;
+import md.modelo.TipoServicio;
+import md.modelo.TipoVehiculo;
 import md.modelo.Ubicacion;
 import md.modelo.Usuario;
+import md.modelo.Vehiculo;
+import md.modelo.Viaje;
 
 public class MiniController implements Initializable {
 
     @FXML private ComboBox<Usuario> cmbPasajero;
     @FXML private ComboBox<Usuario> cmbChofer;
+    @FXML private VBox seccionPasajero;
+    @FXML private VBox seccionConductor;
+    @FXML private Button btnConfirmarConductor;
+    @FXML private Button btnCambiarDisponibilidad;
     @FXML private Button btnElegirOrigen;
     @FXML private Button btnElegirDestino;
-    @FXML private Button btnAdministracion;
-    @FXML private VBox seccionAdministracion;
     @FXML private WebView mapa;
     @FXML private Label lblOrigen;
     @FXML private Label lblDestino;
     @FXML private Label lblEstadoMapa;
     @FXML private Label lblResultado;
     @FXML private Label lblResultadoChofer;
-    @FXML private ComboBox<Usuario> cmbUsuarios;
-    @FXML private Label lblResultadoUsuario;
-    @FXML private ComboBox<Usuario> cmbConductoresAdmin;
-    @FXML private Label lblResultadoConductorAdmin;
     @FXML private Label lblResultadoServicio;
+    @FXML private Label lblEstadoConductor;
     @FXML private ComboBox<Servicio> cmbTipoServicio;
+    @FXML private ComboBox<Viaje> cmbPedidosPendientes;
+    @FXML private ComboBox<TipoServicio> cmbFiltroTipoServicio;
+    @FXML private ComboBox<Vehiculo> cmbVehiculoServicio;
+    @FXML private ComboBox<CategoriaVehiculo> cmbCategoriaMinima;
 
     private Ubicacion origen;
     private Ubicacion destino;
     private String tipoDePuntoPendiente;
     private boolean mapaCargado;
+    private Stage ventanaAdministracion;
+    private PedidosController controladorPedido;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -50,7 +69,10 @@ public class MiniController implements Initializable {
         StringConverter<Usuario> conversorUsuario = new StringConverter<>() {
             @Override
             public String toString(Usuario usuario) {
-                return usuario == null ? "" : usuario.getNombre() + " · " + usuario.getEmail();
+                if (usuario == null) {
+                    return "";
+                }
+                return usuario.getNombre() + " · " + usuario.getEmail();
             }
 
             @Override
@@ -59,9 +81,94 @@ public class MiniController implements Initializable {
             }
         };
         cmbPasajero.setConverter(conversorUsuario);
-        cmbChofer.setConverter(conversorUsuario);
-        cmbUsuarios.setConverter(conversorUsuario);
-        cmbConductoresAdmin.setConverter(conversorUsuario);
+        cmbChofer.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(Usuario usuario) {
+                if (usuario == null) {
+                    return "";
+                }
+                Conductor conductor = usuario.getConductor();
+                Vehiculo vehiculo = conductor.getVehiculoActivo();
+                return usuario.getNombre() + " · " + nombreEstadoConductor(conductor.getEstadoConductor())
+                        + " · " + nombreTipoVehiculo(vehiculo.getTipoVehiculo())
+                        + " · " + formatearTiposServicio(vehiculo)
+                        + " · acepta " + nombreCategoria(conductor.getCategoriaVehiculoActivo())
+                        + " a " + nombreCategoria(vehiculo.getCategoriaVehiculo());
+            }
+
+            @Override
+            public Usuario fromString(String texto) {
+                return null;
+            }
+        });
+        cmbPedidosPendientes.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(Viaje viaje) {
+                if (viaje == null) {
+                    return "";
+                }
+                String compatibilidad = esCompatible(viaje, cmbChofer.getValue())
+                        ? "Compatible con tu vehículo" : "No compatible";
+                return viaje.getCliente().getNombre() + " · " + viaje.getServicio().getNombre()
+                        + " · " + nombreTipoServicio(viaje.getServicio().getTipoServicio())
+                        + " · " + compatibilidad
+                        + " · " + formatearUbicacion("Origen", viaje.getOrigen())
+                        + " · " + formatearUbicacion("Destino", viaje.getDestino());
+            }
+
+            @Override
+            public Viaje fromString(String texto) {
+                return null;
+            }
+        });
+        cmbVehiculoServicio.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(Vehiculo vehiculo) {
+                return vehiculo == null ? "" : vehiculo.toString();
+            }
+
+            @Override
+            public Vehiculo fromString(String texto) {
+                return null;
+            }
+        });
+        cmbCategoriaMinima.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(CategoriaVehiculo categoria) {
+                return categoria == null ? "" : nombreCategoria(categoria);
+            }
+
+            @Override
+            public CategoriaVehiculo fromString(String texto) {
+                return null;
+            }
+        });
+        cmbFiltroTipoServicio.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(TipoServicio tipoServicio) {
+                return tipoServicio == null ? "Todos los servicios" : nombreTipoServicio(tipoServicio);
+            }
+
+            @Override
+            public TipoServicio fromString(String texto) {
+                return null;
+            }
+        });
+        cmbFiltroTipoServicio.getItems().addAll(TipoServicio.values());
+        cmbFiltroTipoServicio.setPromptText("Todos los servicios");
+        cmbFiltroTipoServicio.setOnAction(evento -> actualizarPedidosPendientes());
+        cmbChofer.setOnAction(evento -> {
+            actualizarDisponibilidadConductor();
+            actualizarPedidosPendientes();
+        });
+        cmbVehiculoServicio.setOnAction(evento -> {
+            actualizarCategoriasMinimas();
+            actualizarPedidosPendientes();
+        });
+        cmbCategoriaMinima.setOnAction(evento -> actualizarPedidosPendientes());
+        cmbPedidosPendientes.setOnAction(evento -> actualizarBotonTomarPedido());
+        btnCambiarDisponibilidad.setDisable(true);
+        btnConfirmarConductor.setDisable(true);
         cmbTipoServicio.setConverter(new StringConverter<>() {
             @Override
             public String toString(Servicio servicio) {
@@ -84,22 +191,13 @@ public class MiniController implements Initializable {
             }
             for (Usuario conductor : logica.getConductores()) {
                 cmbChofer.getItems().add(conductor);
-                cmbConductoresAdmin.getItems().add(conductor);
-            }
-            for (Usuario usuario : logica.getUsuarios()) {
-                cmbUsuarios.getItems().add(usuario);
             }
             if (cmbPasajero.getItems().isEmpty()) {
                 lblResultado.setText("Todavía no hay usuarios registrados.");
             }
             if (cmbChofer.getItems().isEmpty()) {
-                lblResultadoChofer.setText("Todavía no hay conductores registrados.");
-            }
-            if (cmbUsuarios.getItems().isEmpty()) {
-                lblResultadoUsuario.setText("Todavía no hay usuarios para administrar.");
-            }
-            if (cmbConductoresAdmin.getItems().isEmpty()) {
-                lblResultadoConductorAdmin.setText("Todavía no hay conductores para administrar.");
+                lblResultadoChofer.setText("Todavía no hay conductores registrados. Agregalos desde Administración.");
+                lblEstadoConductor.setText("No hay conductores registrados.");
             }
             if (cmbTipoServicio.getItems().isEmpty()) {
                 lblResultadoServicio.setText("Todavía no hay servicios disponibles.");
@@ -108,11 +206,10 @@ public class MiniController implements Initializable {
             String mensaje = "No se pudieron cargar los datos: " + e.getMessage();
             lblResultado.setText(mensaje);
             lblResultadoChofer.setText("No se pudieron cargar los conductores.");
-            lblResultadoUsuario.setText(mensaje);
-            lblResultadoConductorAdmin.setText(mensaje);
             lblResultadoServicio.setText(mensaje);
             e.printStackTrace();
         }
+        actualizarBotonTomarPedido();
     }
 
     private void inicializarMapa() {
@@ -212,20 +309,42 @@ public class MiniController implements Initializable {
     }
 
     @FXML
-    private void alternarAdministracion() {
-        boolean mostrar = !seccionAdministracion.isVisible();
-        seccionAdministracion.setVisible(mostrar);
-        seccionAdministracion.setManaged(mostrar);
-        btnAdministracion.setText(mostrar
-                ? "Cerrar administración"
-                : "Administrar usuarios y conductores");
+    private void abrirAdministracion(ActionEvent evento) {
+        if (ventanaAdministracion != null && ventanaAdministracion.isShowing()) {
+            ventanaAdministracion.toFront();
+            ventanaAdministracion.requestFocus();
+            return;
+        }
+
+        URL recurso = getClass().getResource("/ui/javafx/view/AdminWindow.fxml");
+        if (recurso == null) {
+            lblResultado.setText("No se encontró la ventana de administración.");
+            return;
+        }
+
+        try {
+            FXMLLoader cargador = new FXMLLoader(recurso);
+            Scene escena = new Scene(cargador.load());
+            Stage ventana = new Stage();
+            ventana.setTitle("Administración de usuarios y conductores");
+            ventana.initOwner(((Node) evento.getSource()).getScene().getWindow());
+            ventana.setScene(escena);
+            ventana.setOnHidden(cierre -> {
+                ventanaAdministracion = null;
+                recargarUsuariosYConductores();
+            });
+            ventanaAdministracion = ventana;
+            ventana.show();
+        } catch (IOException e) {
+            lblResultado.setText("No se pudo abrir la administración: " + e.getMessage());
+        }
     }
 
     @FXML
-    private void solicitarViaje() {
+    private void solicitarViaje(ActionEvent evento) {
         Usuario elegido = cmbPasajero.getValue();
         if (elegido == null) {
-            lblResultado.setText("Elegí un pasajero primero");
+            lblResultado.setText("Elegí un pasajero primero.");
             return;
         }
         if (origen == null || destino == null) {
@@ -239,45 +358,314 @@ public class MiniController implements Initializable {
         }
 
         try {
-            Logica.getInstance().solicitarViaje(elegido, origen, destino, servicioElegido);
-            lblResultado.setText("Viaje solicitado para " + elegido.getNombre()
-                    + " con el servicio " + servicioElegido.getNombre() + ".");
-            lblResultadoServicio.setText("Servicio seleccionado: " + servicioElegido.getNombre());
+            Logica logica = Logica.getInstance();
+            Viaje viaje = logica.solicitarViaje(elegido, origen, destino, servicioElegido);
+            actualizarEstadoPasajero();
+            actualizarPedidosPendientes();
+            actualizarEstadoPedidoParaConductor(viaje);
+            mostrarPanelConductor();
         } catch (IllegalArgumentException | IllegalStateException e) {
             lblResultado.setText("No se pudo solicitar el viaje: " + e.getMessage());
         }
     }
+
     @FXML
-    private void solicitarChofer() {
-        Usuario elegido = cmbChofer.getValue();
-        if (elegido == null) {
-            lblResultadoChofer.setText("Elegí un conductor primero.");
-            return;
-        }
-        lblResultadoChofer.setText("Conductor seleccionado: " + elegido.getNombre());
+    private void volverAlPanelPasajero() {
+        seccionConductor.setVisible(false);
+        seccionConductor.setManaged(false);
+        seccionPasajero.setVisible(true);
+        seccionPasajero.setManaged(true);
+        actualizarEstadoPasajero();
+    }
+
+    private void mostrarPanelConductor() {
+        seccionPasajero.setVisible(false);
+        seccionPasajero.setManaged(false);
+        seccionConductor.setVisible(true);
+        seccionConductor.setManaged(true);
     }
 
     @FXML
-    private void solicitarUsuario() {
-        Usuario elegido = cmbUsuarios.getValue();
-
-        if (elegido == null) {
-            lblResultadoUsuario.setText("Elegí un usuario primero");
+    private void cambiarDisponibilidad() {
+        Usuario conductor = cmbChofer.getValue();
+        if (conductor == null) {
+            lblEstadoConductor.setText("Elegí un conductor primero.");
             return;
         }
-        lblResultadoUsuario.setText(
-                "Usuario seleccionado: " + elegido.getNombre() + " - " + elegido.getEmail());
+        try {
+            Logica logica = Logica.getInstance();
+            if (conductor.getConductor().getEstadoConductor() == EstadoConductor.DISPONIBLE) {
+                logica.retirarConductorDeServicio(conductor);
+            } else {
+                Vehiculo vehiculo = cmbVehiculoServicio.getValue();
+                CategoriaVehiculo categoria = cmbCategoriaMinima.getValue();
+                if (vehiculo == null || categoria == null) {
+                    lblEstadoConductor.setText("Elegí un vehículo y la categoría mínima que aceptás.");
+                    return;
+                }
+                logica.ponerConductorEnServicio(conductor, vehiculo, categoria);
+            }
+            actualizarDisponibilidadConductor();
+            actualizarPedidosPendientes();
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            lblEstadoConductor.setText("No se pudo cambiar la disponibilidad: " + e.getMessage());
+        }
+    }
+
+    private void actualizarDisponibilidadConductor() {
+        Usuario conductor = cmbChofer.getValue();
+        cmbVehiculoServicio.getItems().clear();
+        cmbCategoriaMinima.getItems().clear();
+        cmbCategoriaMinima.setValue(null);
+        if (conductor == null) {
+            lblEstadoConductor.setText("Seleccioná el conductor que está usando la aplicación.");
+            cmbVehiculoServicio.setDisable(true);
+            cmbCategoriaMinima.setDisable(true);
+            btnCambiarDisponibilidad.setDisable(true);
+            actualizarBotonTomarPedido();
+            return;
+        }
+
+        for (Vehiculo vehiculo : conductor.getConductor().getVehiculos()) {
+            cmbVehiculoServicio.getItems().add(vehiculo);
+        }
+        cmbVehiculoServicio.setValue(conductor.getConductor().getVehiculoActivo());
+        actualizarCategoriasMinimas();
+
+        EstadoConductor estado = conductor.getConductor().getEstadoConductor();
+        CategoriaVehiculo categoriaActual = conductor.getConductor().getCategoriaVehiculoActivo();
+        if (estado != EstadoConductor.FUERA_DE_SERVICIO
+                && cmbCategoriaMinima.getItems().contains(categoriaActual)) {
+            cmbCategoriaMinima.setValue(categoriaActual);
+        }
+        if (estado == EstadoConductor.DISPONIBLE) {
+            lblEstadoConductor.setText("Estás disponible para recibir pedidos compatibles.");
+            btnCambiarDisponibilidad.setText("Dejar de recibir pedidos");
+            btnCambiarDisponibilidad.setDisable(false);
+            cmbVehiculoServicio.setDisable(true);
+            cmbCategoriaMinima.setDisable(true);
+        } else if (estado == EstadoConductor.FUERA_DE_SERVICIO) {
+            lblEstadoConductor.setText("Para recibir pedidos, elegí tu vehículo y la categoría mínima que aceptás.");
+            btnCambiarDisponibilidad.setText("Empezar a recibir pedidos");
+            btnCambiarDisponibilidad.setDisable(false);
+            cmbVehiculoServicio.setDisable(false);
+            cmbCategoriaMinima.setDisable(false);
+        } else {
+            lblEstadoConductor.setText("No podés recibir otro pedido mientras estás en un viaje.");
+            btnCambiarDisponibilidad.setText("Ocupado con un viaje");
+            btnCambiarDisponibilidad.setDisable(true);
+            cmbVehiculoServicio.setDisable(true);
+            cmbCategoriaMinima.setDisable(true);
+        }
+        actualizarBotonTomarPedido();
+    }
+
+    private void actualizarCategoriasMinimas() {
+        Vehiculo vehiculo = cmbVehiculoServicio.getValue();
+        CategoriaVehiculo seleccionAnterior = cmbCategoriaMinima.getValue();
+        cmbCategoriaMinima.getItems().clear();
+        if (vehiculo == null) {
+            return;
+        }
+        for (CategoriaVehiculo categoria : CategoriaVehiculo.values()) {
+            if (categoria.getValor() <= vehiculo.getCategoriaVehiculo().getValor()) {
+                cmbCategoriaMinima.getItems().add(categoria);
+            }
+        }
+        if (seleccionAnterior != null && cmbCategoriaMinima.getItems().contains(seleccionAnterior)) {
+            cmbCategoriaMinima.setValue(seleccionAnterior);
+        } else if (!cmbCategoriaMinima.getItems().isEmpty()) {
+            cmbCategoriaMinima.setValue(cmbCategoriaMinima.getItems().get(0));
+        }
     }
 
     @FXML
-    private void solicitarConductorAdmin() {
-        Usuario elegido = cmbConductoresAdmin.getValue();
-        if (elegido == null) {
-            lblResultadoConductorAdmin.setText("Elegí un conductor primero.");
+    private void actualizarPedidos() {
+        actualizarPedidosPendientes();
+    }
+
+    private void actualizarPedidosPendientes() {
+        Usuario conductor = cmbChofer.getValue();
+        Viaje pedidoSeleccionado = cmbPedidosPendientes.getValue();
+        cmbPedidosPendientes.getItems().clear();
+        TipoServicio filtro = cmbFiltroTipoServicio.getValue();
+        int cantidadDelTipo = 0;
+        int cantidadCompatible = 0;
+        if (conductor == null) {
+            lblResultadoChofer.setText("Elegí tu perfil de chofer para ver los pedidos que podés tomar.");
+            actualizarBotonTomarPedido();
             return;
         }
-        lblResultadoConductorAdmin.setText(
-                "Conductor seleccionado: " + elegido.getNombre() + " - " + elegido.getEmail());
+        for (Viaje viaje : Logica.getInstance().getViajes()) {
+            if (viaje.estadoActual() != EstadoViaje.SOLICITADO
+                    || (filtro != null && viaje.getServicio().getTipoServicio() != filtro)) {
+                continue;
+            }
+            cantidadDelTipo++;
+            if (esCompatible(viaje, conductor)) {
+                cmbPedidosPendientes.getItems().add(viaje);
+                cantidadCompatible++;
+            }
+        }
+        if (cantidadDelTipo == 0) {
+            lblResultadoChofer.setText(filtro == null
+                    ? "Por ahora no hay pedidos pendientes. Cuando llegue uno, lo vas a ver acá."
+                    : "Por ahora no hay pedidos de " + nombreTipoServicio(filtro) + ".");
+        } else if (cantidadCompatible == 0) {
+            lblResultadoChofer.setText("Hay " + cantidadDelTipo
+                    + " pedido(s) " + (filtro == null ? "pendientes" : "de " + nombreTipoServicio(filtro))
+                    + ", pero ninguno coincide con tu vehículo, los servicios que ofrecés y la categoría que aceptás.");
+        } else if (conductor.getConductor().getEstadoConductor() != EstadoConductor.DISPONIBLE) {
+            lblResultadoChofer.setText(cantidadCompatible
+                    + (cantidadCompatible == 1 ? " pedido compatible" : " pedidos compatibles")
+                    + ". Activá «Empezar a recibir pedidos» para poder tomar uno.");
+        } else {
+            lblResultadoChofer.setText(cantidadCompatible == 1
+                    ? "Hay un pedido que podés tomar. Elegilo y tocá «Tomar pedido»."
+                    : "Hay " + cantidadCompatible + " pedidos que podés tomar. Elegí uno y tocá «Tomar pedido».");
+        }
+        if (pedidoSeleccionado != null && cmbPedidosPendientes.getItems().contains(pedidoSeleccionado)) {
+            cmbPedidosPendientes.setValue(pedidoSeleccionado);
+        }
+        actualizarBotonTomarPedido();
+    }
+
+    private void actualizarBotonTomarPedido() {
+        Usuario conductor = cmbChofer.getValue();
+        Viaje pedido = cmbPedidosPendientes.getValue();
+        boolean puedeTomarPedido = conductor != null
+                && conductor.getConductor().getEstadoConductor() == EstadoConductor.DISPONIBLE
+                && pedido != null
+                && esCompatible(pedido, conductor);
+        btnConfirmarConductor.setDisable(!puedeTomarPedido);
+    }
+
+    private void actualizarEstadoPedidoParaConductor(Viaje viaje) {
+        Usuario conductor = cmbChofer.getValue();
+        if (conductor == null) {
+            lblResultadoChofer.setText("Se agregó un pedido. Los conductores pueden buscarlo en esta sección.");
+        } else if (esCompatible(viaje, conductor)) {
+            lblResultadoChofer.setText("Hay un nuevo pedido compatible para " + conductor.getNombre() + ".");
+        }
+    }
+
+    private boolean esCompatible(Viaje viaje, Usuario conductor) {
+        for (Usuario compatible : Logica.getInstance().buscarConductoresCompatibles(viaje)) {
+            if (compatible == conductor) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @FXML
+    private void tomarPedido(ActionEvent evento) {
+        Usuario conductor = cmbChofer.getValue();
+        Viaje pedido = cmbPedidosPendientes.getValue();
+        if (conductor == null || pedido == null) {
+            lblResultadoChofer.setText("Elegí un conductor y un pedido pendiente.");
+            return;
+        }
+        try {
+            Logica.getInstance().aceptarViaje(pedido, conductor);
+            mostrarPedidoPasajero(pedido, evento);
+            if (controladorPedido != null) {
+                controladorPedido.actualizarEstado();
+            }
+            lblResultadoChofer.setText(conductor.getNombre() + " tomó el pedido de "
+                    + pedido.getCliente().getNombre() + ".");
+            actualizarEstadoPasajero();
+            actualizarDisponibilidadConductor();
+            actualizarPedidosPendientes();
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            lblResultadoChofer.setText("No se pudo tomar el pedido: " + e.getMessage());
+            actualizarPedidosPendientes();
+        }
+    }
+
+    private void mostrarPedidoPasajero(Viaje pedido, ActionEvent evento) {
+        URL recurso = getClass().getResource("/ui/javafx/view/Pedidos.fxml");
+        if (recurso == null) {
+            lblResultadoChofer.setText("El pedido se creó, pero no se encontró la pantalla de seguimiento.");
+            return;
+        }
+        try {
+            FXMLLoader cargador = new FXMLLoader(recurso);
+            Scene escena = new Scene(cargador.load());
+            controladorPedido = cargador.getController();
+            controladorPedido.mostrarPedido(pedido);
+            Stage ventana = new Stage();
+            ventana.setTitle("Seguimiento del pedido");
+            ventana.initOwner(((Node) evento.getSource()).getScene().getWindow());
+            ventana.setScene(escena);
+            ventana.setOnHidden(cierre -> {
+                controladorPedido = null;
+            });
+            ventana.show();
+            ventana.toFront();
+        } catch (IOException | IllegalArgumentException e) {
+            controladorPedido = null;
+            lblResultadoChofer.setText("El pedido se creó, pero no se pudo abrir el seguimiento: "
+                    + e.getMessage());
+        }
+    }
+
+    private void recargarUsuariosYConductores() {
+        Usuario pasajeroSeleccionado = cmbPasajero.getValue();
+        Usuario conductorSeleccionado = cmbChofer.getValue();
+        cmbPasajero.getItems().clear();
+        for (Usuario usuario : Logica.getInstance().getUsuarios()) {
+            cmbPasajero.getItems().add(usuario);
+        }
+        cmbChofer.getItems().clear();
+        for (Usuario conductor : Logica.getInstance().getConductores()) {
+            cmbChofer.getItems().add(conductor);
+        }
+        if (contieneUsuario(cmbPasajero.getItems(), pasajeroSeleccionado)) {
+            cmbPasajero.setValue(pasajeroSeleccionado);
+        }
+        if (contieneUsuario(cmbChofer.getItems(), conductorSeleccionado)) {
+            cmbChofer.setValue(conductorSeleccionado);
+        } else {
+            cmbChofer.setValue(null);
+        }
+        actualizarDisponibilidadConductor();
+        actualizarPedidosPendientes();
+    }
+
+    @FXML
+    private void actualizarEstadoPasajero() {
+        Usuario pasajero = cmbPasajero.getValue();
+        if (pasajero == null) {
+            return;
+        }
+        for (Viaje viaje : pasajero.getCliente().getViajes()) {
+            if (viaje.estadoActual() == EstadoViaje.SOLICITADO) {
+                lblResultado.setText("Tu pedido está pendiente; esperando que un conductor compatible lo tome.");
+                return;
+            }
+            if (viaje.estadoActual() == EstadoViaje.ACEPTADO) {
+                lblResultado.setText("Tu pedido fue tomado por " + viaje.getConductor().getNombre() + ".");
+                return;
+            }
+            if (viaje.estadoActual() == EstadoViaje.INICIADO) {
+                lblResultado.setText("Tu viaje está en curso con " + viaje.getConductor().getNombre() + ".");
+                return;
+            }
+        }
+        lblResultado.setText("Elegí un origen, destino y servicio para pedir un viaje.");
+    }
+
+    private boolean contieneUsuario(Iterable<Usuario> usuarios, Usuario buscado) {
+        if (buscado == null) {
+            return false;
+        }
+        for (Usuario usuario : usuarios) {
+            if (usuario == buscado) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @FXML
@@ -288,5 +676,42 @@ public class MiniController implements Initializable {
             return;
         }
         lblResultadoServicio.setText("Servicio seleccionado: " + elegido.getNombre());
+    }
+
+    private String formatearTiposServicio(Vehiculo vehiculo) {
+        return vehiculo.getTipoServicios().stream()
+                .map(this::nombreTipoServicio)
+                .collect(java.util.stream.Collectors.joining(", "));
+    }
+
+    private String nombreTipoServicio(TipoServicio tipoServicio) {
+        return switch (tipoServicio) {
+            case PASAJEROS -> "Pasajeros";
+            case ENVIOS -> "Envíos";
+        };
+    }
+
+    private String nombreTipoVehiculo(TipoVehiculo tipoVehiculo) {
+        return switch (tipoVehiculo) {
+            case AUTO -> "Auto";
+            case MOTO -> "Moto";
+        };
+    }
+
+    private String nombreCategoria(CategoriaVehiculo categoria) {
+        return switch (categoria) {
+            case ESTANDAR -> "Estándar";
+            case CONFORT -> "Confort";
+            case PREMIUM -> "Premium";
+        };
+    }
+
+    private String nombreEstadoConductor(EstadoConductor estado) {
+        return switch (estado) {
+            case FUERA_DE_SERVICIO -> "Fuera de servicio";
+            case DISPONIBLE -> "Disponible";
+            case VIAJE_A_ORIGEN -> "Yendo al origen";
+            case VIAJE_A_DESTINO -> "En viaje";
+        };
     }
 }
