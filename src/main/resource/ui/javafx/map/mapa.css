@@ -1,6 +1,8 @@
 html, body {
     width: 100%;
     height: 100%;
+    min-width: 0;
+    min-height: 0;
     margin: 0;
     font-family: "Segoe UI", Arial, sans-serif;
     background: linear-gradient(180deg, #f8fafc 0%, #eef6f1 100%);
@@ -10,16 +12,14 @@ body {
     display: flex;
     align-items: stretch;
     justify-content: center;
+    overflow: hidden;
 }
 
 #map {
     width: 100%;
     height: 100%;
-    min-height: 420px;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
-    border: 1px solid rgba(148, 163, 184, 0.35);
+    min-height: 0;
+    background: #dfe7e2;
 }
 
 .leaflet-control-zoom a {

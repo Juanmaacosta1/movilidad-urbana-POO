@@ -406,6 +406,10 @@ public class Logica {
 		}
 
 		public void rechazarViaje(Viaje viaje, String motivo) {
+			rechazarViaje(viaje, motivo, LocalDateTime.now());
+		}
+
+		public void rechazarViaje(Viaje viaje, String motivo, LocalDateTime fechaHora) {
 
 			if (viaje == null) {
 				throw new IllegalArgumentException("El viaje no puede ser nulo");
@@ -413,10 +417,14 @@ public class Logica {
 			if (motivo == null || motivo.isBlank()) {
 				throw new IllegalArgumentException("El motivo de rechazo es obligatorio");
 			}
-			viaje.rechazar(LocalDateTime.now());
+			viaje.rechazar(fechaHora);
 		}
 
 		public void aceptarViaje(Viaje viaje, Usuario conductor) {
+			aceptarViaje(viaje, conductor, LocalDateTime.now());
+		}
+
+		public void aceptarViaje(Viaje viaje, Usuario conductor, LocalDateTime fechaHora) {
 
 			if (viaje == null) {
 				throw new IllegalArgumentException("El viaje no puede ser nulo");
@@ -430,31 +438,44 @@ public class Logica {
 			if (!contiene(conductoresDisponibles, conductor)) {
 				throw new IllegalStateException("El conductor no está disponible para este viaje");
 			}
-			viaje.aceptar(LocalDateTime.now(), conductor);
+			viaje.aceptar(fechaHora, conductor);
 		}
 
 		public void iniciarViaje(Viaje viaje) {
+			iniciarViaje(viaje, LocalDateTime.now());
+		}
+
+		public void iniciarViaje(Viaje viaje, LocalDateTime fechaHora) {
 			if (viaje == null) {
 				throw new IllegalArgumentException("El viaje no puede ser nulo");
 			}
 			if (viaje.estadoActual() != EstadoViaje.ACEPTADO) {
 				throw new IllegalStateException("Solo se puede iniciar un viaje ACEPTADO");
 			}
-			viaje.iniciar(LocalDateTime.now());
+			viaje.iniciar(fechaHora);
 		}
 
 		public void finalizarViaje(Viaje viaje, CalificacionViaje calificacionConductor,
 				CalificacionViaje calificacionCliente) {
+			finalizarViaje(viaje, calificacionConductor, calificacionCliente, LocalDateTime.now());
+		}
+
+		public void finalizarViaje(Viaje viaje, CalificacionViaje calificacionConductor,
+				CalificacionViaje calificacionCliente, LocalDateTime fechaHora) {
 			if (viaje == null) {
 				throw new IllegalArgumentException("El viaje no puede ser nulo");
 			}
 			if (viaje.estadoActual() != EstadoViaje.INICIADO) {
 				throw new IllegalStateException("Solo se puede finalizar un viaje INICIADO");
 			}
-			viaje.finalizar(LocalDateTime.now(), calificacionCliente, calificacionConductor);
+			viaje.finalizar(fechaHora, calificacionCliente, calificacionConductor);
 		}
 
 		public void cancelarViaje(Viaje viaje, Usuario usuario, String motivo) {
+			cancelarViaje(viaje, usuario, motivo, LocalDateTime.now());
+		}
+
+		public void cancelarViaje(Viaje viaje, Usuario usuario, String motivo, LocalDateTime fechaHora) {
 			if (viaje == null) {
 				throw new IllegalArgumentException("El viaje no puede ser nulo");
 			}
@@ -464,10 +485,15 @@ public class Logica {
 			if (motivo == null || motivo.isBlank()) {
 				throw new IllegalArgumentException("El motivo de cancelación es obligatorio");
 			}
-			viaje.cancelar(LocalDateTime.now(), usuario, motivo);
+			viaje.cancelar(fechaHora, usuario, motivo);
 		}
 
 		public void cancelarViaje(Viaje viaje, Usuario usuario, String motivo, double kmRecorridos) {
+			cancelarViaje(viaje, usuario, motivo, kmRecorridos, LocalDateTime.now());
+		}
+
+		public void cancelarViaje(Viaje viaje, Usuario usuario, String motivo, double kmRecorridos,
+				LocalDateTime fechaHora) {
 			if (viaje == null) {
 				throw new IllegalArgumentException("El viaje no puede ser nulo");
 			}
@@ -480,7 +506,7 @@ public class Logica {
 			if (kmRecorridos < 0) {
 				throw new IllegalArgumentException("Los kilómetros recorridos no pueden ser negativos");
 			}
-			viaje.cancelar(LocalDateTime.now(), usuario, motivo, kmRecorridos);
+			viaje.cancelar(fechaHora, usuario, motivo, kmRecorridos);
 		}
 
 		// ==================================================================

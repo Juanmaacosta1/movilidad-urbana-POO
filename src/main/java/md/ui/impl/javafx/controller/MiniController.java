@@ -11,19 +11,27 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
+import javafx.application.Platform;
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.util.StringConverter;
 import javafx.concurrent.Worker;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import md.logica.Logica;
+import md.logica.PlanificacionViajeService;
 import md.modelo.CategoriaVehiculo;
 import md.modelo.Conductor;
 import md.modelo.EstadoConductor;
 import md.modelo.EstadoViaje;
+import md.modelo.RolUsuario;
 import md.modelo.Servicio;
 import md.modelo.TipoServicio;
 import md.modelo.TipoVehiculo;
@@ -31,6 +39,10 @@ import md.modelo.Ubicacion;
 import md.modelo.Usuario;
 import md.modelo.Vehiculo;
 import md.modelo.Viaje;
+import md.rutas.api.RutaCalculada;
+import md.rutas.api.RutasViaje;
+import md.rutas.impl.MotorRutas;
+import md.ui.impl.javafx.Navegador;
 
 public class MiniController implements Initializable {
 
@@ -38,6 +50,9 @@ public class MiniController implements Initializable {
     @FXML private ComboBox<Usuario> cmbChofer;
     @FXML private VBox seccionPasajero;
     @FXML private VBox seccionConductor;
+    @FXML private Label lblUsuarioActual;
+    @FXML private Label lblRolActual;
+    @FXML private Button btnCambiarRol;
     @FXML private Button btnConfirmarConductor;
     @FXML private Button btnCambiarDisponibilidad;
     @FXML private Button btnElegirOrigen;
@@ -61,7 +76,8 @@ public class MiniController implements Initializable {
     private String tipoDePuntoPendiente;
     private boolean mapaCargado;
     private Stage ventanaAdministracion;
-    private PedidosController controladorPedido;
+    private Usuario usuarioActual;
+    private RolUsuario rolActual;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -220,18 +236,63 @@ public class MiniController implements Initializable {
 
         WebEngine motor = mapa.getEngine();
         motor.setOnAlert(evento -> procesarSeleccionMapa(evento.getData()));
+        mapa.widthProperty().addListener((observable, valorAnterior, anchoActual) -> {
+            if (mapaCargado && anchoActual.doubleValue() > 0) {
+                ajustarMapa();
+            }
+        });
+        mapa.heightProperty().addListener((observable, valorAnterior, altoActual) -> {
+            if (mapaCargado && altoActual.doubleValue() > 0) {
+                ajustarMapa();
+            }
+        });
         motor.getLoadWorker().stateProperty().addListener((observable, estadoAnterior, estado) -> {
             if (estado == Worker.State.SUCCEEDED) {
                 mapaCargado = true;
                 btnElegirOrigen.setDisable(false);
                 btnElegirDestino.setDisable(false);
                 lblEstadoMapa.setText("Mapa listo. Elegí origen y destino.");
+                ajustarMapa();
+                PauseTransition espera = new PauseTransition(Duration.millis(500));
+                espera.setOnFinished(e -> {
+                    ajustarMapa();
+                    mostrarDiagnosticoMapa();
+                });
+                espera.play();
                 actualizarMapa();
             } else if (estado == Worker.State.FAILED) {
                 lblEstadoMapa.setText("No se pudo cargar el mapa.");
             }
         });
         motor.load(recursoMapa.toExternalForm());
+    }
+
+    /** Muestra el tamaño que ve Leaflet frente al del WebView (ayuda a detectar desajustes). */
+    private void mostrarDiagnosticoMapa() {
+        Platform.runLater(() -> {
+            try {
+                Object datos = mapa.getEngine().executeScript("window.diagnosticoMapa()");
+                lblEstadoMapa.setText("Mapa listo. Elegí origen y destino. [WebView "
+                        + (int) mapa.getWidth() + "x" + (int) mapa.getHeight() + " | " + datos + "]");
+            } catch (RuntimeException e) {
+                lblEstadoMapa.setText("Mapa listo, pero sin diagnóstico: " + e.getMessage());
+            }
+        });
+    }
+
+    /** Pide a Leaflet que recalcule el tamaño del contenedor (en el hilo de JavaFX). */
+    private void ajustarMapa() {
+        if (!mapaCargado) {
+            return;
+        }
+        Platform.runLater(() -> {
+            try {
+                mapa.getEngine().executeScript(String.format(java.util.Locale.ROOT,
+                        "window.ajustarTamanoMapa(%d, %d)", (int) mapa.getWidth(), (int) mapa.getHeight()));
+            } catch (RuntimeException e) {
+                lblEstadoMapa.setText("No se pudo ajustar el tamaño del mapa.");
+            }
+        });
     }
 
     @FXML
@@ -363,26 +424,10 @@ public class MiniController implements Initializable {
             actualizarEstadoPasajero();
             actualizarPedidosPendientes();
             actualizarEstadoPedidoParaConductor(viaje);
-            mostrarPanelConductor();
+            abrirSeguimiento(viaje, RolUsuario.CLIENTE);
         } catch (IllegalArgumentException | IllegalStateException e) {
             lblResultado.setText("No se pudo solicitar el viaje: " + e.getMessage());
         }
-    }
-
-    @FXML
-    private void volverAlPanelPasajero() {
-        seccionConductor.setVisible(false);
-        seccionConductor.setManaged(false);
-        seccionPasajero.setVisible(true);
-        seccionPasajero.setManaged(true);
-        actualizarEstadoPasajero();
-    }
-
-    private void mostrarPanelConductor() {
-        seccionPasajero.setVisible(false);
-        seccionPasajero.setManaged(false);
-        seccionConductor.setVisible(true);
-        seccionConductor.setManaged(true);
     }
 
     @FXML
@@ -568,10 +613,7 @@ public class MiniController implements Initializable {
         }
         try {
             Logica.getInstance().aceptarViaje(pedido, conductor);
-            mostrarPedidoPasajero(pedido, evento);
-            if (controladorPedido != null) {
-                controladorPedido.actualizarEstado();
-            }
+            abrirSeguimiento(pedido, RolUsuario.CONDUCTOR);
             lblResultadoChofer.setText(conductor.getNombre() + " tomó el pedido de "
                     + pedido.getCliente().getNombre() + ".");
             actualizarEstadoPasajero();
@@ -583,34 +625,113 @@ public class MiniController implements Initializable {
         }
     }
 
-    private void mostrarPedidoPasajero(Viaje pedido, ActionEvent evento) {
-        URL recurso = getClass().getResource("/ui/javafx/view/Pedidos.fxml");
-        if (recurso == null) {
-            lblResultadoChofer.setText("El pedido se creó, pero no se encontró la pantalla de seguimiento.");
+    @FXML
+    private void verSeguimientoPasajero() {
+        Viaje viaje = viajeMasReciente(RolUsuario.CLIENTE);
+        if (viaje == null) {
+            lblResultado.setText("Todavía no pediste ningún viaje.");
             return;
         }
+        abrirSeguimiento(viaje, RolUsuario.CLIENTE);
+    }
+
+    @FXML
+    private void verSeguimientoConductor() {
+        Viaje viaje = viajeMasReciente(RolUsuario.CONDUCTOR);
+        if (viaje == null) {
+            lblResultadoChofer.setText("Todavía no tomaste ningún pedido.");
+            return;
+        }
+        abrirSeguimiento(viaje, RolUsuario.CONDUCTOR);
+    }
+
+    /** El viaje en curso del usuario actual en ese rol o, si no hay, el último que tuvo. */
+    private Viaje viajeMasReciente(RolUsuario rol) {
+        Viaje ultimo = null;
+        Viaje enCurso = null;
+        for (Viaje viaje : Logica.getInstance().getViajes()) {
+            Usuario participante = rol == RolUsuario.CLIENTE ? viaje.getCliente() : viaje.getConductor();
+            if (participante == null || participante != usuarioActual) {
+                continue;
+            }
+            ultimo = viaje;
+            EstadoViaje estado = viaje.estadoActual();
+            if (estado == EstadoViaje.SOLICITADO || estado == EstadoViaje.ACEPTADO
+                    || estado == EstadoViaje.INICIADO) {
+                enCurso = viaje;
+            }
+        }
+        return enCurso != null ? enCurso : ultimo;
+    }
+
+    private void abrirSeguimiento(Viaje viaje, RolUsuario rol) {
         try {
-            FXMLLoader cargador = new FXMLLoader(recurso);
-            Scene escena = new Scene(cargador.load());
-            controladorPedido = cargador.getController();
-            controladorPedido.mostrarPedido(pedido);
-            Stage ventana = new Stage();
-            ventana.setTitle("Seguimiento del pedido");
-            ventana.initOwner(((Node) evento.getSource()).getScene().getWindow());
-            ventana.setScene(escena);
-            ventana.setOnHidden(cierre -> {
-                controladorPedido = null;
-            });
-            ventana.show();
-            ventana.toFront();
-        } catch (IOException | IllegalArgumentException e) {
-            controladorPedido = null;
-            lblResultadoChofer.setText("El pedido se creó, pero no se pudo abrir el seguimiento: "
-                    + e.getMessage());
+            SeguimientoPedidoController.abrir(ventanaActual(), viaje, rol, this::dibujarRutasDelViaje);
+        } catch (IOException | RuntimeException e) {
+            Label destino = rol == RolUsuario.CLIENTE ? lblResultado : lblResultadoChofer;
+            destino.setText("No se pudo abrir el seguimiento: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
+    /**
+     * Dibuja en el mapa los dos tramos del viaje (conductor -> origen y origen -> destino) calculados
+     * por calles. Si el mapa vial todavía no está cargado, queda la ruta de OSRM que ya se muestra.
+     */
+    private void dibujarRutasDelViaje(Viaje viaje) {
+        EstadoViaje estado = viaje.estadoActual();
+        if (!mapaCargado || viaje.getConductor() == null
+                || estado == EstadoViaje.CANCELADO || estado == EstadoViaje.RECHAZADO) {
+            return;
+        }
+        Optional<PlanificacionViajeService> servicio = MotorRutas.getInstance().servicioPlanificacion();
+        if (servicio.isEmpty()) {
+            return;
+        }
+        Conductor datos = viaje.getConductor().getConductor();
+        Ubicacion posicion = datos.getUbicacion() != null ? datos.getUbicacion() : viaje.getOrigen();
+        try {
+            RutasViaje rutas = servicio.get().planificar(posicion, viaje.getOrigen(), viaje.getDestino(),
+                    viaje.getServicio().getTipoVehiculo());
+            // Terminado el viaje el acercamiento ya no tiene sentido: solo se muestra el traslado
+            String acercamiento = estado == EstadoViaje.FINALIZADO ? "[]" : puntosEnJson(rutas.acercamiento());
+            String json = "{\"acercamiento\":" + acercamiento
+                    + ",\"traslado\":" + puntosEnJson(rutas.traslado())
+                    + ",\"conductor\":" + puntoEnJson(posicion.getLatitud(), posicion.getLongitud())
+                    + ",\"origen\":" + puntoEnJson(viaje.getOrigen().getLatitud(), viaje.getOrigen().getLongitud())
+                    + ",\"destino\":" + puntoEnJson(viaje.getDestino().getLatitud(), viaje.getDestino().getLongitud())
+                    + "}";
+            mapa.getEngine().executeScript("window.mostrarRutasViaje(" + json + ")");
+        } catch (RuntimeException e) {
+            // Sin ruta por calles (fuera de cobertura, etc.): queda la que ya estaba dibujada
+            System.err.println("No se pudieron dibujar las rutas del viaje: " + e.getMessage());
+        }
+    }
+
+    private String puntosEnJson(RutaCalculada ruta) {
+        StringBuilder json = new StringBuilder("[");
+        for (int i = 0; i < ruta.geometria().size(); i++) {
+            if (i > 0) {
+                json.append(',');
+            }
+            json.append(puntoEnJson(ruta.geometria().get(i).latitud(), ruta.geometria().get(i).longitud()));
+        }
+        return json.append(']').toString();
+    }
+
+    private String puntoEnJson(double latitud, double longitud) {
+        return String.format(Locale.ROOT, "[%.6f,%.6f]", latitud, longitud);
+    }
+
+    private Window ventanaActual() {
+        return cmbPasajero.getScene() == null ? null : cmbPasajero.getScene().getWindow();
+    }
+
     private void recargarUsuariosYConductores() {
+        if (usuarioActual != null && !contieneUsuario(Logica.getInstance().getUsuarios(), usuarioActual)) {
+            cambiarUsuario();
+            return;
+        }
         Usuario pasajeroSeleccionado = cmbPasajero.getValue();
         Usuario conductorSeleccionado = cmbChofer.getValue();
         cmbPasajero.getItems().clear();
@@ -713,5 +834,73 @@ public class MiniController implements Initializable {
             case VIAJE_A_ORIGEN -> "Yendo al origen";
             case VIAJE_A_DESTINO -> "En viaje";
         };
+    }
+
+    /** Lo llama el Navegador al entrar desde la pantalla de selección de usuario. */
+    public void iniciarSesion(Usuario usuario, RolUsuario rol) {
+        if (usuario == null) {
+            throw new IllegalArgumentException("Se necesita un usuario para iniciar la sesión");
+        }
+        usuarioActual = usuario;
+        lblUsuarioActual.setText(usuario.getNombre() + " · " + usuario.getEmail());
+        btnCambiarRol.setVisible(usuario.esConductor());
+        btnCambiarRol.setManaged(usuario.esConductor());
+        if (rol == RolUsuario.CONDUCTOR && usuario.esConductor()) {
+            aplicarRolConductor();
+        } else {
+            aplicarRolCliente();
+        }
+    }
+
+    private void aplicarRolCliente() {
+        rolActual = RolUsuario.CLIENTE;
+        lblRolActual.setText("Ingresaste como cliente");
+        cmbPasajero.setValue(usuarioActual);
+        cmbPasajero.setDisable(true);
+        seccionConductor.setVisible(false);
+        seccionConductor.setManaged(false);
+        seccionPasajero.setVisible(true);
+        seccionPasajero.setManaged(true);
+        actualizarEstadoPasajero();
+    }
+
+    private void aplicarRolConductor() {
+        rolActual = RolUsuario.CONDUCTOR;
+        lblRolActual.setText("Ingresaste como conductor");
+        cmbChofer.setValue(usuarioActual);
+        cmbChofer.setDisable(true);
+        seccionPasajero.setVisible(false);
+        seccionPasajero.setManaged(false);
+        seccionConductor.setVisible(true);
+        seccionConductor.setManaged(true);
+        actualizarDisponibilidadConductor();
+        actualizarPedidosPendientes();
+    }
+
+    @FXML
+    private void cambiarRol() {
+        if (usuarioActual == null || !usuarioActual.esConductor()) {
+            lblResultado.setText("Este usuario no está registrado como conductor.");
+            return;
+        }
+        if (rolActual == RolUsuario.CLIENTE) {
+            aplicarRolConductor();
+        } else {
+            aplicarRolCliente();
+        }
+    }
+
+    @FXML
+    private void cambiarUsuario() {
+        Window ventana = ventanaActual();
+        if (!(ventana instanceof Stage)) {
+            return;
+        }
+        try {
+            Navegador.mostrarSeleccionUsuario((Stage) ventana);
+        } catch (IOException | RuntimeException e) {
+            lblResultado.setText("No se pudo volver a la selección de usuario: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

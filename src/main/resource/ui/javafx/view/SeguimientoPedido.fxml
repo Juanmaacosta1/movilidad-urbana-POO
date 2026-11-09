@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="md.ui.impl.javafx.controller.SeguimientoPedidoController"
+            fitToWidth="true" hbarPolicy="NEVER" styleClass="form-scroll"
+            prefWidth="580" prefHeight="780">
+    <stylesheets>
+        <URL value="@../css/estilos.css"/>
+        <URL value="@../css/pantallas.css"/>
+    </stylesheets>
+    <content>
+        <VBox styleClass="page" spacing="12">
+
+            <!-- Estado actual -->
+            <VBox styleClass="card" spacing="6">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Seguimiento del pedido" styleClass="titulo-pantalla"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="lblEstadoActual" styleClass="badge"/>
+                </HBox>
+                <Label fx:id="lblCodigo" styleClass="hint-label"/>
+                <Label fx:id="lblMensajeEstado" styleClass="mensaje-estado" wrapText="true"/>
+            </VBox>
+
+            <!-- Progreso -->
+            <VBox styleClass="card" spacing="8">
+                <Label text="Progreso del viaje" styleClass="field-label"/>
+                <FlowPane hgap="6" vgap="6">
+                    <Label fx:id="lblPaso1" text="1 · Solicitado" styleClass="step"/>
+                    <Label fx:id="lblPaso2" text="2 · Aceptado" styleClass="step"/>
+                    <Label fx:id="lblPaso3" text="3 · En viaje" styleClass="step"/>
+                    <Label fx:id="lblPaso4" text="4 · Finalizado" styleClass="step"/>
+                </FlowPane>
+                <Label fx:id="lblTerminal" styleClass="step-terminal" wrapText="true" visible="false" managed="false"/>
+            </VBox>
+
+            <!-- Datos clave -->
+            <HBox spacing="8">
+                <VBox styleClass="stat-tile" spacing="2" alignment="CENTER" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <Label text="TIEMPO ESTIMADO" styleClass="stat-caption"/>
+                    <Label fx:id="lblTiempo" styleClass="stat-value" wrapText="true"/>
+                </VBox>
+                <VBox styleClass="stat-tile" spacing="2" alignment="CENTER" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <Label text="DISTANCIA APROX." styleClass="stat-caption"/>
+                    <Label fx:id="lblDistancia" styleClass="stat-value" wrapText="true"/>
+                </VBox>
+                <VBox styleClass="stat-tile" spacing="2" alignment="CENTER" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <Label text="COSTO ESTIMADO" styleClass="stat-caption"/>
+                    <Label fx:id="lblCosto" styleClass="stat-value" wrapText="true"/>
+                </VBox>
+            </HBox>
+            <Label fx:id="lblFuenteRutas" styleClass="hint-label" wrapText="true"/>
+
+            <!-- Detalles -->
+            <VBox styleClass="card" spacing="8">
+                <Label text="Detalles del pedido" styleClass="field-label"/>
+                <GridPane hgap="12" vgap="8">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="110" prefWidth="120"/>
+                        <ColumnConstraints hgrow="ALWAYS"/>
+                    </columnConstraints>
+            <Label text="Pasajero" styleClass="caption-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <Label fx:id="lblPasajero" styleClass="valor-label" wrapText="true" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+            <Label text="Conductor" styleClass="caption-label" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <Label fx:id="lblConductor" styleClass="valor-label" wrapText="true" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+            <Label text="Vehículo" styleClass="caption-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <Label fx:id="lblVehiculo" styleClass="valor-label" wrapText="true" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            <Label text="Servicio" styleClass="caption-label" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <Label fx:id="lblServicio" styleClass="valor-label" wrapText="true" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+            <Label text="Origen" styleClass="caption-label" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+            <Label fx:id="lblOrigen" styleClass="valor-label" wrapText="true" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+            <Label text="Destino" styleClass="caption-label" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+            <Label fx:id="lblDestino" styleClass="valor-label" wrapText="true" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+            <Label text="Calificaciones" styleClass="caption-label" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+            <Label fx:id="lblCalificaciones" styleClass="valor-label" wrapText="true" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+                </GridPane>
+                <Label fx:id="lblCancelacion" styleClass="mensaje-error" wrapText="true" visible="false" managed="false"/>
+            </VBox>
+
+            <!-- Historial -->
+            <VBox styleClass="card" spacing="8">
+                <Label text="Historial de eventos" styleClass="field-label"/>
+                <ListView fx:id="lstHistorial" prefHeight="130" minHeight="100"/>
+            </VBox>
+
+            <!-- Elegir conductor (solo el pasajero, mientras el pedido espera conductor) -->
+            <VBox fx:id="cardConductor" styleClass="card" spacing="8" visible="false" managed="false">
+                <Label text="Elegí tu conductor" styleClass="field-label"/>
+                <Label fx:id="lblConductoresInfo" styleClass="hint-label" wrapText="true"/>
+                <ComboBox fx:id="cmbConductor" maxWidth="Infinity" promptText="Seleccioná un conductor"/>
+                <Button fx:id="btnAsignarConductor" text="Asignar conductor" onAction="#asignarConductor"
+                        maxWidth="Infinity" styleClass="button-primary" disable="true"/>
+            </VBox>
+
+            <!-- Simulación: avanza el pedido de inmediato, con tiempos simulados -->
+            <VBox fx:id="cardSimulacion" styleClass="card" spacing="8">
+                <Label text="Simulación (sin esperar)" styleClass="field-label"/>
+                <Label text="Hace avanzar el pedido al instante: los eventos quedan registrados con la hora que habrían tenido según la duración de los tramos."
+                       styleClass="hint-label" wrapText="true"/>
+                <Button fx:id="btnSimularCompleto" text="Simular viaje completo" onAction="#simularViajeCompleto"
+                        maxWidth="Infinity" styleClass="button-primary"/>
+                <Button fx:id="btnAvanzarPaso" text="Avanzar un paso" onAction="#avanzarUnPaso"
+                        maxWidth="Infinity" styleClass="button-secondary"/>
+                <Button fx:id="btnNadieAcepta" text="Simular que nadie lo acepta" onAction="#simularNadieAcepta"
+                        maxWidth="Infinity" styleClass="button-secondary"/>
+                <Label fx:id="lblSimulacion" styleClass="hint-label" wrapText="true"/>
+            </VBox>
+
+            <!-- Acciones -->
+            <VBox styleClass="card" spacing="8">
+                <Label text="Acciones" styleClass="field-label"/>
+                <Button fx:id="btnIniciar" text="Iniciar viaje" onAction="#iniciarViaje"
+                        maxWidth="Infinity" styleClass="button-primary" visible="false" managed="false"/>
+                <Button fx:id="btnFinalizar" text="Finalizar viaje" onAction="#finalizarViaje"
+                        maxWidth="Infinity" styleClass="button-success" visible="false" managed="false"/>
+                <Button fx:id="btnCancelar" text="Cancelar pedido" onAction="#cancelarPedido"
+                        maxWidth="Infinity" styleClass="button-danger" visible="false" managed="false"/>
+                <Label fx:id="lblSinAcciones" text="No hay acciones disponibles para este pedido."
+                       styleClass="hint-label" wrapText="true"/>
+                <Label fx:id="lblResultado" styleClass="hint-label" wrapText="true"/>
+            </VBox>
+        </VBox>
+    </content>
+</ScrollPane>

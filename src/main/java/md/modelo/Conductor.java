@@ -11,6 +11,8 @@ public class Conductor {
 	private CategoriaVehiculo categoriaVehiculoActivo;
 	private EstadoConductor estadoConductor = EstadoConductor.FUERA_DE_SERVICIO;
 	private List<Viaje> viajes = new ArrayList<>();
+	/** Última posición conocida (la simula la aplicación; no hay GPS). Puede ser null. */
+	private Ubicacion ubicacion;
 
 	public Conductor(String licenciaConducir, Vehiculo vehiculo) {
 	    if (licenciaConducir == null || licenciaConducir.isBlank()) {
@@ -88,6 +90,14 @@ public class Conductor {
 
 	public EstadoConductor getEstadoConductor() {
 		return estadoConductor;
+	}
+
+	public Ubicacion getUbicacion() {
+		return ubicacion;
+	}
+
+	public void setUbicacion(Ubicacion ubicacion) {
+		this.ubicacion = ubicacion;
 	}
 
 	public List<Viaje> getViajes() {

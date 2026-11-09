@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="md.ui.impl.javafx.controller.SeleccionUsuarioController"
+           styleClass="page" prefWidth="520" prefHeight="520">
+    <stylesheets>
+        <URL value="@../css/estilos.css"/>
+        <URL value="@../css/pantallas.css"/>
+    </stylesheets>
+
+    <VBox alignment="CENTER" maxWidth="440" spacing="14" StackPane.alignment="CENTER">
+        <Label text="Movilidad Digital" styleClass="titulo-grande"/>
+        <Label text="Elegí con qué usuario querés ingresar." styleClass="subtitulo" wrapText="true"/>
+
+        <VBox styleClass="card" spacing="10">
+            <Label text="Usuario" styleClass="field-label"/>
+            <ComboBox fx:id="cmbUsuario" maxWidth="Infinity" promptText="Seleccioná un usuario"
+                      onAction="#usuarioElegido"/>
+            <Label fx:id="lblDetalle" text="Elegí un usuario para ver con qué roles puede ingresar."
+                   styleClass="hint-label" wrapText="true"/>
+
+            <Button fx:id="btnCliente" text="Ingresar como cliente" onAction="#entrarComoCliente"
+                    maxWidth="Infinity" styleClass="button-primary" disable="true"/>
+            <Button fx:id="btnConductor" text="Ingresar como conductor" onAction="#entrarComoConductor"
+                    maxWidth="Infinity" styleClass="button-secondary" disable="true"/>
+
+            <Label fx:id="lblMensaje" styleClass="mensaje-error" wrapText="true"/>
+        </VBox>
+    </VBox>
+</StackPane>

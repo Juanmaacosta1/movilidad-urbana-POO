@@ -19,15 +19,24 @@
         <content>
             <VBox spacing="12" prefWidth="390">
 
+                <!-- Sesión: usuario y rol con los que se ingresó (se elige en la pantalla de selección) -->
+                <VBox styleClass="card" spacing="8">
+                    <Label fx:id="lblUsuarioActual" styleClass="titulo-pantalla" wrapText="true"/>
+                    <Label fx:id="lblRolActual" styleClass="hint-label" wrapText="true"/>
+                    <HBox spacing="8">
+                        <Button fx:id="btnCambiarRol" text="Cambiar rol" onAction="#cambiarRol" maxWidth="Infinity" HBox.hgrow="ALWAYS" styleClass="button-secondary"/>
+                        <Button text="Cambiar de usuario" onAction="#cambiarUsuario" maxWidth="Infinity" HBox.hgrow="ALWAYS" styleClass="button-secondary"/>
+                    </HBox>
+                </VBox>
+
                 <!-- Encabezado -->
-                <VBox spacing="2">
+                <VBox spacing="2" visible="false" managed="false">
                     <Label text="Pedí tu viaje" styleClass="titulo-pantalla"/>
-                    <Label text="Completá los 3 pasos y tocá «Pedir viaje»."
-                           styleClass="hint-label" wrapText="true"/>
+                    <Label text="Completá los 3 pasos y tocá «Pedir viaje»." styleClass="hint-label" wrapText="true"/>
                 </VBox>
 
                 <!-- VISTA PASAJERO  -->
-                <VBox fx:id="seccionPasajero" spacing="12">
+                <VBox fx:id="seccionPasajero" spacing="12" visible="false" managed="false">
 
                     <!-- Paso 1 -->
                     <VBox styleClass="card" spacing="8">
@@ -76,6 +85,10 @@
                     <Button text=" Pedir viaje" onAction="#solicitarViaje" maxWidth="Infinity"
                             styleClass="button-primary">
                         <tooltip><Tooltip text="Completá los 3 pasos antes de pedir el viaje"/></tooltip>
+                    </Button>
+                    <Button text="Ver seguimiento de mi pedido" onAction="#verSeguimientoPasajero"
+                            maxWidth="Infinity" styleClass="button-secondary">
+                        <tooltip><Tooltip text="Abre una ventana con el estado y los detalles de tu pedido"/></tooltip>
                     </Button>
                     <Button text="⚙ Administrar usuarios y conductores"
                             onAction="#abrirAdministracion" maxWidth="Infinity"
@@ -131,19 +144,23 @@
                            styleClass="hint-label" wrapText="true"/>
 
                     <Separator/>
-                    <Button text="← Volver al pedido del pasajero"
-                            onAction="#volverAlPanelPasajero" maxWidth="Infinity"
-                            styleClass="button-link"/>
+                    <Button text="Ver seguimiento del viaje actual" onAction="#verSeguimientoConductor"
+                            maxWidth="Infinity" styleClass="button-secondary"/>
                 </VBox>
             </VBox>
         </content>
     </ScrollPane>
 
     <!-- cOLUMNA DERECHA: mapa -->
-    <VBox styleClass="card map-panel" spacing="8" HBox.hgrow="ALWAYS">
+    <VBox styleClass="card map-panel" spacing="8" HBox.hgrow="ALWAYS"
+          maxWidth="Infinity" maxHeight="Infinity" fillWidth="true">
         <Label text=" Mapa del viaje" styleClass="field-label"/>
         <Label fx:id="lblEstadoMapa" text="Cargando mapa..." styleClass="hint-label" wrapText="true"/>
-        <WebView fx:id="mapa" minWidth="400" minHeight="400"
-                 prefWidth="720" prefHeight="680" VBox.vgrow="ALWAYS"/>
+        <StackPane maxWidth="Infinity" maxHeight="Infinity" VBox.vgrow="ALWAYS">
+            <WebView fx:id="mapa" minWidth="420" minHeight="420"
+                     prefWidth="760" prefHeight="620"
+                     maxWidth="Infinity" maxHeight="Infinity"
+                     StackPane.alignment="CENTER"/>
+        </StackPane>
     </VBox>
 </HBox>
