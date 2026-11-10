@@ -15,7 +15,7 @@
         <VBox styleClass="page" spacing="12">
 
             <VBox spacing="2">
-                <Label text=" ¡Tu pedido fue tomado!" styleClass="titulo-pantalla"/>
+                <Label text="¡Tu pedido fue tomado!" styleClass="titulo-pantalla"/>
                 <Label text="Acá podés seguir el estado de tu viaje."
                        styleClass="hint-label" wrapText="true"/>
             </VBox>
@@ -41,7 +41,7 @@
                            styleClass="stat-value" wrapText="true"/>
                 </VBox>
                 <VBox styleClass="stat-tile" spacing="2" alignment="CENTER" HBox.hgrow="ALWAYS" maxWidth="Infinity">
-                    <Label text="$ COSTO ESTIMADO" styleClass="stat-caption"/>
+                    <Label text="COSTO ESTIMADO ($)" styleClass="stat-caption"/>
                     <Label fx:id="lblCosto" text="Se calcula al confirmar el pedido."
                            styleClass="stat-value" wrapText="true"/>
                 </VBox>
@@ -59,19 +59,33 @@
                     <tooltip><Tooltip text="Cancela el viaje solicitado"/></tooltip>
                 </Button>
                 <Label fx:id="lblResultado" styleClass="hint-label" wrapText="true"/>
+                <Button text="← Volver al panel del conductor" onAction="#volverAlPanel"
+                        maxWidth="Infinity" styleClass="button-secondary"/>
+            </VBox>
+
+
+
+
+  <!-- Calificaciones -->
+
+
+  <button fx:id="btnCalificar" text="Calificar viaje" onAction="#calificarViaje"          maxWidth="Infinity" styleClass="button-primary">
+      <tooltip><Tooltip text="Calificá al conductor y al pasajero"/></tooltip>
+  </button>
+            <VBox styleClass="card" spacing="8">
+                <Label text="Calificaciones" styleClass="field-label"/>
+                <Label fx:id="lblCalificacion" text="Todavía no hay calificaciones."
+                       styleClass="valor-label" wrapText="true"/>
+                <Label fx:id="lblCalificacionConductor" text="Conductor: sin calificar"
+                       styleClass="valor-label" wrapText="true"/>
+                <Label fx:id="lblCalificacionPasajero" text="Pasajero: sin calificar"
+                       styleClass="valor-label" wrapText="true"/>
             </VBox>
 
 
 
 
 
-            <!--calificacion! -->
-
-             <VBox styleClass="stat-tile" spacing="2" alignment="CENTER" HBox.hgrow="ALWAYS" maxWidth="Infinity">
-                    <Label text="📏 DISTANCIA APROX." styleClass="stat-caption"/>
-                    <Label fx:id="lblDistancia" text="Se calcula al confirmar el pedido."
-                           styleClass="stat-value" wrapText="true"/>
-                </VBox>
         </VBox>
     </content>
 </ScrollPane>

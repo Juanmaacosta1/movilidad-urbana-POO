@@ -8,10 +8,12 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Alert;
 import javafx.scene.layout.VBox;
 import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import javafx.concurrent.Worker;
@@ -61,7 +63,7 @@ public class MiniController implements Initializable {
     private String tipoDePuntoPendiente;
     private boolean mapaCargado;
     private Stage ventanaAdministracion;
-    private PedidosController controladorPedido;
+    private Stage ventanaPedido;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -568,46 +570,68 @@ public class MiniController implements Initializable {
         }
         try {
             Logica.getInstance().aceptarViaje(pedido, conductor);
-            mostrarPedidoPasajero(pedido, evento);
-            if (controladorPedido != null) {
-                controladorPedido.actualizarEstado();
-            }
-            lblResultadoChofer.setText(conductor.getNombre() + " tomó el pedido de "
-                    + pedido.getCliente().getNombre() + ".");
-            actualizarEstadoPasajero();
-            actualizarDisponibilidadConductor();
-            actualizarPedidosPendientes();
         } catch (IllegalArgumentException | IllegalStateException e) {
             lblResultadoChofer.setText("No se pudo tomar el pedido: " + e.getMessage());
             actualizarPedidosPendientes();
+            return;
         }
+
+        lblResultadoChofer.setText(conductor.getNombre() + " tomó el pedido de "
+                + pedido.getCliente().getNombre() + ".");
+        mostrarPedidoPasajero(pedido, evento);
+        actualizarEstadoPasajero();
+        actualizarDisponibilidadConductor();
+        actualizarPedidosPendientes();
     }
 
     private void mostrarPedidoPasajero(Viaje pedido, ActionEvent evento) {
+        if (ventanaPedido != null && ventanaPedido.isShowing()) {
+            ventanaPedido.toFront();
+            ventanaPedido.requestFocus();
+            return;
+        }
+
         URL recurso = getClass().getResource("/ui/javafx/view/Pedidos.fxml");
         if (recurso == null) {
-            lblResultadoChofer.setText("El pedido se creó, pero no se encontró la pantalla de seguimiento.");
+            mostrarErrorSeguimiento("No se encontró la pantalla de seguimiento.", evento);
             return;
         }
         try {
             FXMLLoader cargador = new FXMLLoader(recurso);
-            Scene escena = new Scene(cargador.load());
-            controladorPedido = cargador.getController();
-            controladorPedido.mostrarPedido(pedido);
+            Stage ventanaPrincipal = (Stage) ((Node) evento.getSource()).getScene().getWindow();
+            Scene escenaPedidos = new Scene(cargador.load(), 520, 600);
+            PedidosController controlador = cargador.getController();
+            controlador.mostrarPedido(pedido);
             Stage ventana = new Stage();
             ventana.setTitle("Seguimiento del pedido");
-            ventana.initOwner(((Node) evento.getSource()).getScene().getWindow());
-            ventana.setScene(escena);
-            ventana.setOnHidden(cierre -> {
-                controladorPedido = null;
+            ventana.initOwner(ventanaPrincipal);
+            ventana.initModality(Modality.WINDOW_MODAL);
+            ventana.setScene(escenaPedidos);
+            ventana.setMinWidth(480);
+            ventana.setMinHeight(520);
+            controlador.setAccionVolver(ventana::close);
+            ventana.setOnShown(mostrar -> {
+                ventana.toFront();
+                ventana.requestFocus();
             });
+            ventana.setOnHidden(cierre -> ventanaPedido = null);
+            ventanaPedido = ventana;
             ventana.show();
-            ventana.toFront();
-        } catch (IOException | IllegalArgumentException e) {
-            controladorPedido = null;
-            lblResultadoChofer.setText("El pedido se creó, pero no se pudo abrir el seguimiento: "
-                    + e.getMessage());
+        } catch (IOException | RuntimeException e) {
+            ventanaPedido = null;
+            mostrarErrorSeguimiento("No se pudo mostrar el seguimiento: " + e.getMessage(), evento);
         }
+    }
+
+    private void mostrarErrorSeguimiento(String mensaje, ActionEvent evento) {
+        lblResultadoChofer.setText("El pedido se tomó, pero " + mensaje);
+        Alert alerta = new Alert(Alert.AlertType.ERROR, mensaje);
+        alerta.setTitle("No se pudo abrir el pedido");
+        alerta.setHeaderText("El viaje fue aceptado, pero falta mostrar el resumen.");
+        if (evento.getSource() instanceof Node nodo && nodo.getScene() != null) {
+            alerta.initOwner(nodo.getScene().getWindow());
+        }
+        alerta.show();
     }
 
     private void recargarUsuariosYConductores() {

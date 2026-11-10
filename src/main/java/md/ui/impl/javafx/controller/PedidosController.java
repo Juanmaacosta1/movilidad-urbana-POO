@@ -12,7 +12,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import md.logica.Logica;
-import md.modelo.Ubicacion;
+import md.modelo.CalificacionViaje;
+import md.modelo.EstadoViaje;
 import md.modelo.Viaje;
 
 public class PedidosController implements Initializable {
@@ -28,9 +29,13 @@ public class PedidosController implements Initializable {
     @FXML private Label lblCosto;
     @FXML private Label lblEstado;
     @FXML private Label lblResultado;
+    @FXML private Label lblCalificacion;
+    @FXML private Label lblCalificacionConductor;
+    @FXML private Label lblCalificacionPasajero;
     @FXML private Button btnCancelarPedido;
 
     private Viaje viajeActual;
+    private Runnable accionVolver;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -38,6 +43,9 @@ public class PedidosController implements Initializable {
         lblConductor.setText("");
         lblServicio.setText("");
         lblResultado.setText("");
+        lblCalificacion.setText("Las calificaciones aparecen cuando finaliza el viaje.");
+        lblCalificacionConductor.setText("Conductor: sin calificar");
+        lblCalificacionPasajero.setText("Pasajero: sin calificar");
     }
 
     public void mostrarPedido(Viaje viaje) {
@@ -49,6 +57,18 @@ public class PedidosController implements Initializable {
         lblServicio.setText("Servicio: " + viaje.getServicio().getNombre());
         actualizarEstimaciones(viaje);
         actualizarEstado();
+        actualizarCalificaciones();
+    }
+
+    public void setAccionVolver(Runnable accionVolver) {
+        this.accionVolver = accionVolver;
+    }
+
+    @FXML
+    private void volverAlPanel() {
+        if (accionVolver != null) {
+            accionVolver.run();
+        }
     }
 
     private void actualizarEstimaciones(Viaje viaje) {
@@ -111,5 +131,31 @@ public class PedidosController implements Initializable {
         } catch (IllegalArgumentException | IllegalStateException e) {
             lblResultado.setText("No se pudo cancelar el pedido: " + e.getMessage());
         }
+    }
+
+
+    private void actualizarCalificaciones() {
+        if (viajeActual == null) {
+            return;
+        }
+        if (viajeActual.estadoActual() != EstadoViaje.FINALIZADO) {
+            lblCalificacion.setText("Las calificaciones aparecen cuando finaliza el viaje.");
+            lblCalificacionConductor.setText("Conductor: sin calificar");
+            lblCalificacionPasajero.setText("Pasajero: sin calificar");
+            return;
+        }
+
+        lblCalificacion.setText("Calificaciones del viaje");
+        lblCalificacionConductor.setText("Conductor: "
+                + formatearCalificacion(viajeActual.getCalificacionConductor()));
+        lblCalificacionPasajero.setText("Pasajero: "
+                + formatearCalificacion(viajeActual.getCalificacionCliente()));
+    }
+
+    private String formatearCalificacion(CalificacionViaje calificacion) {
+        if (calificacion == null || calificacion == CalificacionViaje.NO_CALIFICADO) {
+            return "sin calificar";
+        }
+        return calificacion.getValor() + "/5";
     }
 }
