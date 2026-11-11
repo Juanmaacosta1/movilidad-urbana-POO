@@ -873,8 +873,75 @@ public class MiniController implements Initializable {
         seccionPasajero.setManaged(false);
         seccionConductor.setVisible(true);
         seccionConductor.setManaged(true);
+        generarViajeAleatorioPuertoMadryn();
         actualizarDisponibilidadConductor();
         actualizarPedidosPendientes();
+    }
+
+    private void generarViajeAleatorioPuertoMadryn() {
+        if (usuarioActual == null || !usuarioActual.esConductor()) {
+            return;
+        }
+
+        Logica logica = Logica.getInstance();
+        boolean yaExisteViajeParaElConductor = false;
+        for (Viaje viaje : logica.getViajes()) {
+            if (viaje.getConductor() == usuarioActual) {
+                yaExisteViajeParaElConductor = true;
+                break;
+            }
+            if (viaje.getCliente() == usuarioActual) {
+                EstadoViaje estado = viaje.estadoActual();
+                if (estado == EstadoViaje.SOLICITADO || estado == EstadoViaje.ACEPTADO
+                        || estado == EstadoViaje.INICIADO) {
+                    yaExisteViajeParaElConductor = true;
+                    break;
+                }
+            }
+        }
+        if (yaExisteViajeParaElConductor) {
+            return;
+        }
+
+        if (logica.getServicios().isEmpty()) {
+            lblResultadoChofer.setText("No hay servicios cargados para generar un viaje aleatorio.");
+            return;
+        }
+
+        Usuario cliente = usuarioActual;
+        for (Usuario usuario : logica.getUsuarios()) {
+            if (usuario != usuarioActual) {
+                cliente = usuario;
+                break;
+            }
+        }
+        Servicio servicio = logica.getServicios().get((int) (Math.random() * logica.getServicios().size()));
+
+        Ubicacion origen = ubicacionAleatoriaPuertoMadryn();
+        Ubicacion destino = ubicacionAleatoriaPuertoMadryn();
+        if (origen.calcularDistancia(destino) < 0.5) {
+            destino = new Ubicacion(origen.getLatitud() + 0.02, origen.getLongitud() + 0.03);
+        }
+
+        try {
+            Viaje viaje = logica.solicitarViaje(cliente, origen, destino, servicio);
+            lblResultadoChofer.setText("Se generó un pedido aleatorio en Puerto Madryn. Elegilo y tomá el viaje.");
+            cmbPedidosPendientes.setValue(viaje);
+            actualizarPedidosPendientes();
+            actualizarEstadoPedidoParaConductor(viaje);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            lblResultadoChofer.setText("No se pudo generar el pedido aleatorio en Puerto Madryn: " + e.getMessage());
+        }
+    }
+
+    private Ubicacion ubicacionAleatoriaPuertoMadryn() {
+        double minLat = -42.87689;
+        double maxLat = -42.57303;
+        double minLon = -65.20872;
+        double maxLon = -64.78616;
+        double latitud = minLat + (maxLat - minLat) * Math.random();
+        double longitud = minLon + (maxLon - minLon) * Math.random();
+        return new Ubicacion(latitud, longitud);
     }
 
     @FXML

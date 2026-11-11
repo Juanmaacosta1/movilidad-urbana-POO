@@ -20,6 +20,8 @@
             <Label text="Usuario" styleClass="field-label"/>
             <ComboBox fx:id="cmbUsuario" maxWidth="Infinity" promptText="Seleccioná un usuario"
                       onAction="#usuarioElegido"/>
+            <Label fx:id="lblRoles" text="Roles disponibles: CLIENTE"
+                   styleClass="hint-label" wrapText="true"/>
             <Label fx:id="lblDetalle" text="Elegí un usuario para ver con qué roles puede ingresar."
                    styleClass="hint-label" wrapText="true"/>
 

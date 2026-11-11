@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="md.ui.impl.javafx.controller.CalificarViajeController"
+      spacing="16" alignment="CENTER" prefWidth="420" prefHeight="260">
+    <stylesheets>
+        <URL value="@../css/estilos.css"/>
+        <URL value="@../css/pantallas.css"/>
+    </stylesheets>
+    <padding>
+        <Insets top="20" right="22" bottom="20" left="22"/>
+    </padding>
+
+    <Label fx:id="lblTitulo" text="Calificá a esta persona" styleClass="titulo-pantalla"/>
+    <Label fx:id="lblDescripcion" text="Elegí cuántas estrellas te parece esta persona." styleClass="hint-label" wrapText="true"/>
+
+    <HBox spacing="8" alignment="CENTER">
+        <ToggleButton fx:id="btnEstrella1" text="★" styleClass="star-button" prefWidth="44" prefHeight="44"/>
+        <ToggleButton fx:id="btnEstrella2" text="★" styleClass="star-button" prefWidth="44" prefHeight="44"/>
+        <ToggleButton fx:id="btnEstrella3" text="★" styleClass="star-button" prefWidth="44" prefHeight="44"/>
+        <ToggleButton fx:id="btnEstrella4" text="★" styleClass="star-button" prefWidth="44" prefHeight="44"/>
+        <ToggleButton fx:id="btnEstrella5" text="★" styleClass="star-button" prefWidth="44" prefHeight="44"/>
+    </HBox>
+
+    <Label fx:id="lblSeleccion" text="Sin calificación" styleClass="valor-label"/>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT" prefWidth="Infinity">
+        <Button fx:id="btnGuardar" text="Guardar calificación" onAction="#guardarCalificacion" styleClass="button-primary" disable="true"/>
+        <Button text="Cancelar" onAction="#cancelar" styleClass="button-secondary"/>
+    </HBox>
+</VBox>

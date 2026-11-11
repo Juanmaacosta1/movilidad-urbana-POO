@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -23,6 +24,7 @@ public class SeleccionUsuarioController implements Initializable {
     @FXML private ComboBox<Usuario> cmbUsuario;
     @FXML private Label lblDetalle;
     @FXML private Label lblMensaje;
+    @FXML private Label lblRoles;
     @FXML private Button btnCliente;
     @FXML private Button btnConductor;
 
@@ -40,16 +42,40 @@ public class SeleccionUsuarioController implements Initializable {
             }
         });
 
-        try {
-            for (Usuario usuario : Logica.getInstance().getUsuarios()) {
+        lblMensaje.setText("Cargando...");
+        cmbUsuario.setDisable(true);
+
+        Task<net.datastructures.List<Usuario>> tareaUsuarios = new Task<>() {
+            @Override
+            protected net.datastructures.List<Usuario> call() {
+                return Logica.getInstance().getUsuarios();
+            }
+        };
+
+        tareaUsuarios.setOnSucceeded(event -> {
+            cmbUsuario.getItems().clear();
+            net.datastructures.List<Usuario> usuarios = tareaUsuarios.getValue();
+            for (Usuario usuario : usuarios) {
                 cmbUsuario.getItems().add(usuario);
             }
+            cmbUsuario.setDisable(false);
             if (cmbUsuario.getItems().isEmpty()) {
                 lblMensaje.setText("Todavía no hay usuarios registrados.");
+            } else {
+                lblMensaje.setText("");
             }
-        } catch (IllegalStateException e) {
-            lblMensaje.setText("No se pudieron cargar los usuarios: " + e.getMessage());
-        }
+            usuarioElegido();
+        });
+
+        tareaUsuarios.setOnFailed(event -> {
+            cmbUsuario.setDisable(false);
+            Throwable error = tareaUsuarios.getException();
+            lblMensaje.setText("No se pudieron cargar los usuarios: " + (error != null ? error.getMessage() : "error desconocido"));
+        });
+
+        Thread hiloUsuarios = new Thread(tareaUsuarios, "carga-usuarios");
+        hiloUsuarios.setDaemon(true);
+        hiloUsuarios.start();
     }
 
     @FXML
@@ -58,10 +84,19 @@ public class SeleccionUsuarioController implements Initializable {
         lblMensaje.setText("");
         btnCliente.setDisable(usuario == null);
         btnConductor.setDisable(usuario == null || !usuario.esConductor());
+
         if (usuario == null) {
+            lblRoles.setText("Roles disponibles: CLIENTE");
             lblDetalle.setText("Elegí un usuario para ver con qué roles puede ingresar.");
             return;
         }
+
+        String roles = "CLIENTE";
+        if (usuario.esConductor()) {
+            roles += ", CONDUCTOR";
+        }
+        lblRoles.setText("Roles disponibles: " + roles);
+
         StringBuilder detalle = new StringBuilder("Teléfono: " + usuario.getTelefono() + ". ");
         detalle.append(usuario.esConductor()
                 ? "Está registrado como conductor: puede ingresar como cliente o como conductor."

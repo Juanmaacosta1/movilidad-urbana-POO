@@ -21,7 +21,7 @@
         <junit.version>5.10.2</junit.version>
         <javafx.version>21.0.5</javafx.version>
 
-        <main.class>md.aplicacion.AplicacionConsulta</main.class>
+        <main.class>md.ui.impl.javafx.MiniMain</main.class>
     </properties>
 
     <dependencies>
@@ -29,6 +29,12 @@
             <groupId>com.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
             <version>9.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>de.westnordost</groupId>
+                    <artifactId>osm-legal-default-speeds-jvm</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -52,6 +58,11 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
             <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.4</version>
         </dependency>
     </dependencies>
 

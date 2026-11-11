@@ -16,14 +16,12 @@ public class BdDAOFactory implements DAOFactory {
 
 	@Override
 	public ServicioDAO getServicioDAO() {
-		// TODO pendiente
-		return null;
+		return new ServicioDaoBd(conexion);
 	}
 
 	@Override
 	public VehiculoDAO getVehiculoDAO() {
-		// TODO pendiente
-		return null;
+		return new VehiculoDaoBd(conexion);
 	}
 
 	@Override

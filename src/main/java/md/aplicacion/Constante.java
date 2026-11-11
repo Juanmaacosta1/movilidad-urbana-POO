@@ -12,6 +12,7 @@ public final class Constante {
 	public static final int OPCION_BUSCAR_VEHICULO = 7;
 	public static final int OPCION_HISTORIAL_CLIENTE = 8;
 	public static final int OPCION_ESTADISTICAS_CONDUCTOR = 9;
+	public static final int OPCION_CALIFICAR_VIAJE = 10;
 
 	private Constante() {
 	}

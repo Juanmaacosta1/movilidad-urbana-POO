@@ -1,4 +1,3 @@
-
 package md.logica;
 
 import java.time.LocalDateTime;

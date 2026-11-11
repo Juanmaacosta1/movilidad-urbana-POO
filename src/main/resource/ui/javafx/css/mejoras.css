@@ -1,0 +1,36 @@
+/**
+ * Estilos adicionales para la UI JavaFX.
+ * El archivo existe para que los FXML que lo referencian carguen sin warnings.
+ */
+
+.root {
+    -fx-font-family: "Segoe UI";
+}
+
+.card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10;
+    -fx-border-color: #dfe6ee;
+    -fx-border-radius: 10;
+    -fx-padding: 12;
+}
+
+.button-primary {
+    -fx-background-color: #2b6df6;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+}
+
+.button-secondary {
+    -fx-background-color: #eaf1ff;
+    -fx-text-fill: #1d3557;
+    -fx-background-radius: 8;
+}
+
+.mensaje-error {
+    -fx-text-fill: #b42318;
+}
+
+.hint-label {
+    -fx-text-fill: #53657b;
+}

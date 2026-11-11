@@ -35,3 +35,23 @@
 .stat-value   { -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #0f172a; -fx-text-alignment: center; }
 
 .step-terminal { -fx-padding: 6 12; -fx-background-radius: 14; -fx-background-color: #fee2e2; -fx-text-fill: #b91c1c; -fx-font-weight: bold; }
+
+.star-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+}
+.star-button:selected,
+.star-button:focused:selected {
+    -fx-text-fill: #fbbf24;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.star-button:hover {
+    -fx-text-fill: #facc15;
+}

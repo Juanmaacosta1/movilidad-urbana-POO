@@ -17,6 +17,7 @@ import java.util.ResourceBundle;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -27,6 +28,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
@@ -54,6 +56,9 @@ import md.rutas.api.RutaCalculada;
 import md.rutas.impl.MotorRutas;
 import md.simulacion.ResultadoSimulacion;
 import md.simulacion.SimuladorViaje;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonBar;
 
 /**
  * Ventana de seguimiento de un pedido: estado, progreso, detalles e historial.
@@ -117,6 +122,7 @@ public class SeguimientoPedidoController implements Initializable {
     private EstadoViaje ultimoEstado;
     private RutaCalculada trasladoPorCalles;
     private boolean trasladoFallido;
+    private boolean calificacionAbierta;
 
     /** Abre (o trae al frente) la ventana de seguimiento del viaje para el rol indicado. */
     public static void abrir(Window propietario, Viaje viaje, RolUsuario rol) throws IOException {
@@ -162,6 +168,16 @@ public class SeguimientoPedidoController implements Initializable {
         VENTANAS_ABIERTAS.put(clave, ventana);
         ventana.show();
         ventana.toFront();
+        ventana.setOnShown(e -> Platform.runLater(() -> {
+            if (!controlador.calificacionAbierta && viaje.estadoActual() == EstadoViaje.FINALIZADO) {
+                controlador.abrirCalificacionSiHaceFalta(ventana);
+            }
+        }));
+        Platform.runLater(() -> {
+            if (!controlador.calificacionAbierta && viaje.estadoActual() == EstadoViaje.FINALIZADO) {
+                controlador.abrirCalificacionSiHaceFalta(ventana);
+            }
+        });
     }
 
     @Override
@@ -187,10 +203,69 @@ public class SeguimientoPedidoController implements Initializable {
         this.viaje = viaje;
         this.rol = rol;
         this.alCambiarEstado = alCambiarEstado;
+        this.calificacionAbierta = false;
         actualizar();
+        if (viaje.estadoActual() == EstadoViaje.FINALIZADO && !calificacionAbierta) {
+            Platform.runLater(() -> abrirCalificacionSiHaceFalta(getSceneWindow()));
+        }
         refresco = new Timeline(new KeyFrame(Duration.seconds(1), evento -> actualizar()));
         refresco.setCycleCount(Animation.INDEFINITE);
         refresco.play();
+    }
+
+    private void abrirCalificacionSiHaceFalta(Window propietario) {
+        if (viaje == null || viaje.estadoActual() != EstadoViaje.FINALIZADO || calificacionAbierta) {
+            return;
+        }
+
+        try {
+            Window owner = propietario != null ? propietario : getSceneWindow();
+
+            if (rol == RolUsuario.CLIENTE) {
+                calificacionAbierta = true;
+                CalificacionViaje calificacion = CalificarViajeController.abrir(
+                        owner,
+                        "Calificar al conductor",
+                        "conductor");
+                if (calificacion != null) {
+                    viaje.setCalificacionConductor(calificacion);
+                    lblResultado.setText("Calificación del conductor guardada: " + estrellas(calificacion));
+                } else {
+                    lblResultado.setText("Se canceló la calificación del conductor.");
+                }
+                calificacionAbierta = false;
+                actualizar();
+                return;
+            }
+
+            if (rol == RolUsuario.CONDUCTOR) {
+                calificacionAbierta = true;
+                CalificacionViaje calificacion = CalificarViajeController.abrir(
+                        owner,
+                        "Calificar al cliente",
+                        "cliente");
+                if (calificacion != null) {
+                    viaje.setCalificacionCliente(calificacion);
+                    lblResultado.setText("Calificación del cliente guardada: " + estrellas(calificacion));
+                } else {
+                    lblResultado.setText("Se canceló la calificación del cliente.");
+                }
+                calificacionAbierta = false;
+                actualizar();
+                return;
+            }
+
+            lblResultado.setText("Calificación completa.");
+        } catch (IOException e) {
+            lblResultado.setText("No se pudo abrir la calificación: " + e.getMessage());
+        } finally {
+            actualizar();
+        }
+    }
+
+    private CalificacionViaje pedirCalificacion(String titulo, String tipo) throws IOException {
+        Window owner = getSceneWindow();
+        return CalificarViajeController.abrir(owner, titulo, tipo);
     }
 
     private void detener() {
@@ -319,10 +394,13 @@ public class SeguimientoPedidoController implements Initializable {
         lblOrigen.setText(formatearUbicacion(viaje.getOrigen().getLatitud(), viaje.getOrigen().getLongitud()));
         lblDestino.setText(formatearUbicacion(viaje.getDestino().getLatitud(), viaje.getDestino().getLongitud()));
 
-        // Las calificaciones son confidenciales: nadie ve la que recibió
-        lblCalificaciones.setText(estado == EstadoViaje.FINALIZADO
-                ? "Registradas (cada parte no conoce la que recibió)"
-                : "Se registran al finalizar el viaje");
+        if (estado == EstadoViaje.FINALIZADO) {
+            String estrellasCliente = formatearEstrellas(viaje.getCalificacionCliente());
+            String estrellasConductor = formatearEstrellas(viaje.getCalificacionConductor());
+            lblCalificaciones.setText("Cliente: " + estrellasCliente + "  ·  Conductor: " + estrellasConductor);
+        } else {
+            lblCalificaciones.setText("Se registran al finalizar el viaje");
+        }
 
         boolean cancelado = estado == EstadoViaje.CANCELADO;
         lblCancelacion.setVisible(cancelado);
@@ -470,34 +548,55 @@ public class SeguimientoPedidoController implements Initializable {
 
     @FXML
     private void finalizarViaje() {
-        Dialog<ButtonType> dialogo = new Dialog<>();
-        dialogo.setTitle("Finalizar viaje");
-        dialogo.setHeaderText("Calificá el viaje para finalizarlo");
-        dialogo.initOwner(btnFinalizar.getScene().getWindow());
-
-        ComboBox<CalificacionViaje> cmbPasajero = crearComboCalificacion();
-        ComboBox<CalificacionViaje> cmbConductor = crearComboCalificacion();
-        GridPane grilla = new GridPane();
-        grilla.setHgap(12);
-        grilla.setVgap(10);
-        grilla.add(new Label("Calificación del pasajero"), 0, 0);
-        grilla.add(cmbPasajero, 1, 0);
-        grilla.add(new Label("Calificación del conductor"), 0, 1);
-        grilla.add(cmbConductor, 1, 1);
-        dialogo.getDialogPane().setContent(grilla);
-        dialogo.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-        Optional<ButtonType> respuesta = dialogo.showAndWait();
-        if (respuesta.isEmpty() || respuesta.get() != ButtonType.OK) {
-            return;
-        }
         try {
-            Logica.getInstance().finalizarViaje(viaje, cmbConductor.getValue(), cmbPasajero.getValue());
-            lblResultado.setText("El viaje finalizó.");
+            CalificacionViaje calificacionConductor = viaje.getCalificacionConductor();
+            if (calificacionConductor == null || calificacionConductor == CalificacionViaje.NO_CALIFICADO) {
+                calificacionConductor = pedirCalificacion("Calificar al conductor", "conductor");
+                if (calificacionConductor == null) {
+                    lblResultado.setText("Se canceló la calificación del conductor.");
+                    return;
+                }
+                viaje.setCalificacionConductor(calificacionConductor);
+            }
+
+            CalificacionViaje calificacionCliente = viaje.getCalificacionCliente();
+            if (calificacionCliente == null || calificacionCliente == CalificacionViaje.NO_CALIFICADO) {
+                calificacionCliente = pedirCalificacion("Calificar al cliente", "cliente");
+                if (calificacionCliente == null) {
+                    lblResultado.setText("Se canceló la calificación del cliente.");
+                    return;
+                }
+                viaje.setCalificacionCliente(calificacionCliente);
+            }
+
+            Logica.getInstance().finalizarViaje(viaje, calificacionConductor, calificacionCliente);
+            lblResultado.setText("El viaje finalizó y quedó calificado para conductor y pasajero.");
         } catch (IllegalArgumentException | IllegalStateException e) {
             lblResultado.setText("No se pudo finalizar el viaje: " + e.getMessage());
+        } catch (IOException e) {
+            lblResultado.setText("No se pudo abrir la pantalla de calificación: " + e.getMessage());
         }
         actualizar();
+    }
+
+    private void calificarViaje(String titulo, String tipo) {
+        try {
+            CalificacionViaje calificacion = pedirCalificacion(titulo, tipo);
+            if (calificacion == null) {
+                lblResultado.setText("Se canceló la calificación del viaje.");
+                return;
+            }
+            if ("conductor".equals(tipo)) {
+                viaje.setCalificacionConductor(calificacion);
+            } else {
+                viaje.setCalificacionCliente(calificacion);
+            }
+            lblResultado.setText("Se guardó la calificación de " + tipo + ".");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            lblResultado.setText("No se pudo guardar la calificación: " + e.getMessage());
+        } catch (IOException e) {
+            lblResultado.setText("No se pudo abrir la pantalla de calificación: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -599,11 +698,18 @@ public class SeguimientoPedidoController implements Initializable {
             ResultadoSimulacion resultado = simulacion.get();
             lblSimulacion.setText(String.join("\n", resultado.pasos()));
             lblResultado.setText("");
+            if (viaje.estadoActual() == EstadoViaje.FINALIZADO) {
+                Platform.runLater(() -> abrirCalificacionSiHaceFalta(getSceneWindow()));
+            }
         } catch (IllegalArgumentException | IllegalStateException e) {
             lblSimulacion.setText("No se pudo simular: " + e.getMessage());
         }
         firmaConductores = "";
         actualizar();
+    }
+
+    private Window getSceneWindow() {
+        return btnFinalizar != null && btnFinalizar.getScene() != null ? btnFinalizar.getScene().getWindow() : null;
     }
 
     private ComboBox<CalificacionViaje> crearComboCalificacion() {
@@ -630,6 +736,17 @@ public class SeguimientoPedidoController implements Initializable {
         });
         combo.setValue(CalificacionViaje.EXCELENTE);
         return combo;
+    }
+
+    private String estrellas(CalificacionViaje calificacion) {
+        if (calificacion == null || calificacion == CalificacionViaje.NO_CALIFICADO) {
+            return "Sin calificar";
+        }
+        return "★".repeat(calificacion.getValor()) + "☆".repeat(5 - calificacion.getValor());
+    }
+
+    private String formatearEstrellas(CalificacionViaje calificacion) {
+        return estrellas(calificacion);
     }
 
     // ------------------------------------------------------------------ textos
@@ -712,3 +829,20 @@ public class SeguimientoPedidoController implements Initializable {
         return resto == 0 ? horas + " h" : horas + " h " + resto + " min";
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
