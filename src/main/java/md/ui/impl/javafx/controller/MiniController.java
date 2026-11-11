@@ -25,6 +25,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import md.ui.i18n.Messages;
 import md.logica.Logica;
 import md.logica.PlanificacionViajeService;
 import md.modelo.CategoriaVehiculo;
@@ -45,6 +46,7 @@ import md.rutas.impl.MotorRutas;
 import md.ui.impl.javafx.Navegador;
 
 public class MiniController implements Initializable {
+    @FXML private ComboBox<String> cmbIdioma;
 
     @FXML private ComboBox<Usuario> cmbPasajero;
     @FXML private ComboBox<Usuario> cmbChofer;
@@ -81,6 +83,8 @@ public class MiniController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        cmbIdioma.getItems().setAll("Español", "English");
+        cmbIdioma.setValue(md.ui.i18n.Messages.getLocale().getLanguage().equals("en") ? "English" : "Español");
         inicializarMapa();
         StringConverter<Usuario> conversorUsuario = new StringConverter<>() {
             @Override
@@ -209,7 +213,7 @@ public class MiniController implements Initializable {
                 cmbChofer.getItems().add(conductor);
             }
             if (cmbPasajero.getItems().isEmpty()) {
-                lblResultado.setText("Todavía no hay usuarios registrados.");
+                lblResultado.setText(md.ui.i18n.Messages.get("ui.no.users"));
             }
             if (cmbChofer.getItems().isEmpty()) {
                 lblResultadoChofer.setText("Todavía no hay conductores registrados. Agregalos desde Administración.");
@@ -384,7 +388,7 @@ public class MiniController implements Initializable {
         }
 
         try {
-            FXMLLoader cargador = new FXMLLoader(recurso);
+            FXMLLoader cargador = new FXMLLoader(recurso, Messages.getBundle());
             Scene escena = new Scene(cargador.load());
             Stage ventana = new Stage();
             ventana.setTitle("Administración de usuarios y conductores");
@@ -836,10 +840,22 @@ public class MiniController implements Initializable {
         };
     }
 
+    @FXML
+    private void cambiarIdioma() {
+        if (cmbIdioma == null || cmbIdioma.getValue() == null || usuarioActual == null) return;
+        md.ui.i18n.Messages.setLocale("English".equals(cmbIdioma.getValue())
+                ? java.util.Locale.ENGLISH : new java.util.Locale("es"));
+        try {
+            Navegador.mostrarPrincipal((Stage) cmbIdioma.getScene().getWindow(), usuarioActual, rolActual);
+        } catch (IOException e) {
+            lblRolActual.setText(md.ui.i18n.Messages.get("ui.language.error") + e.getMessage());
+        }
+    }
+
     /** Lo llama el Navegador al entrar desde la pantalla de selección de usuario. */
     public void iniciarSesion(Usuario usuario, RolUsuario rol) {
         if (usuario == null) {
-            throw new IllegalArgumentException("Se necesita un usuario para iniciar la sesión");
+            throw new IllegalArgumentException(md.ui.i18n.Messages.get("ui.login.required"));
         }
         usuarioActual = usuario;
         lblUsuarioActual.setText(usuario.getNombre() + " · " + usuario.getEmail());
@@ -854,7 +870,7 @@ public class MiniController implements Initializable {
 
     private void aplicarRolCliente() {
         rolActual = RolUsuario.CLIENTE;
-        lblRolActual.setText("Ingresaste como cliente");
+        lblRolActual.setText(md.ui.i18n.Messages.get("ui.logged.client"));
         cmbPasajero.setValue(usuarioActual);
         cmbPasajero.setDisable(true);
         seccionConductor.setVisible(false);
@@ -866,7 +882,7 @@ public class MiniController implements Initializable {
 
     private void aplicarRolConductor() {
         rolActual = RolUsuario.CONDUCTOR;
-        lblRolActual.setText("Ingresaste como conductor");
+        lblRolActual.setText(md.ui.i18n.Messages.get("ui.logged.driver"));
         cmbChofer.setValue(usuarioActual);
         cmbChofer.setDisable(true);
         seccionPasajero.setVisible(false);

@@ -19,21 +19,21 @@
         <Insets top="20" right="22" bottom="20" left="22"/>
     </padding>
 
-    <Label fx:id="lblTitulo" text="Calificá a esta persona" styleClass="titulo-pantalla"/>
-    <Label fx:id="lblDescripcion" text="Elegí cuántas estrellas te parece esta persona." styleClass="hint-label" wrapText="true"/>
+    <Label fx:id="lblTitulo" text="%text.044" styleClass="titulo-pantalla"/>
+    <Label fx:id="lblDescripcion" text="%text.045" styleClass="hint-label" wrapText="true"/>
 
     <HBox spacing="8" alignment="CENTER">
-        <ToggleButton fx:id="btnEstrella1" text="★" styleClass="star-button" prefWidth="44" prefHeight="44"/>
-        <ToggleButton fx:id="btnEstrella2" text="★" styleClass="star-button" prefWidth="44" prefHeight="44"/>
-        <ToggleButton fx:id="btnEstrella3" text="★" styleClass="star-button" prefWidth="44" prefHeight="44"/>
-        <ToggleButton fx:id="btnEstrella4" text="★" styleClass="star-button" prefWidth="44" prefHeight="44"/>
-        <ToggleButton fx:id="btnEstrella5" text="★" styleClass="star-button" prefWidth="44" prefHeight="44"/>
+        <ToggleButton fx:id="btnEstrella1" text="%text.046" styleClass="star-button" prefWidth="44" prefHeight="44"/>
+        <ToggleButton fx:id="btnEstrella2" text="%text.046" styleClass="star-button" prefWidth="44" prefHeight="44"/>
+        <ToggleButton fx:id="btnEstrella3" text="%text.046" styleClass="star-button" prefWidth="44" prefHeight="44"/>
+        <ToggleButton fx:id="btnEstrella4" text="%text.046" styleClass="star-button" prefWidth="44" prefHeight="44"/>
+        <ToggleButton fx:id="btnEstrella5" text="%text.046" styleClass="star-button" prefWidth="44" prefHeight="44"/>
     </HBox>
 
-    <Label fx:id="lblSeleccion" text="Sin calificación" styleClass="valor-label"/>
+    <Label fx:id="lblSeleccion" text="%text.047" styleClass="valor-label"/>
 
     <HBox spacing="10" alignment="CENTER_RIGHT" prefWidth="Infinity">
-        <Button fx:id="btnGuardar" text="Guardar calificación" onAction="#guardarCalificacion" styleClass="button-primary" disable="true"/>
-        <Button text="Cancelar" onAction="#cancelar" styleClass="button-secondary"/>
+        <Button fx:id="btnGuardar" text="%text.048" onAction="#guardarCalificacion" styleClass="button-primary" disable="true"/>
+        <Button text="%text.049" onAction="#cancelar" styleClass="button-secondary"/>
     </HBox>
 </VBox>

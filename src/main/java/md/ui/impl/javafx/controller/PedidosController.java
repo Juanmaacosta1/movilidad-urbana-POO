@@ -45,8 +45,8 @@ public class PedidosController implements Initializable {
             throw new IllegalArgumentException("Se necesita un pedido para mostrar su estado");
         }
         viajeActual = viaje;
-        lblPasajero.setText("Pasajero: " + viaje.getCliente().getNombre());
-        lblServicio.setText("Servicio: " + viaje.getServicio().getNombre());
+        lblPasajero.setText(md.ui.i18n.Messages.get("ui.passenger") + viaje.getCliente().getNombre());
+        lblServicio.setText(md.ui.i18n.Messages.get("ui.service") + viaje.getServicio().getNombre());
         actualizarEstimaciones(viaje);
         actualizarEstado();
     }
@@ -81,8 +81,8 @@ public class PedidosController implements Initializable {
             return;
         }
         if (viajeActual.getConductor() == null) {
-            lblConductor.setText("Conductor: buscando...");
-            lblEstado.setText("Esperando que un conductor tome el pedido.");
+            lblConductor.setText(md.ui.i18n.Messages.get("ui.driver.search"));
+            lblEstado.setText(md.ui.i18n.Messages.get("ui.wait.driver"));
         } else {
             lblConductor.setText("Conductor: " + viajeActual.getConductor().getNombre());
             lblEstado.setText("El conductor aceptó el pedido.");
@@ -96,8 +96,8 @@ public class PedidosController implements Initializable {
             return;
         }
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION,
-                "¿Querés cancelar este pedido?", ButtonType.CANCEL, ButtonType.OK);
-        confirmacion.setHeaderText("Cancelar pedido");
+                md.ui.i18n.Messages.get("ui.cancel.question"), ButtonType.CANCEL, ButtonType.OK);
+        confirmacion.setHeaderText(md.ui.i18n.Messages.get("ui.cancel.title"));
         if (confirmacion.showAndWait().filter(ButtonType.OK::equals).isEmpty()) {
             return;
         }

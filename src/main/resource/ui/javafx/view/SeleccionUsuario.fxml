@@ -13,21 +13,22 @@
     </stylesheets>
 
     <VBox alignment="CENTER" maxWidth="440" spacing="14" StackPane.alignment="CENTER">
-        <Label text="Movilidad Digital" styleClass="titulo-grande"/>
-        <Label text="Elegí con qué usuario querés ingresar." styleClass="subtitulo" wrapText="true"/>
+        <HBox alignment="CENTER_RIGHT" spacing="8"><Label text="%text.language"/><ComboBox fx:id="cmbIdioma" onAction="#cambiarIdioma" prefWidth="125"/></HBox>
+        <Label text="%text.091" styleClass="titulo-grande"/>
+        <Label text="%text.092" styleClass="subtitulo" wrapText="true"/>
 
         <VBox styleClass="card" spacing="10">
-            <Label text="Usuario" styleClass="field-label"/>
-            <ComboBox fx:id="cmbUsuario" maxWidth="Infinity" promptText="Seleccioná un usuario"
+            <Label text="%text.093" styleClass="field-label"/>
+            <ComboBox fx:id="cmbUsuario" maxWidth="Infinity" promptText="%text.094"
                       onAction="#usuarioElegido"/>
-            <Label fx:id="lblRoles" text="Roles disponibles: CLIENTE"
+            <Label fx:id="lblRoles" text="%text.095"
                    styleClass="hint-label" wrapText="true"/>
-            <Label fx:id="lblDetalle" text="Elegí un usuario para ver con qué roles puede ingresar."
+            <Label fx:id="lblDetalle" text="%text.096"
                    styleClass="hint-label" wrapText="true"/>
 
-            <Button fx:id="btnCliente" text="Ingresar como cliente" onAction="#entrarComoCliente"
+            <Button fx:id="btnCliente" text="%text.097" onAction="#entrarComoCliente"
                     maxWidth="Infinity" styleClass="button-primary" disable="true"/>
-            <Button fx:id="btnConductor" text="Ingresar como conductor" onAction="#entrarComoConductor"
+            <Button fx:id="btnConductor" text="%text.098" onAction="#entrarComoConductor"
                     maxWidth="Infinity" styleClass="button-secondary" disable="true"/>
 
             <Label fx:id="lblMensaje" styleClass="mensaje-error" wrapText="true"/>

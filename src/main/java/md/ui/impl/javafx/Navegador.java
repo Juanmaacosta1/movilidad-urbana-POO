@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import md.modelo.RolUsuario;
 import md.modelo.Usuario;
+import md.ui.i18n.Messages;
 import md.ui.impl.javafx.controller.MiniController;
 
 /** Cambia la pantalla de la ventana principal: selección de usuario <-> aplicación. */
@@ -21,19 +22,19 @@ public final class Navegador {
     }
 
     public static void mostrarSeleccionUsuario(Stage ventana) throws IOException {
-        FXMLLoader cargador = new FXMLLoader(recurso(VISTA_SELECCION));
+        FXMLLoader cargador = new FXMLLoader(recurso(VISTA_SELECCION), Messages.getBundle());
         Parent raiz = cargador.load();
         cambiarEscena(ventana, raiz, 520, 520, 420, 440);
-        ventana.setTitle("Movilidad Digital · Elegí tu usuario");
+        ventana.setTitle(Messages.getLocale().getLanguage().equals("en") ? "Digital Mobility · Select user" : "Movilidad Digital · Elegí tu usuario");
     }
 
     public static void mostrarPrincipal(Stage ventana, Usuario usuario, RolUsuario rol) throws IOException {
-        FXMLLoader cargador = new FXMLLoader(recurso(VISTA_PRINCIPAL));
+        FXMLLoader cargador = new FXMLLoader(recurso(VISTA_PRINCIPAL), Messages.getBundle());
         Parent raiz = cargador.load();
         MiniController controlador = cargador.getController();
         controlador.iniciarSesion(usuario, rol);
         cambiarEscena(ventana, raiz, 1200, 760, 900, 620);
-        ventana.setTitle("Movilidad Digital · " + usuario.getNombre());
+        ventana.setTitle(Messages.get("ui.app.title") + " · " + usuario.getNombre());
     }
 
     private static URL recurso(String ruta) throws IOException {

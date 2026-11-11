@@ -3,6 +3,7 @@ package md.ui.impl.javafx.controller;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.Locale;
 
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -17,11 +18,13 @@ import md.logica.Logica;
 import md.modelo.RolUsuario;
 import md.modelo.Usuario;
 import md.ui.impl.javafx.Navegador;
+import md.ui.i18n.Messages;
 
 /** Pantalla inicial: se elige el usuario y el rol con el que se entra a la aplicación. */
 public class SeleccionUsuarioController implements Initializable {
 
     @FXML private ComboBox<Usuario> cmbUsuario;
+    @FXML private ComboBox<String> cmbIdioma;
     @FXML private Label lblDetalle;
     @FXML private Label lblMensaje;
     @FXML private Label lblRoles;
@@ -30,6 +33,10 @@ public class SeleccionUsuarioController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        if (cmbIdioma != null) {
+            cmbIdioma.getItems().setAll("Español", "English");
+            cmbIdioma.setValue(Messages.getLocale().getLanguage().equals("en") ? "English" : "Español");
+        }
         cmbUsuario.setConverter(new StringConverter<>() {
             @Override
             public String toString(Usuario usuario) {
@@ -42,7 +49,7 @@ public class SeleccionUsuarioController implements Initializable {
             }
         });
 
-        lblMensaje.setText("Cargando...");
+        lblMensaje.setText(md.ui.i18n.Messages.get("ui.loading"));
         cmbUsuario.setDisable(true);
 
         Task<net.datastructures.List<Usuario>> tareaUsuarios = new Task<>() {
@@ -60,7 +67,7 @@ public class SeleccionUsuarioController implements Initializable {
             }
             cmbUsuario.setDisable(false);
             if (cmbUsuario.getItems().isEmpty()) {
-                lblMensaje.setText("Todavía no hay usuarios registrados.");
+                lblMensaje.setText(md.ui.i18n.Messages.get("ui.no.users"));
             } else {
                 lblMensaje.setText("");
             }
@@ -70,12 +77,25 @@ public class SeleccionUsuarioController implements Initializable {
         tareaUsuarios.setOnFailed(event -> {
             cmbUsuario.setDisable(false);
             Throwable error = tareaUsuarios.getException();
-            lblMensaje.setText("No se pudieron cargar los usuarios: " + (error != null ? error.getMessage() : "error desconocido"));
+            lblMensaje.setText(md.ui.i18n.Messages.get("ui.users.error") + (error != null ? error.getMessage() : md.ui.i18n.Messages.get("ui.unknown.error")));
         });
 
         Thread hiloUsuarios = new Thread(tareaUsuarios, "carga-usuarios");
         hiloUsuarios.setDaemon(true);
         hiloUsuarios.start();
+    }
+
+    @FXML
+    private void cambiarIdioma() {
+        if (cmbIdioma == null || cmbIdioma.getValue() == null) return;
+        Messages.setLocale("English".equals(cmbIdioma.getValue())
+                ? Locale.ENGLISH : new Locale("es"));
+        try {
+            Stage stage = (Stage) cmbIdioma.getScene().getWindow();
+            Navegador.mostrarSeleccionUsuario(stage);
+        } catch (IOException e) {
+            lblMensaje.setText(md.ui.i18n.Messages.get("ui.language.error") + e.getMessage());
+        }
     }
 
     @FXML
@@ -86,8 +106,8 @@ public class SeleccionUsuarioController implements Initializable {
         btnConductor.setDisable(usuario == null || !usuario.esConductor());
 
         if (usuario == null) {
-            lblRoles.setText("Roles disponibles: CLIENTE");
-            lblDetalle.setText("Elegí un usuario para ver con qué roles puede ingresar.");
+            lblRoles.setText(md.ui.i18n.Messages.get("ui.roles.client"));
+            lblDetalle.setText(md.ui.i18n.Messages.get("ui.select.help"));
             return;
         }
 

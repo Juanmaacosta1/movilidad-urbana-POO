@@ -15,6 +15,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import md.ui.i18n.Messages;
 import md.modelo.CalificacionViaje;
 
 public class CalificarViajeController implements Initializable {
@@ -40,7 +41,7 @@ public class CalificarViajeController implements Initializable {
             throw new IOException("No se encontró la pantalla de calificación");
         }
 
-        FXMLLoader cargador = new FXMLLoader(recurso);
+        FXMLLoader cargador = new FXMLLoader(recurso, Messages.getBundle());
         Parent raiz = cargador.load();
         CalificarViajeController controlador = cargador.getController();
         controlador.configurarEntidad(entidadCalificada);

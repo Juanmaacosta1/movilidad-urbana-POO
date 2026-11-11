@@ -38,6 +38,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
+import md.ui.i18n.Messages;
 import md.logica.Logica;
 import md.modelo.CalificacionViaje;
 import md.modelo.CategoriaVehiculo;
@@ -150,7 +151,7 @@ public class SeguimientoPedidoController implements Initializable {
         if (recurso == null) {
             throw new IOException("No se encontró la pantalla de seguimiento del pedido");
         }
-        FXMLLoader cargador = new FXMLLoader(recurso);
+        FXMLLoader cargador = new FXMLLoader(recurso, Messages.getBundle());
         Parent raiz = cargador.load();
         SeguimientoPedidoController controlador = cargador.getController();
         controlador.mostrar(viaje, rol, alCambiarEstado);

@@ -21,18 +21,19 @@
 
                 <!-- Sesión: usuario y rol con los que se ingresó (se elige en la pantalla de selección) -->
                 <VBox styleClass="card" spacing="8">
+                    <HBox alignment="CENTER_RIGHT" spacing="8"><Label text="%text.language"/><ComboBox fx:id="cmbIdioma" onAction="#cambiarIdioma" prefWidth="125"/></HBox>
                     <Label fx:id="lblUsuarioActual" styleClass="titulo-pantalla" wrapText="true"/>
                     <Label fx:id="lblRolActual" styleClass="hint-label" wrapText="true"/>
                     <HBox spacing="8">
-                        <Button fx:id="btnCambiarRol" text="Cambiar rol" onAction="#cambiarRol" maxWidth="Infinity" HBox.hgrow="ALWAYS" styleClass="button-secondary"/>
-                        <Button text="Cambiar de usuario" onAction="#cambiarUsuario" maxWidth="Infinity" HBox.hgrow="ALWAYS" styleClass="button-secondary"/>
+                        <Button fx:id="btnCambiarRol" text="%text.001" onAction="#cambiarRol" maxWidth="Infinity" HBox.hgrow="ALWAYS" styleClass="button-secondary"/>
+                        <Button text="%text.002" onAction="#cambiarUsuario" maxWidth="Infinity" HBox.hgrow="ALWAYS" styleClass="button-secondary"/>
                     </HBox>
                 </VBox>
 
                 <!-- Encabezado -->
                 <VBox spacing="2" visible="false" managed="false">
-                    <Label text="Pedí tu viaje" styleClass="titulo-pantalla"/>
-                    <Label text="Completá los 3 pasos y tocá «Pedir viaje»." styleClass="hint-label" wrapText="true"/>
+                    <Label text="%text.003" styleClass="titulo-pantalla"/>
+                    <Label text="%text.004" styleClass="hint-label" wrapText="true"/>
                 </VBox>
 
                 <!-- VISTA PASAJERO  -->
@@ -40,57 +41,57 @@
 
                     <!-- Paso 1 -->
                     <VBox styleClass="card" spacing="8">
-                        <Label text="1 · ¿Quién viaja?" styleClass="field-label"/>
-                        <ComboBox fx:id="cmbPasajero" maxWidth="Infinity" promptText="Elegí un pasajero"
+                        <Label text="%text.005" styleClass="field-label"/>
+                        <ComboBox fx:id="cmbPasajero" maxWidth="Infinity" promptText="%text.006"
                                   onAction="#actualizarEstadoPasajero">
-                            <tooltip><Tooltip text="Al elegir un pasajero se habilitan los botones del mapa"/></tooltip>
+                            <tooltip><Tooltip text="%text.007"/></tooltip>
                         </ComboBox>
-                        <Label fx:id="lblResultado" text="Elegí quién va a viajar."
+                        <Label fx:id="lblResultado" text="%text.008"
                                styleClass="hint-label" wrapText="true"/>
                     </VBox>
 
                     <!-- Paso 2 -->
                     <VBox styleClass="card" spacing="8">
-                        <Label text="2 · ¿De dónde a dónde?" styleClass="field-label"/>
+                        <Label text="%text.009" styleClass="field-label"/>
 
-                        <Button fx:id="btnElegirOrigen" text=" Elegir origen en el mapa"
+                        <Button fx:id="btnElegirOrigen" text="%text.010"
                                 onAction="#seleccionarOrigen" maxWidth="Infinity" disable="true"
                                 styleClass="button-secondary">
-                            <tooltip><Tooltip text="Después de tocar este botón, hacé clic en el mapa"/></tooltip>
+                            <tooltip><Tooltip text="%text.011"/></tooltip>
                         </Button>
-                        <Label fx:id="lblOrigen" text="Origen: sin seleccionar"
+                        <Label fx:id="lblOrigen" text="%text.012"
                                styleClass="valor-label" wrapText="true"/>
 
                         <Separator/>
 
-                        <Button fx:id="btnElegirDestino" text=" Elegir destino en el mapa"
+                        <Button fx:id="btnElegirDestino" text="%text.013"
                                 onAction="#seleccionarDestino" maxWidth="Infinity" disable="true"
                                 styleClass="button-secondary">
-                            <tooltip><Tooltip text="Después de tocar este botón, hacé clic en el mapa"/></tooltip>
+                            <tooltip><Tooltip text="%text.011"/></tooltip>
                         </Button>
-                        <Label fx:id="lblDestino" text="Destino: sin seleccionar"
+                        <Label fx:id="lblDestino" text="%text.014"
                                styleClass="valor-label" wrapText="true"/>
                     </VBox>
 
                     <!-- Paso 3 -->
                     <VBox styleClass="card" spacing="8">
-                        <Label text="3 · ¿Qué servicio necesitás?" styleClass="field-label"/>
-                        <ComboBox fx:id="cmbTipoServicio" maxWidth="Infinity" promptText="Elegí un servicio"
+                        <Label text="%text.015" styleClass="field-label"/>
+                        <ComboBox fx:id="cmbTipoServicio" maxWidth="Infinity" promptText="%text.016"
                                   onAction="#seleccionarServicio"/>
-                        <Label fx:id="lblResultadoServicio" text="Elegí un servicio disponible."
+                        <Label fx:id="lblResultadoServicio" text="%text.017"
                                styleClass="hint-label" wrapText="true"/>
                     </VBox>
 
                     <!-- Acciones -->
-                    <Button text=" Pedir viaje" onAction="#solicitarViaje" maxWidth="Infinity"
+                    <Button text="%text.018" onAction="#solicitarViaje" maxWidth="Infinity"
                             styleClass="button-primary">
-                        <tooltip><Tooltip text="Completá los 3 pasos antes de pedir el viaje"/></tooltip>
+                        <tooltip><Tooltip text="%text.019"/></tooltip>
                     </Button>
-                    <Button text="Ver seguimiento de mi pedido" onAction="#verSeguimientoPasajero"
+                    <Button text="%text.020" onAction="#verSeguimientoPasajero"
                             maxWidth="Infinity" styleClass="button-secondary">
-                        <tooltip><Tooltip text="Abre una ventana con el estado y los detalles de tu pedido"/></tooltip>
+                        <tooltip><Tooltip text="%text.021"/></tooltip>
                     </Button>
-                    <Button text="⚙ Administrar usuarios y conductores"
+                    <Button text="%text.022"
                             onAction="#abrirAdministracion" maxWidth="Infinity"
                             styleClass="button-secondary"/>
                 </VBox>
@@ -98,53 +99,53 @@
                 <!--VISTA CONDUCTOR  -->
                 <VBox fx:id="seccionConductor" styleClass="card" spacing="10"
                       visible="false" managed="false">
-                    <Label text="Panel del conductor" styleClass="titulo-pantalla"/>
+                    <Label text="%text.023" styleClass="titulo-pantalla"/>
 
                     <!-- Bloque 1: estado del conductor -->
-                    <Label text="1 · Identificate como chofer" styleClass="field-label"/>
-                    <ComboBox fx:id="cmbChofer" maxWidth="Infinity" promptText="¿Quién está manejando?">
-                        <tooltip><Tooltip text="¿Quién está usando la aplicación?"/></tooltip>
+                    <Label text="%text.024" styleClass="field-label"/>
+                    <ComboBox fx:id="cmbChofer" maxWidth="Infinity" promptText="%text.025">
+                        <tooltip><Tooltip text="%text.026"/></tooltip>
                     </ComboBox>
-                    <Label fx:id="lblEstadoConductor" text="Seleccioná un conductor."
+                    <Label fx:id="lblEstadoConductor" text="%text.027"
                            styleClass="estado" wrapText="true"/>
                     <ComboBox fx:id="cmbVehiculoServicio" maxWidth="Infinity"
-                              promptText="Elegí tu vehículo"/>
+                              promptText="%text.028"/>
                     <ComboBox fx:id="cmbCategoriaMinima" maxWidth="Infinity"
-                              promptText="¿Qué categorías aceptás?">
-                        <tooltip><Tooltip text="Elegí la categoría más baja que estás dispuesto a aceptar"/></tooltip>
+                              promptText="%text.029">
+                        <tooltip><Tooltip text="%text.030"/></tooltip>
                     </ComboBox>
-                    <Button fx:id="btnCambiarDisponibilidad" text="Empezar a recibir pedidos"
+                    <Button fx:id="btnCambiarDisponibilidad" text="%text.031"
                             onAction="#cambiarDisponibilidad" maxWidth="Infinity"
                             styleClass="button-secondary"/>
 
                     <Separator/>
 
                     <!-- Bloque 2: pedidos -->
-                    <Label text="2 · Pedidos" styleClass="field-label"/>
-                    <Label text="Buscá por tipo de servicio" styleClass="hint-label"/>
+                    <Label text="%text.032" styleClass="field-label"/>
+                    <Label text="%text.033" styleClass="hint-label"/>
                     <ComboBox fx:id="cmbFiltroTipoServicio" maxWidth="Infinity"
-                              promptText="Ver todos los servicios"/>
-                    <Label text="Pedidos que podés tomar" styleClass="hint-label"/>
+                              promptText="%text.034"/>
+                    <Label text="%text.035" styleClass="hint-label"/>
                     <ComboBox fx:id="cmbPedidosPendientes" maxWidth="Infinity"
-                              promptText="Elegí un pedido"/>
+                              promptText="%text.036"/>
 
                     <HBox spacing="8">
-                        <Button text=" Buscar pedidos nuevos" onAction="#actualizarPedidos"
+                        <Button text="%text.037" onAction="#actualizarPedidos"
                                 maxWidth="Infinity" HBox.hgrow="ALWAYS"
                                 styleClass="button-secondary">
-                            <tooltip><Tooltip text="Busca pedidos nuevos"/></tooltip>
+                            <tooltip><Tooltip text="%text.038"/></tooltip>
                         </Button>
-                        <Button fx:id="btnConfirmarConductor" text="✔ Tomar este pedido"
+                        <Button fx:id="btnConfirmarConductor" text="%text.039"
                                 onAction="#tomarPedido" maxWidth="Infinity" HBox.hgrow="ALWAYS"
                                 styleClass="button-primary"/>
                     </HBox>
 
                     <Label fx:id="lblResultadoChofer"
-                           text="Elegí tu perfil de chofer y empezá a recibir pedidos."
+                           text="%text.040"
                            styleClass="hint-label" wrapText="true"/>
 
                     <Separator/>
-                    <Button text="Ver seguimiento del viaje actual" onAction="#verSeguimientoConductor"
+                    <Button text="%text.041" onAction="#verSeguimientoConductor"
                             maxWidth="Infinity" styleClass="button-secondary"/>
                 </VBox>
             </VBox>
@@ -154,8 +155,8 @@
     <!-- cOLUMNA DERECHA: mapa -->
     <VBox styleClass="card map-panel" spacing="8" HBox.hgrow="ALWAYS"
           maxWidth="Infinity" maxHeight="Infinity" fillWidth="true">
-        <Label text=" Mapa del viaje" styleClass="field-label"/>
-        <Label fx:id="lblEstadoMapa" text="Cargando mapa..." styleClass="hint-label" wrapText="true"/>
+        <Label text="%text.042" styleClass="field-label"/>
+        <Label fx:id="lblEstadoMapa" text="%text.043" styleClass="hint-label" wrapText="true"/>
         <StackPane maxWidth="Infinity" maxHeight="Infinity" VBox.vgrow="ALWAYS">
             <WebView fx:id="mapa" minWidth="420" minHeight="420"
                      prefWidth="760" prefHeight="620"
