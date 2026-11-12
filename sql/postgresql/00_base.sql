@@ -1,1 +1,2 @@
-CREATE DATABASE movilidad_digital WITH ENCODING 'UTF8' TEMPLATE template0;
+CREATE SCHEMA IF NOT EXISTS movilidad_digital;
+SET search_path TO movilidad_digital, public;

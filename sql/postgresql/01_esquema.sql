@@ -1,4 +1,5 @@
-SET search_path TO public;
+CREATE SCHEMA IF NOT EXISTS movilidad_digital;
+SET search_path TO movilidad_digital, public;
 CREATE TABLE IF NOT EXISTS usuario(
     email VARCHAR(100) NOT NULL,
     nombre VARCHAR(100) NOT NULL,

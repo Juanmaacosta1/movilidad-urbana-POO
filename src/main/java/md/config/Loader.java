@@ -16,12 +16,22 @@ public class Loader {
 
     private static DAOFactory instanciaFabrica;
 
-    public static DAOFactory getFactory() throws IOException {
+    public static synchronized DAOFactory getFactory() throws IOException {
         if (instanciaFabrica == null) {
-            try {
+            Properties config = new Properties();
+            Path ruta = Path.of("config.properties");
+            if (Files.exists(ruta)) {
+                try (InputStream in = Files.newInputStream(ruta)) {
+                    config.load(in);
+                }
+            }
+            String origen = config.getProperty("origen.datos", "BD").trim();
+            if ("TXT".equalsIgnoreCase(origen)) {
                 instanciaFabrica = crearFactoryTxt();
-            } catch (IllegalStateException e) {
+            } else if ("BD".equalsIgnoreCase(origen)) {
                 instanciaFabrica = crearFactoryDesdeJdbc();
+            } else {
+                throw new IllegalStateException("origen.datos debe ser BD o TXT: " + origen);
             }
         }
         return instanciaFabrica;
@@ -42,6 +52,7 @@ public class Loader {
         String url = prop.getProperty("url");
         String usuario = prop.getProperty("usr");
         String password = prop.getProperty("pwd");
+        String schema = prop.getProperty("schema", "movilidad_digital").trim();
 
         if (driver == null || driver.isBlank() || url == null || url.isBlank()
                 || usuario == null || usuario.isBlank() || password == null) {
@@ -54,10 +65,16 @@ public class Loader {
             throw new IllegalStateException("Driver JDBC no encontrado: " + driver, e);
         }
 
-        ConexionBD conexion = new ConexionBD(url, usuario, password);
+        ConexionBD conexion = new ConexionBD(url, usuario, password, schema);
         try (Connection c = conexion.obtenerConexion()) {
-            // Validar que la cadena de conexión sea real antes de elegir BD.
+            try (java.sql.Statement st = c.createStatement();
+                 java.sql.ResultSet rs = st.executeQuery("SELECT current_schema()")) {
+                if (!rs.next() || !schema.equals(rs.getString(1))) {
+                    throw new IllegalStateException("Schema incorrecto. Esperado: " + schema);
+                }
+            }
         } catch (Exception e) {
+            e.printStackTrace();
             throw new IllegalStateException("No se pudo conectar a la base de datos configurada en jdbc.properties.", e);
         }
 

@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import md.datos.dao.ServicioDAO;
+import md.modelo.TipoVehiculo;
+import md.modelo.CategoriaVehiculo;
+import md.modelo.TipoServicio;
 import md.datos.dto.ServicioDTO;
 
 public class ServicioDaoBd implements ServicioDAO {
@@ -30,9 +33,9 @@ public class ServicioDaoBd implements ServicioDAO {
                         rs.getDouble("tarifa_base"),
                         rs.getDouble("precio_km"),
                         rs.getDouble("precio_minuto"),
-                        String.valueOf(rs.getInt("tipo_vehiculo")),
-                        String.valueOf(rs.getInt("categoria_vehiculo")),
-                        String.valueOf(rs.getInt("tipo_servicio"))
+                        EnumBd.nombre(TipoVehiculo.class, rs.getInt("tipo_vehiculo")),
+                        EnumBd.nombre(CategoriaVehiculo.class, rs.getInt("categoria_vehiculo")),
+                        EnumBd.nombre(TipoServicio.class, rs.getInt("tipo_servicio"))
                 ));
             }
         }

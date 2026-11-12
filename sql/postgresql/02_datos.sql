@@ -1,5 +1,6 @@
 SET client_encoding TO 'UTF8';
-SET search_path TO public;
+CREATE SCHEMA IF NOT EXISTS movilidad_digital;
+SET search_path TO movilidad_digital, public;
 START TRANSACTION;
 INSERT INTO usuario (nombre, telefono, email, licencia_conducir) VALUES
 ('Juan Perez', '+549117363900', 'juan.perez@email.com', 'A13-B1-D1-E1'),

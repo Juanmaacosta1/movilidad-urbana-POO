@@ -29,6 +29,7 @@ public class Logica {
 			try {
 				cargarDatosIniciales();
 			} catch (Exception e) {
+				e.printStackTrace();
 				throw new IllegalStateException("No se pudieron cargar los datos iniciales", e);
 			}
 		}

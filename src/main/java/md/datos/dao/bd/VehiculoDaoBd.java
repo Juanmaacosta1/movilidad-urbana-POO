@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import md.datos.dao.VehiculoDAO;
+import md.modelo.TipoVehiculo;
+import md.modelo.CategoriaVehiculo;
 import md.datos.dto.VehiculoDTO;
 
 public class VehiculoDaoBd implements VehiculoDAO {
@@ -38,8 +40,8 @@ public class VehiculoDaoBd implements VehiculoDAO {
                         rs.getString("patente"),
                         rs.getString("modelo"),
                         rs.getInt("capacidad_pasajeros"),
-                        String.valueOf(rs.getInt("tipo_vehiculo")),
-                        String.valueOf(rs.getInt("categoria_vehiculo")),
+                        EnumBd.nombre(TipoVehiculo.class, rs.getInt("tipo_vehiculo")),
+                        EnumBd.nombre(CategoriaVehiculo.class, rs.getInt("categoria_vehiculo")),
                         tipos
                 ));
             }
