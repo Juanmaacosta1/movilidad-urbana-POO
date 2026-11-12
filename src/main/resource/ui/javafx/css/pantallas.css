@@ -1,0 +1,57 @@
+/* Estilos de las pantallas Selección de usuario y Seguimiento del pedido.
+   Se cargan después de estilos.css y no dependen de otros archivos CSS. */
+
+.titulo-grande   { -fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #0f172a; }
+.titulo-pantalla { -fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #0f172a; }
+.subtitulo       { -fx-font-size: 14px; -fx-text-fill: #64748b; }
+.hint-label      { -fx-font-size: 12px; -fx-text-fill: #64748b; }
+.caption-label   { -fx-font-size: 12px; -fx-text-fill: #64748b; }
+.valor-label     { -fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0f172a; }
+.mensaje-estado  { -fx-font-size: 14px; -fx-text-fill: #334155; }
+.mensaje-error   { -fx-font-size: 12px; -fx-text-fill: #b91c1c; }
+.mensaje-ok      { -fx-font-size: 12px; -fx-text-fill: #15803d; }
+
+.badge           { -fx-padding: 4 12; -fx-background-radius: 12; -fx-font-weight: bold; -fx-font-size: 12px; }
+
+.button-primary,
+.button-secondary,
+.button-danger,
+.button-success  { -fx-padding: 9 14; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 13px; }
+.button-primary   { -fx-background-color: #3b82f6; -fx-text-fill: white; }
+.button-primary:hover { -fx-background-color: #2563eb; }
+.button-secondary { -fx-background-color: #e2e8f0; -fx-text-fill: #0f172a; }
+.button-secondary:hover { -fx-background-color: #cbd5e1; }
+.button-danger    { -fx-background-color: #fee2e2; -fx-text-fill: #b91c1c; }
+.button-danger:hover { -fx-background-color: #fecaca; }
+.button-success   { -fx-background-color: #22c55e; -fx-text-fill: white; }
+.button-success:hover { -fx-background-color: #16a34a; }
+.button-primary:disabled,
+.button-secondary:disabled,
+.button-danger:disabled,
+.button-success:disabled { -fx-opacity: 0.45; }
+
+.stat-tile    { -fx-background-color: white; -fx-background-radius: 10; -fx-padding: 12; }
+.stat-caption { -fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #64748b; }
+.stat-value   { -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #0f172a; -fx-text-alignment: center; }
+
+.step-terminal { -fx-padding: 6 12; -fx-background-radius: 14; -fx-background-color: #fee2e2; -fx-text-fill: #b91c1c; -fx-font-weight: bold; }
+
+.star-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+}
+.star-button:selected,
+.star-button:focused:selected {
+    -fx-text-fill: #fbbf24;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.star-button:hover {
+    -fx-text-fill: #facc15;
+}

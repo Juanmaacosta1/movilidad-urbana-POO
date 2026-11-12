@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.web.WebView?>
+
+<HBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="md.ui.impl.javafx.controller.MiniController"
+      styleClass="page" spacing="16" prefWidth="1200" prefHeight="760">
+    <stylesheets>
+        <URL value="@../css/estilos.css"/>
+        <URL value="@../css/mejoras.css"/>
+    </stylesheets>
+
+    <!-- COLUMNA IZQUIERDA: formulario -->
+    <ScrollPane fitToWidth="true" prefWidth="560" minWidth="340"
+                hbarPolicy="NEVER" styleClass="form-scroll" HBox.hgrow="ALWAYS">
+        <content>
+            <VBox spacing="12" prefWidth="390">
+
+                <!-- Sesión: usuario y rol con los que se ingresó (se elige en la pantalla de selección) -->
+                <VBox styleClass="card" spacing="8">
+                    <HBox alignment="CENTER_RIGHT" spacing="8"><Label text="%text.language"/><ComboBox fx:id="cmbIdioma" onAction="#cambiarIdioma" prefWidth="125"/></HBox>
+                    <Label fx:id="lblUsuarioActual" styleClass="titulo-pantalla" wrapText="true"/>
+                    <Label fx:id="lblRolActual" styleClass="hint-label" wrapText="true"/>
+                    <HBox spacing="8">
+                        <Button fx:id="btnCambiarRol" text="%text.001" onAction="#cambiarRol" maxWidth="Infinity" HBox.hgrow="ALWAYS" styleClass="button-secondary"/>
+                        <Button text="%text.002" onAction="#cambiarUsuario" maxWidth="Infinity" HBox.hgrow="ALWAYS" styleClass="button-secondary"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Encabezado -->
+                <VBox spacing="2" visible="false" managed="false">
+                    <Label text="%text.003" styleClass="titulo-pantalla"/>
+                    <Label text="%text.004" styleClass="hint-label" wrapText="true"/>
+                </VBox>
+
+                <!-- VISTA PASAJERO  -->
+                <VBox fx:id="seccionPasajero" spacing="12" visible="false" managed="false">
+
+                    <!-- Paso 1 -->
+                    <VBox styleClass="card" spacing="8">
+                        <Label text="%text.005" styleClass="field-label"/>
+                        <ComboBox fx:id="cmbPasajero" maxWidth="Infinity" promptText="%text.006"
+                                  onAction="#actualizarEstadoPasajero">
+                            <tooltip><Tooltip text="%text.007"/></tooltip>
+                        </ComboBox>
+                        <Label fx:id="lblResultado" text="%text.008"
+                               styleClass="hint-label" wrapText="true"/>
+                    </VBox>
+
+                    <!-- Paso 2 -->
+                    <VBox styleClass="card" spacing="8">
+                        <Label text="%text.009" styleClass="field-label"/>
+
+                        <Button fx:id="btnElegirOrigen" text="%text.010"
+                                onAction="#seleccionarOrigen" maxWidth="Infinity" disable="true"
+                                styleClass="button-secondary">
+                            <tooltip><Tooltip text="%text.011"/></tooltip>
+                        </Button>
+                        <Label fx:id="lblOrigen" text="%text.012"
+                               styleClass="valor-label" wrapText="true"/>
+
+                        <Separator/>
+
+                        <Button fx:id="btnElegirDestino" text="%text.013"
+                                onAction="#seleccionarDestino" maxWidth="Infinity" disable="true"
+                                styleClass="button-secondary">
+                            <tooltip><Tooltip text="%text.011"/></tooltip>
+                        </Button>
+                        <Label fx:id="lblDestino" text="%text.014"
+                               styleClass="valor-label" wrapText="true"/>
+                    </VBox>
+
+                    <!-- Paso 3 -->
+                    <VBox styleClass="card" spacing="8">
+                        <Label text="%text.015" styleClass="field-label"/>
+                        <ComboBox fx:id="cmbTipoServicio" maxWidth="Infinity" promptText="%text.016"
+                                  onAction="#seleccionarServicio"/>
+                        <Label fx:id="lblResultadoServicio" text="%text.017"
+                               styleClass="hint-label" wrapText="true"/>
+                    </VBox>
+
+                    <!-- Acciones -->
+                    <Button text="%text.018" onAction="#solicitarViaje" maxWidth="Infinity"
+                            styleClass="button-primary">
+                        <tooltip><Tooltip text="%text.019"/></tooltip>
+                    </Button>
+                    <Button text="%text.020" onAction="#verSeguimientoPasajero"
+                            maxWidth="Infinity" styleClass="button-secondary">
+                        <tooltip><Tooltip text="%text.021"/></tooltip>
+                    </Button>
+                    <Button text="%text.022"
+                            onAction="#abrirAdministracion" maxWidth="Infinity"
+                            styleClass="button-secondary"/>
+                </VBox>
+
+                <!--VISTA CONDUCTOR  -->
+                <VBox fx:id="seccionConductor" styleClass="card" spacing="10"
+                      visible="false" managed="false">
+                    <Label text="%text.023" styleClass="titulo-pantalla"/>
+
+                    <!-- Bloque 1: estado del conductor -->
+                    <Label text="%text.024" styleClass="field-label"/>
+                    <ComboBox fx:id="cmbChofer" maxWidth="Infinity" promptText="%text.025">
+                        <tooltip><Tooltip text="%text.026"/></tooltip>
+                    </ComboBox>
+                    <Label fx:id="lblEstadoConductor" text="%text.027"
+                           styleClass="estado" wrapText="true"/>
+                    <ComboBox fx:id="cmbVehiculoServicio" maxWidth="Infinity"
+                              promptText="%text.028"/>
+                    <ComboBox fx:id="cmbCategoriaMinima" maxWidth="Infinity"
+                              promptText="%text.029">
+                        <tooltip><Tooltip text="%text.030"/></tooltip>
+                    </ComboBox>
+                    <Button fx:id="btnCambiarDisponibilidad" text="%text.031"
+                            onAction="#cambiarDisponibilidad" maxWidth="Infinity"
+                            styleClass="button-secondary"/>
+
+                    <Separator/>
+
+                    <!-- Bloque 2: pedidos -->
+                    <Label text="%text.032" styleClass="field-label"/>
+                    <Label text="%text.033" styleClass="hint-label"/>
+                    <ComboBox fx:id="cmbFiltroTipoServicio" maxWidth="Infinity"
+                              promptText="%text.034"/>
+                    <Label text="%text.035" styleClass="hint-label"/>
+                    <ComboBox fx:id="cmbPedidosPendientes" maxWidth="Infinity"
+                              promptText="%text.036"/>
+
+                    <HBox spacing="8">
+                        <Button text="%text.037" onAction="#actualizarPedidos"
+                                maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                                styleClass="button-secondary">
+                            <tooltip><Tooltip text="%text.038"/></tooltip>
+                        </Button>
+                        <Button fx:id="btnConfirmarConductor" text="%text.039"
+                                onAction="#tomarPedido" maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                                styleClass="button-primary"/>
+                    </HBox>
+
+                    <Label fx:id="lblResultadoChofer"
+                           text="%text.040"
+                           styleClass="hint-label" wrapText="true"/>
+
+                    <Separator/>
+                    <Button text="%text.041" onAction="#verSeguimientoConductor"
+                            maxWidth="Infinity" styleClass="button-secondary"/>
+                </VBox>
+            </VBox>
+        </content>
+    </ScrollPane>
+
+    <!-- cOLUMNA DERECHA: mapa -->
+    <VBox styleClass="card map-panel" spacing="8" HBox.hgrow="ALWAYS"
+          maxWidth="Infinity" maxHeight="Infinity" fillWidth="true">
+        <Label text="%text.042" styleClass="field-label"/>
+        <Label fx:id="lblEstadoMapa" text="%text.043" styleClass="hint-label" wrapText="true"/>
+        <StackPane maxWidth="Infinity" maxHeight="Infinity" VBox.vgrow="ALWAYS">
+            <WebView fx:id="mapa" minWidth="420" minHeight="420"
+                     prefWidth="760" prefHeight="620"
+                     maxWidth="Infinity" maxHeight="Infinity"
+                     StackPane.alignment="CENTER"/>
+        </StackPane>
+    </VBox>
+</HBox>

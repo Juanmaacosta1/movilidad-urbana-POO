@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="md.ui.impl.javafx.controller.PedidosController"
+            fitToWidth="true" hbarPolicy="NEVER" prefWidth="460" prefHeight="480">
+    <stylesheets>
+        <URL value="@../css/estilos.css"/>
+        <URL value="@../css/mejoras.css"/>
+    </stylesheets>
+    <content>
+        <VBox styleClass="page" spacing="12">
+
+            <VBox spacing="2">
+                <Label text="%text.079" styleClass="titulo-pantalla"/>
+                <Label text="%text.080"
+                       styleClass="hint-label" wrapText="true"/>
+            </VBox>
+
+            <!-- Quién, con quién y qué -->
+            <VBox styleClass="card" spacing="6">
+                <Label text="%text.081" styleClass="field-label"/>
+                <Label fx:id="lblPasajero" styleClass="valor-label" wrapText="true"/>
+                <Label fx:id="lblConductor" styleClass="valor-label" wrapText="true"/>
+                <Label fx:id="lblServicio" styleClass="valor-label" wrapText="true"/>
+            </VBox>
+
+            <!-- Tres datos clave, uno al lado del otro -->
+            <HBox spacing="8">
+                <VBox styleClass="stat-tile" spacing="2" alignment="CENTER" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <Label text="%text.082" styleClass="stat-caption"/>
+                    <Label fx:id="lblTiempoEspera" text="%text.083"
+                           styleClass="stat-value" wrapText="true"/>
+                </VBox>
+                <VBox styleClass="stat-tile" spacing="2" alignment="CENTER" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <Label text="%text.084" styleClass="stat-caption"/>
+                    <Label fx:id="lblDistancia" text="%text.083"
+                           styleClass="stat-value" wrapText="true"/>
+                </VBox>
+                <VBox styleClass="stat-tile" spacing="2" alignment="CENTER" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <Label text="%text.085" styleClass="stat-caption"/>
+                    <Label fx:id="lblCosto" text="%text.083"
+                           styleClass="stat-value" wrapText="true"/>
+                </VBox>
+            </HBox>
+            <Label text="%text.086"
+                   styleClass="hint-label" wrapText="true"/>
+
+            <!-- Estado y cancelación -->
+            <VBox styleClass="card" spacing="8">
+                <Label text="%text.087" styleClass="field-label"/>
+                <Label fx:id="lblEstado" text="%text.088"
+                       styleClass="estado estado-ok" wrapText="true"/>
+                <Button fx:id="btnCancelarPedido" text="%text.089" onAction="#cancelarPedido"
+                        maxWidth="Infinity" styleClass="button-danger">
+                    <tooltip><Tooltip text="%text.090"/></tooltip>
+                </Button>
+                <Label fx:id="lblResultado" styleClass="hint-label" wrapText="true"/>
+            </VBox>
+
+
+
+
+
+            <!--calificacion! -->
+
+             <VBox styleClass="stat-tile" spacing="2" alignment="CENTER" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <Label text="%text.084" styleClass="stat-caption"/>
+                    <Label fx:id="lblDistancia" text="%text.083"
+                           styleClass="stat-value" wrapText="true"/>
+                </VBox>
+        </VBox>
+    </content>
+</ScrollPane>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="md.ui.impl.javafx.controller.AdminController"
+            fitToWidth="true" hbarPolicy="NEVER" prefWidth="460" prefHeight="560">
+    <stylesheets>
+        <URL value="@../css/estilos.css"/>
+        <URL value="@../css/mejoras.css"/>
+    </stylesheets>
+    <content>
+        <VBox styleClass="page" spacing="12">
+
+            <VBox spacing="2">
+                <Label text="%text.050" styleClass="titulo-pantalla"/>
+                <Label text="%text.051"
+                       styleClass="hint-label" wrapText="true"/>
+            </VBox>
+
+            <!--USUARIOS -->
+            <VBox styleClass="card" spacing="8">
+                <Label text="%text.052" styleClass="field-label"/>
+                <ComboBox fx:id="cmbUsuarios" maxWidth="Infinity" promptText="%text.053"/>
+
+                <HBox spacing="8">
+                    <Button text="%text.054" onAction="#agregarUsuario"
+                            maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                            styleClass="button-secondary"/>
+                    <Button text="%text.055" onAction="#editarUsuario"
+                            maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                            styleClass="button-primary">
+                        <tooltip><Tooltip text="%text.056"/></tooltip>
+                    </Button>
+                    <Button text="%text.057" onAction="#eliminarUsuario"
+                            maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                            styleClass="button-danger">
+                        <tooltip><Tooltip text="%text.056"/></tooltip>
+                    </Button>
+                </HBox>
+
+                <VBox fx:id="formularioUsuario" spacing="8" styleClass="formulario"
+                      visible="false" managed="false">
+                    <Label text="%text.058" styleClass="subtitulo"/>
+                    <TextField fx:id="txtNombreUsuario" promptText="%text.059"/>
+                    <TextField fx:id="txtTelefonoUsuario" promptText="%text.060"/>
+                    <TextField fx:id="txtEmailUsuario" promptText="%text.061"/>
+                    <Button fx:id="btnGuardarUsuario" text="%text.062" onAction="#guardarUsuario"
+                            maxWidth="Infinity" styleClass="button-primary"/>
+                </VBox>
+
+                <Label fx:id="lblResultadoUsuario" text="%text.063"
+                       styleClass="estado" wrapText="true"/>
+            </VBox>
+
+            <!--CONDUCTORES -->
+            <VBox styleClass="card" spacing="8">
+                <Label text="%text.064" styleClass="field-label"/>
+                <ComboBox fx:id="cmbConductores" maxWidth="Infinity" promptText="%text.065"/>
+
+                <HBox spacing="8">
+                    <Button text="%text.054" onAction="#agregarConductor"
+                            maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                            styleClass="button-secondary"/>
+                    <Button text="%text.055" onAction="#editarConductor"
+                            maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                            styleClass="button-primary">
+                        <tooltip><Tooltip text="%text.066"/></tooltip>
+                    </Button>
+                    <Button text="%text.057" onAction="#eliminarConductor"
+                            maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                            styleClass="button-danger">
+                        <tooltip><Tooltip text="%text.066"/></tooltip>
+                    </Button>
+                </HBox>
+
+                <VBox fx:id="formularioConductor" spacing="8" styleClass="formulario"
+                      visible="false" managed="false">
+                    <Label text="%text.067" styleClass="subtitulo"/>
+                    <TextField fx:id="txtNombreConductor" promptText="%text.059"/>
+                    <TextField fx:id="txtTelefonoConductor" promptText="%text.060"/>
+                    <TextField fx:id="txtEmailConductor" promptText="%text.061"/>
+                    <TextField fx:id="txtLicenciaConductor" promptText="%text.068"/>
+                    <ComboBox fx:id="cmbVehiculoConductor" maxWidth="Infinity"
+                              promptText="%text.069"/>
+                    <Button fx:id="btnGuardarConductor" text="%text.062" onAction="#guardarConductor"
+                            maxWidth="Infinity" styleClass="button-primary"/>
+                </VBox>
+
+                <Label fx:id="lblResultadoConductor" text="%text.070"
+                       styleClass="estado" wrapText="true"/>
+            </VBox>
+
+            <!--  HISTORIAL  -->
+            <Button fx:id="btnHistorial" text="%text.071"
+                    onAction="#alternarHistorial" maxWidth="Infinity"
+                    styleClass="button-secondary"/>
+
+            <VBox fx:id="seccionHistorial" spacing="8" styleClass="card"
+                  visible="false" managed="false">
+                <Label text="%text.072" styleClass="field-label"/>
+
+                <TableView fx:id="tblHistorial" prefHeight="240" minHeight="160"
+                           styleClass="tabla-historial">
+                    <placeholder>
+                        <Label text="%text.073" styleClass="hint-label"/>
+                    </placeholder>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                    </columnResizePolicy>
+                    <columns>
+                        <TableColumn fx:id="colFecha"     text="%text.074"/>
+                        <TableColumn fx:id="colOrigen"    text="%text.075"/>
+                        <TableColumn fx:id="colDestino"   text="%text.076"/>
+                        <TableColumn fx:id="colServicio"  text="%text.077"/>
+                        <TableColumn fx:id="colConductor" text="%text.078"/>
+                    </columns>
+                </TableView>
+
+                <Label fx:id="lblResultadoHistorial" text="%text.073"
+                       styleClass="hint-label" wrapText="true"/>
+            </VBox>
+        </VBox>
+    </content>
+</ScrollPane>

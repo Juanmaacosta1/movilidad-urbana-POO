@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="md.ui.impl.javafx.controller.SeguimientoPedidoController"
+            fitToWidth="true" hbarPolicy="NEVER" styleClass="form-scroll"
+            prefWidth="580" prefHeight="780">
+    <stylesheets>
+        <URL value="@../css/estilos.css"/>
+        <URL value="@../css/pantallas.css"/>
+    </stylesheets>
+    <content>
+        <VBox styleClass="page" spacing="12">
+
+            <!-- Estado actual -->
+            <VBox styleClass="card" spacing="6">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="%text.099" styleClass="titulo-pantalla"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="lblEstadoActual" styleClass="badge"/>
+                </HBox>
+                <Label fx:id="lblCodigo" styleClass="hint-label"/>
+                <Label fx:id="lblMensajeEstado" styleClass="mensaje-estado" wrapText="true"/>
+            </VBox>
+
+            <!-- Progreso -->
+            <VBox styleClass="card" spacing="8">
+                <Label text="%text.100" styleClass="field-label"/>
+                <FlowPane hgap="6" vgap="6">
+                    <Label fx:id="lblPaso1" text="%text.101" styleClass="step"/>
+                    <Label fx:id="lblPaso2" text="%text.102" styleClass="step"/>
+                    <Label fx:id="lblPaso3" text="%text.103" styleClass="step"/>
+                    <Label fx:id="lblPaso4" text="%text.104" styleClass="step"/>
+                </FlowPane>
+                <Label fx:id="lblTerminal" styleClass="step-terminal" wrapText="true" visible="false" managed="false"/>
+            </VBox>
+
+            <!-- Datos clave -->
+            <HBox spacing="8">
+                <VBox styleClass="stat-tile" spacing="2" alignment="CENTER" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <Label text="%text.105" styleClass="stat-caption"/>
+                    <Label fx:id="lblTiempo" styleClass="stat-value" wrapText="true"/>
+                </VBox>
+                <VBox styleClass="stat-tile" spacing="2" alignment="CENTER" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <Label text="%text.106" styleClass="stat-caption"/>
+                    <Label fx:id="lblDistancia" styleClass="stat-value" wrapText="true"/>
+                </VBox>
+                <VBox styleClass="stat-tile" spacing="2" alignment="CENTER" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                    <Label text="%text.107" styleClass="stat-caption"/>
+                    <Label fx:id="lblCosto" styleClass="stat-value" wrapText="true"/>
+                </VBox>
+            </HBox>
+            <Label fx:id="lblFuenteRutas" styleClass="hint-label" wrapText="true"/>
+
+            <!-- Detalles -->
+            <VBox styleClass="card" spacing="8">
+                <Label text="%text.108" styleClass="field-label"/>
+                <GridPane hgap="12" vgap="8">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="110" prefWidth="120"/>
+                        <ColumnConstraints hgrow="ALWAYS"/>
+                    </columnConstraints>
+            <Label text="%text.109" styleClass="caption-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <Label fx:id="lblPasajero" styleClass="valor-label" wrapText="true" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+            <Label text="%text.078" styleClass="caption-label" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <Label fx:id="lblConductor" styleClass="valor-label" wrapText="true" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+            <Label text="%text.110" styleClass="caption-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <Label fx:id="lblVehiculo" styleClass="valor-label" wrapText="true" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            <Label text="%text.077" styleClass="caption-label" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <Label fx:id="lblServicio" styleClass="valor-label" wrapText="true" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+            <Label text="%text.075" styleClass="caption-label" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+            <Label fx:id="lblOrigen" styleClass="valor-label" wrapText="true" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+            <Label text="%text.076" styleClass="caption-label" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+            <Label fx:id="lblDestino" styleClass="valor-label" wrapText="true" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+            <Label text="%text.111" styleClass="caption-label" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+            <Label fx:id="lblCalificaciones" styleClass="valor-label" wrapText="true" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+                </GridPane>
+                <Label fx:id="lblCancelacion" styleClass="mensaje-error" wrapText="true" visible="false" managed="false"/>
+            </VBox>
+
+            <!-- Historial -->
+            <VBox styleClass="card" spacing="8">
+                <Label text="%text.112" styleClass="field-label"/>
+                <ListView fx:id="lstHistorial" prefHeight="130" minHeight="100"/>
+            </VBox>
+
+            <!-- Elegir conductor (solo el pasajero, mientras el pedido espera conductor) -->
+            <VBox fx:id="cardConductor" styleClass="card" spacing="8" visible="false" managed="false">
+                <Label text="%text.113" styleClass="field-label"/>
+                <Label fx:id="lblConductoresInfo" styleClass="hint-label" wrapText="true"/>
+                <ComboBox fx:id="cmbConductor" maxWidth="Infinity" promptText="%text.114"/>
+                <Button fx:id="btnAsignarConductor" text="%text.115" onAction="#asignarConductor"
+                        maxWidth="Infinity" styleClass="button-primary" disable="true"/>
+            </VBox>
+
+            <!-- Simulación: avanza el pedido de inmediato, con tiempos simulados -->
+            <VBox fx:id="cardSimulacion" styleClass="card" spacing="8">
+                <Label text="%text.116" styleClass="field-label"/>
+                <Label text="%text.117"
+                       styleClass="hint-label" wrapText="true"/>
+                <Button fx:id="btnSimularCompleto" text="%text.118" onAction="#simularViajeCompleto"
+                        maxWidth="Infinity" styleClass="button-primary"/>
+                <Button fx:id="btnAvanzarPaso" text="%text.119" onAction="#avanzarUnPaso"
+                        maxWidth="Infinity" styleClass="button-secondary"/>
+                <Button fx:id="btnNadieAcepta" text="%text.120" onAction="#simularNadieAcepta"
+                        maxWidth="Infinity" styleClass="button-secondary"/>
+                <Label fx:id="lblSimulacion" styleClass="hint-label" wrapText="true"/>
+            </VBox>
+
+            <!-- Acciones -->
+            <VBox styleClass="card" spacing="8">
+                <Label text="%text.121" styleClass="field-label"/>
+                <Button fx:id="btnIniciar" text="%text.122" onAction="#iniciarViaje"
+                        maxWidth="Infinity" styleClass="button-primary" visible="false" managed="false"/>
+                <Button fx:id="btnFinalizar" text="%text.123" onAction="#finalizarViaje"
+                        maxWidth="Infinity" styleClass="button-success" visible="false" managed="false"/>
+                <Button fx:id="btnCancelar" text="%text.124" onAction="#cancelarPedido"
+                        maxWidth="Infinity" styleClass="button-danger" visible="false" managed="false"/>
+                <Label fx:id="lblSinAcciones" text="%text.125"
+                       styleClass="hint-label" wrapText="true"/>
+                <Label fx:id="lblResultado" styleClass="hint-label" wrapText="true"/>
+            </VBox>
+        </VBox>
+    </content>
+</ScrollPane>
